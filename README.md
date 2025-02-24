@@ -65,7 +65,7 @@ Ao aceitar a corrida, o motorista visualizará:
 ---
 
 ## 🎨 **Design do Projeto**
-O design e planejamento visual do site FoodPath foi criado no Figma. Você pode acessar o layout completo através [deste link](https://www.figma.com/design/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=0-1&t=7EiI35j1E9usTQJF-1).
+O design e planejamento visual do aplicativo Uber SafeStart foi criado no Figma. Você pode acessar o layout completo através [deste link](https://www.figma.com/design/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=0-1&t=7EiI35j1E9usTQJF-1).
 
 ---
 

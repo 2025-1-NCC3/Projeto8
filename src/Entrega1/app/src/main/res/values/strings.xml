@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">MyUberApp</string>
+
+    <!-- Tela de Cadastro -->
+    <string name="title_create_account">Criar Conta</string>
+    <string name="subtitle_create_account">Junte-se a nós para promover uma experiência de viagem segura e respeitosa, valorizando a confiança entre passageiros e motoristas.</string>
+    <string name="hint_full_name">Nome Completo</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Senha</string>
+    <string name="hint_confirm_password">Confirme sua Senha</string>
+    <string name="button_sign_in">Cadastrar</string>
+    <!-- Aqui o "Faça login" ficará sublinhado -->
+    <string name="already_have_account">Já tem uma conta? &lt;u&gt;Faça login&lt;/u&gt;</string>
+
+    <!-- Tela de Login -->
+    <string name="title_log_in">Entrar</string>
+    <string name="hint_email_login">Email</string>
+    <string name="hint_password_login">Senha</string>
+    <string name="button_log_in">Entrar</string>
+    <!-- Aqui o "Cadastre-se" ficará sublinhado -->
+    <string name="dont_have_account">Não tem uma conta? &lt;u&gt;Cadastre-se&lt;/u&gt;</string>
+</resources>

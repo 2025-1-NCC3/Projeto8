@@ -2,19 +2,19 @@ package com.saulop.ubersafestartfecap;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.card.MaterialCardView;
 import com.saulop.ubersafestartfecap.api.ApiClient;
 import com.saulop.ubersafestartfecap.api.AuthService;
 import com.saulop.ubersafestartfecap.model.User;
 import com.saulop.ubersafestartfecap.model.ApiResponse;
 
-import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.card.MaterialCardView;
+import java.util.regex.Pattern;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,12 +25,22 @@ public class SignUpActivity extends AppCompatActivity {
     private Button buttonSignUp;
     private MaterialCardView cardViewPassenger, cardViewDriver;
     private AuthService authService;
-    private String selectedAccountType = "passenger"; // Default selection
+    private String selectedAccountType = "passenger";
+
+    // Password validation pattern
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^" +
+                    "(?=.*[0-9])" +         // at least 1 digit
+                    "(?=.*[a-zA-Z])" +      // at least 1 letter
+                    "(?=.*[!@#$%^&*])" +    // at least 1 special character
+                    "(?=\\S+$)" +           // no whitespace
+                    ".{8,}" +               // at least 8 characters
+                    "$");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sign_up); // Changed to match actual layout filename
+        setContentView(R.layout.activity_sign_up);
 
         // Initialize UI components
         editTextFullName = findViewById(R.id.editTextFullName);
@@ -77,6 +87,10 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    private boolean isPasswordValid(String password) {
+        return PASSWORD_PATTERN.matcher(password).matches();
+    }
+
     private void signUpUser() {
         String fullName = editTextFullName.getText().toString().trim();
         String email = editTextEmailSignUp.getText().toString().trim();
@@ -94,7 +108,14 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        // Create user object - assuming phone is collected elsewhere or not required
+        // Validate password strength
+        if (!isPasswordValid(password)) {
+            Toast.makeText(this, "Password must be at least 8 characters long and contain letters, numbers, and special characters (!@#$%^&*)",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Create user object
         User user = new User(fullName, email, password, selectedAccountType, "");
 
         // Make API call
@@ -103,9 +124,10 @@ public class SignUpActivity extends AppCompatActivity {
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                    // Redirect to LoginActivity
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
-                    finish();
+                    finish(); // Close SignUpActivity
                 } else {
                     String errorMsg = "Registration failed";
                     if (response.body() != null) {

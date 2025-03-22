@@ -5,40 +5,40 @@
 
     <!-- Common strings -->
     <string name="email">Email</string>
-    <string name="password">Password</string>
-    <string name="sign_in">Sign in</string>
-    <string name="sign_up">Sign up</string>
+    <string name="password">Senha</string>
+    <string name="sign_in">Entrar</string>
+    <string name="sign_up">Cadastrar-se</string>
 
     <!-- Login screen -->
-    <string name="welcome_back">Welcome back</string>
-    <string name="sign_in_subtitle">Sign in to continue your journey</string>
-    <string name="email_hint">Enter your email</string>
-    <string name="password_hint">Enter your password</string>
-    <string name="forgot_password">Forgot password?</string>
-    <string name="dont_have_account">Don\'t have an account?</string>
-    <string name="login_button">Sign in</string>
+    <string name="welcome_back">Bem-vindo de volta :)</string>
+    <string name="sign_in_subtitle">Entre para continuar sua jornada com mais segurança</string>
+    <string name="email_hint">Digite seu email</string>
+    <string name="password_hint">Digite sua senha</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="dont_have_account">Não tem uma conta?</string>
+    <string name="login_button">Entrar</string>
 
     <!-- Sign up screen -->
-    <string name="create_account">Create account</string>
-    <string name="create_account_subtitle">Join UberSafeStart to enjoy safer rides</string>
-    <string name="full_name">Full Name</string>
-    <string name="full_name_hint">Enter your full name</string>
-    <string name="create_password_hint">Create password</string>
-    <string name="confirm_password">Confirm Password</string>
-    <string name="confirm_password_hint">Confirm password</string>
-    <string name="account_type">Account Type</string>
-    <string name="passenger">PASSENGER</string>
-    <string name="driver">DRIVER</string>
-    <string name="create_account_button">Create Account</string>
-    <string name="already_have_account">Already have an account?</string>
+    <string name="create_account">Criar conta</string>
+    <string name="create_account_subtitle">Junte-se ao UberSafeStart para aproveitar viagens mais seguras</string>
+    <string name="full_name">Nome completo</string>
+    <string name="full_name_hint">Digite seu nome completo</string>
+    <string name="create_password_hint">Crie uma senha</string>
+    <string name="confirm_password">Confirmar senha</string>
+    <string name="confirm_password_hint">Confirme a senha</string>
+    <string name="account_type">Tipo de conta</string>
+    <string name="passenger">PASSAGEIRO</string>
+    <string name="driver">MOTORISTA</string>
+    <string name="create_account_button">Criar conta</string>
+    <string name="already_have_account">Já tem uma conta?</string>
 
     <!-- Error and success messages -->
-    <string name="error_fill_fields">Please fill all fields</string>
-    <string name="error_passwords_dont_match">Passwords don\'t match</string>
-    <string name="success_registration">Registration successful</string>
-    <string name="error_registration">Registration failed</string>
-    <string name="error_network">Network error: %1$s</string>
-    <string name="success_login">Login successful</string>
-    <string name="error_login">Login error</string>
-    <string name="error_connection">Connection failed</string>
+    <string name="error_fill_fields">Por favor, preencha todos os campos</string>
+    <string name="error_passwords_dont_match">As senhas não coincidem</string>
+    <string name="success_registration">Cadastro realizado com sucesso</string>
+    <string name="error_registration">Falha no cadastro</string>
+    <string name="error_network">Erro de rede: %1$s</string>
+    <string name="success_login">Login realizado com sucesso</string>
+    <string name="error_login">Erro de login</string>
+    <string name="error_connection">Conexão falhou</string>
 </resources>

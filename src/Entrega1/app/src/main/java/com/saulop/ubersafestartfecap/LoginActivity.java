@@ -30,25 +30,20 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Componentes de login
         editTextEmail = findViewById(R.id.editTextEmailLogin);
         editTextPassword = findViewById(R.id.editTextPasswordLogin);
         buttonLogin = findViewById(R.id.buttonLogin);
 
-        // Configura o link de cadastro
         TextView textViewSignUpLink = findViewById(R.id.textViewSignUpLink);
         textViewSignUpLink.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
         });
 
-        // Inicializa o serviço de autenticação com Retrofit
         authService = ApiClient.getClient().create(AuthService.class);
 
-        // Ação para o botão de login
         buttonLogin.setOnClickListener(view -> loginUser());
 
-        // Handle forgot password
         TextView textViewForgotPassword = findViewById(R.id.textViewForgotPassword);
         textViewForgotPassword.setOnClickListener(v -> {
             Toast.makeText(LoginActivity.this, "Forgot password feature coming soon", Toast.LENGTH_SHORT).show();
@@ -59,7 +54,6 @@ public class LoginActivity extends AppCompatActivity {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
 
-        // Validate inputs
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
@@ -71,7 +65,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Toast.makeText(LoginActivity.this, "Login bem-sucedido", Toast.LENGTH_SHORT).show();
-                    // Armazene o token, se necessário, e navegue para a MainActivity
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();

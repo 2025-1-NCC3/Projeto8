@@ -12,9 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar"
         tools:targetApi="31">
-        <!-- Changed launcher activity to SignUpActivity -->
+
         <activity
-            android:name=".SignUpActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,17 +22,15 @@
             </intent-filter>
         </activity>
 
-        <!-- LoginActivity no longer has the launcher intent filter -->
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false">
-        </activity>
-
-        <!-- MainActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="false">
         </activity>
-    </application>
 
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="false">
+        </activity>
+
+    </application>
 </manifest>

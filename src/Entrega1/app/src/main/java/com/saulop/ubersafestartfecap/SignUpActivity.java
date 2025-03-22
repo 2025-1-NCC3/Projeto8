@@ -27,14 +27,13 @@ public class SignUpActivity extends AppCompatActivity {
     private AuthService authService;
     private String selectedAccountType = "passenger";
 
-    // Password validation pattern
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^" +
-                    "(?=.*[0-9])" +         // at least 1 digit
-                    "(?=.*[a-zA-Z])" +      // at least 1 letter
-                    "(?=.*[!@#$%^&*])" +    // at least 1 special character
-                    "(?=\\S+$)" +           // no whitespace
-                    ".{8,}" +               // at least 8 characters
+                    "(?=.*[0-9])" +
+                    "(?=.*[a-zA-Z])" +
+                    "(?=.*[!@#$%^&*])" +
+                    "(?=\\S+$)" +
+                    ".{8,}" +
                     "$");
 
     @Override
@@ -42,7 +41,6 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // Initialize UI components
         editTextFullName = findViewById(R.id.editTextFullName);
         editTextEmailSignUp = findViewById(R.id.editTextEmailSignUp);
         editTextPasswordSignUp = findViewById(R.id.editTextPasswordSignUp);
@@ -51,13 +49,10 @@ public class SignUpActivity extends AppCompatActivity {
         cardViewPassenger = findViewById(R.id.cardViewPassenger);
         cardViewDriver = findViewById(R.id.cardViewDriver);
 
-        // Initialize auth service
         authService = ApiClient.getClient().create(AuthService.class);
 
-        // Set up account type selection
         setupAccountTypeSelection();
 
-        // Configura o link de login
         TextView textViewLoginLink = findViewById(R.id.textViewLoginLink);
         textViewLoginLink.setOnClickListener(v -> {
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
@@ -65,12 +60,10 @@ public class SignUpActivity extends AppCompatActivity {
             finish();
         });
 
-        // Set up sign up button
         buttonSignUp.setOnClickListener(v -> signUpUser());
     }
 
     private void setupAccountTypeSelection() {
-        // Default passenger as selected
         cardViewPassenger.setStrokeColor(getResources().getColor(R.color.primary_color));
         cardViewDriver.setStrokeColor(getResources().getColor(R.color.gray_color));
 
@@ -97,7 +90,6 @@ public class SignUpActivity extends AppCompatActivity {
         String password = editTextPasswordSignUp.getText().toString().trim();
         String confirmPassword = editTextConfirmPasswordSignUp.getText().toString().trim();
 
-        // Validate inputs
         if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
@@ -108,26 +100,22 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        // Validate password strength
         if (!isPasswordValid(password)) {
             Toast.makeText(this, "Password must be at least 8 characters long and contain letters, numbers, and special characters (!@#$%^&*)",
                     Toast.LENGTH_LONG).show();
             return;
         }
 
-        // Create user object
         User user = new User(fullName, email, password, selectedAccountType, "");
 
-        // Make API call
         authService.registerUser(user).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                    // Redirect to LoginActivity
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
-                    finish(); // Close SignUpActivity
+                    finish();
                 } else {
                     String errorMsg = "Registration failed";
                     if (response.body() != null) {

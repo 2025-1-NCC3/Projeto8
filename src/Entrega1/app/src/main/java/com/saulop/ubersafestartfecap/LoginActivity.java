@@ -37,18 +37,33 @@ public class LoginActivity extends AppCompatActivity {
 
         // Configura o link de cadastro
         TextView textViewSignUpLink = findViewById(R.id.textViewSignUpLink);
-        textViewSignUpLink.setText(Html.fromHtml(getString(R.string.dont_have_account)), TextView.BufferType.SPANNABLE);
+        textViewSignUpLink.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+            startActivity(intent);
+        });
 
         // Inicializa o serviço de autenticação com Retrofit
         authService = ApiClient.getClient().create(AuthService.class);
 
         // Ação para o botão de login
         buttonLogin.setOnClickListener(view -> loginUser());
+
+        // Handle forgot password
+        TextView textViewForgotPassword = findViewById(R.id.textViewForgotPassword);
+        textViewForgotPassword.setOnClickListener(v -> {
+            Toast.makeText(LoginActivity.this, "Forgot password feature coming soon", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void loginUser() {
         String email = editTextEmail.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
+
+        // Validate inputs
+        if (email.isEmpty() || password.isEmpty()) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         LoginRequest request = new LoginRequest(email, password);
         authService.loginUser(request).enqueue(new Callback<LoginResponse>() {

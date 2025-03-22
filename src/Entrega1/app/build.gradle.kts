@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.saulop.ubersafestartfecap"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.saulop.ubersafestartfecap"
@@ -43,4 +43,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("androidx.activity:activity:1.8.2")
+    implementation ("com.google.android.material:material:1.8.0")
 }

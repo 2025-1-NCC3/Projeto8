@@ -10,8 +10,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Redireciona imediatamente para a tela de Login
-        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        finish(); // Fecha MainActivity para não ficar na pilha
+        setContentView(R.layout.activity_main);
+
+        // MainActivity content goes here
+        // This was causing a circular reference:
+        // startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        // finish();
     }
 }

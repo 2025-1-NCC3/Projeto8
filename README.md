@@ -77,7 +77,7 @@ Armazenamento local com MySQL (via Room) guarda alertas, progresso de gamificaç
 
 ## 🎨 Design do Projeto
 O design e planejamento visual do Uber SafeStart foi criado no **Figma**. Acesse o layout completo **[aqui](https://www.figma.com/design/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=53-14&p=f&t=M4162DS9hsA04657-0)**.
-Protótipo interativo **[aqui](https://www.figma.com/design/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=53-14&p=f&t=M4162DS9hsA04657-0)**.
+Protótipo interativo **[aqui](https://www.figma.com/proto/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=56-44&p=f&t=u702Ditftn5roEbT-0&scaling=min-zoom&content-scaling=fixed&page-id=53%3A14&starting-point-node-id=56%3A44)**.
 
 ## 📚 Referências
 - [Documentação do Java](https://docs.oracle.com/en/java/)

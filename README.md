@@ -1,21 +1,18 @@
-# 💛 Uber SafeStart
 
-## ✨ Segurança Inteligente e Respeito Mútuo para Motoristas e Passageiros
+# FECAP - Fundação de Comércio Álvares Penteado
 
-## 🛠️ Tecnologias Utilizadas
-- **Plataforma:** Android Studio (futuro); Java puro (atual)
-- **Linguagem:** Java
-- **Interface:** XML (planejado)
-- **Banco de Dados:** MySQL (local via Room, planejado)
+<p align="center">
+<a href="https://www.fecap.br/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhZPrRa89Kma0ZZogxm0pi-tCn_TLKeHGVxywp-LXAFGR3B1DPouAJYHgKZGV0XTEf4AE&usqp=CAU" alt="FECAP - Fundação de Comércio Álvares Penteado" border="0"></a>
+</p>
 
-## 🎯 Objetivo
+# Uber SafeStart
+
+## Integrantes: [Guilhermy Mariano](#), [Gustavo Bernardi](#), [Gustavo Oliveira Demetrio](#), [Saulo Pereira de Jesus](#)
+
+## 👨‍🏫 Professores Orientadores: [Katia Milani Lara Bossi](https://www.linkedin.com/in/katia-bossi/), [Marco Aurelio](https://github.com/fecaphub/Portfolio/blob/main), [Victor Rosetti](https://www.linkedin.com/in/victorbarq/) e [Vinicius Heltai](https://www.linkedin.com/in/vheltai/)
+
+## Descrição
 Uber SafeStart eleva a segurança no transporte por aplicativo, prevenindo riscos antes e durante as viagens, promovendo respeito mútuo e protegendo contra assédio ou preconceito, seja do motorista ou do passageiro. Com alertas proativos, gamificação educativa e ferramentas inteligentes, criamos uma experiência confiável e acolhedora para todos, começando com uma base em Java que será expandida para Android.
-
-## 👥 Integrantes do Projeto
-- **Guilhermy Mariano**
-- **Gustavo Bernardi**
-- **Gustavo Oliveira Demetrio**
-- **Saulo Pereira de Jesus**
 
 ## 📊 Como Funciona?
 ### 1️⃣ Pré-Viagem: Preparação e Confiança
@@ -55,9 +52,6 @@ Uber SafeStart eleva a segurança no transporte por aplicativo, prevenindo risco
 - Reporta assédio do passageiro, como comentários inadequados, para o suporte.
 - Avança no Badge de Motorista Consciente com boas práticas.
 
-**Sem Áudio:**
-- A investigação considera histórico de comportamento, avaliações e suporte em tempo real.
-
 ### 4️⃣ Banco de Dados
 Armazenamento local com MySQL (via Room) guarda alertas, progresso de gamificação e denúncias, com integração futura a um backend para processar dados.
 
@@ -74,15 +68,62 @@ Armazenamento local com MySQL (via Room) guarda alertas, progresso de gamificaç
 - 👨‍✈️ Aumento na retenção de motoristas por segurança e suporte.
 - 👍 Melhora na confiança dos usuários na plataforma.
 - 🌟 Cultura de respeito e responsabilidade mútua.
+## 🛠 Estrutura de pastas
+
+📁 Raiz
+│
+├── 📁 docs
+│   └── 📁 Entrega1
+│         ├── 📄 DiagramaDeClasses.png
+│         ├── 📄 Entrega1_AnaliseDescritivaDeDados.xlsx
+│         └── 📄 UberSafeStart - Protótipo de Navegação [Figma].pdf
+│
+├── 📁 images
+│
+├── 📁 src
+│   └── 📁 Entrega1
+│         ├── 📁 backend
+│         ├── 📁 backendNODE
+│         └── 📁 frontend
+│
+├── 📄 .gitignore
+└── 📄 README.md
+
+
+A pasta raiz contém o arquivo:
+
+<b>README.MD</b>: Guia e explicação geral sobre o projeto.
+
+
+
 
 ## 🎨 Design do Projeto
 O design e planejamento visual do Uber SafeStart foi criado no **Figma**. Acesse o layout completo **[aqui](https://www.figma.com/design/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=53-14&p=f&t=M4162DS9hsA04657-0)**.
 Protótipo interativo **[aqui](https://www.figma.com/proto/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=56-44&p=f&t=u702Ditftn5roEbT-0&scaling=min-zoom&content-scaling=fixed&page-id=53%3A14&starting-point-node-id=56%3A44)**.
+## 🛠 Instalação
 
-## 📚 Referências
-- [Documentação do Java](https://docs.oracle.com/en/java/)
-- [Documentação do Android Studio](https://source.android.com/docs?hl=pt)
-- [Documentação do MySQL](https://dev.mysql.com/doc/)
+**Android:**
 
-## 📄 Licença
-<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">Uber SafeStart</span> by <span property="cc:attributionName">Guilhermy Mariano, Gustavo Bernardi, Gustavo Demetrio, Saulo Pereira</span> is licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-NC 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1" alt=""></a></p>
+Em breve, será disponibilizado o APK via Android Studio.
+
+```sh
+(em construção)
+```
+
+## 💻 Configuração para Desenvolvimento
+
+Para abrir este projeto você necessita das seguintes ferramentas:
+
+- [Java JDK](https://www.oracle.com/java/technologies/downloads/)
+- [Android Studio](https://developer.android.com/studio) (em breve)
+- [MySQL](https://dev.mysql.com/downloads/mysql/)
+
+## 📋 Licença
+Este projeto é licenciado sob a licença Creative Commons [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1).
+
+## 🎓 Referências
+
+1. [Documentação Java](https://docs.oracle.com/en/java/)
+2. [Android Studio](https://developer.android.com/docs)
+3. [MySQL](https://dev.mysql.com/doc/)
+

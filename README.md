@@ -84,7 +84,6 @@ Armazenamento local com MySQL (via Room) guarda alertas, progresso de gamificaç
   ├── 📁 src
   │   └── 📁 Entrega1
   │         ├── 📁 backend
-  │         ├── 📁 backendNODE
   │         └── 📁 frontend
   │
   ├── 📄 .gitignore

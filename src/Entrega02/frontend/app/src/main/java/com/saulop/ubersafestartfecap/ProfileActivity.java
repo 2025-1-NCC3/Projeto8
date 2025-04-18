@@ -1,6 +1,8 @@
 package com.saulop.ubersafestartfecap;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -22,7 +24,6 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         initViews();
-
         loadUserData();
     }
 
@@ -34,6 +35,14 @@ public class ProfileActivity extends AppCompatActivity {
         textViewAccountType = findViewById(R.id.textViewAccountType);
         textViewSafeScore = findViewById(R.id.textViewSafeScore);
         progressBarSafeScore = findViewById(R.id.progressBarSafeScore);
+
+        // Adiciona um listener para o botão de navegação para HomeActivity
+        findViewById(R.id.navHome).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openHomeActivity();
+            }
+        });
     }
 
     private void loadUserData() {
@@ -52,5 +61,11 @@ public class ProfileActivity extends AppCompatActivity {
         textViewAccountType.setText(accountType);
 
         progressBarSafeScore.setProgress(safeScore);
+    }
+
+    // Método para iniciar a HomeActivity
+    private void openHomeActivity() {
+        Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+        startActivity(intent);
     }
 }

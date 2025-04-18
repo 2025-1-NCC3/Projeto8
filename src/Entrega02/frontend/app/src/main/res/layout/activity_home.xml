@@ -88,20 +88,22 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
-            <!-- Para onde? -->
-            <TextView
-                android:id="@+id/textViewSearchHint"
+            <!-- EditText for Input -->
+            <EditText
+                android:id="@+id/editTextSearch"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
-                android:text="@string/para_onde"
-                android:textColor="#AAAAAA"
+                android:hint="@string/para_onde"
+                android:textColor="@color/white"
                 android:textSize="18sp"
+                android:backgroundTint="#2A2A2A"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imageViewSearch"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="8dp" />
 
             <!-- Vertical Divider -->
             <View

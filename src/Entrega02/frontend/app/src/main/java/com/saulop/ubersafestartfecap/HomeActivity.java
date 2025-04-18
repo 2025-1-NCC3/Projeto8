@@ -23,11 +23,9 @@ public class HomeActivity extends AppCompatActivity {
         initViews();
         loadLocationHistoryData();
 
-        // Encontrar os itens de navegação (navAccount e navHome)
-        LinearLayout navAccount = findViewById(R.id.navAccount); // Botão Profile
-        LinearLayout navHome = findViewById(R.id.navHome); // Botão Home
+        LinearLayout navAccount = findViewById(R.id.navAccount);
+        LinearLayout navHome = findViewById(R.id.navHome);
 
-        // Navegação para ProfileActivity quando clicar no "Profile"
         navAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -37,7 +35,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        // Corrigido: agora estamos passando o ID correto para cada TextView
         textViewLocationName1 = findViewById(R.id.textViewLocationName1);
         textViewLocationAddress1 = findViewById(R.id.textViewLocationAddress1);
         textViewLocationName2 = findViewById(R.id.textViewLocationName2);
@@ -50,18 +47,15 @@ public class HomeActivity extends AppCompatActivity {
         String location2Name = "Rua Bento Silveira, 1234 - Nova Esperança";
         String location2Address = "Nova Esperança - MG, 35700-000";
 
-        // Atribuindo os valores para cada TextView
         textViewLocationName1.setText(location1Name);
         textViewLocationAddress1.setText(location1Address);
         textViewLocationName2.setText(location2Name);
         textViewLocationAddress2.setText(location2Address);
     }
 
-    // Método para abrir a ProfileActivity
     private void openProfileActivity() {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
     }
 
-    // Método para abrir a HomeActivity
 }

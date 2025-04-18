@@ -36,7 +36,6 @@ public class ProfileActivity extends AppCompatActivity {
         textViewSafeScore = findViewById(R.id.textViewSafeScore);
         progressBarSafeScore = findViewById(R.id.progressBarSafeScore);
 
-        // Adiciona um listener para o botão de navegação para HomeActivity
         findViewById(R.id.navHome).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
         String email = "lucas.andrade@email.com";
         String phone = "+55 21 91234-5678";
 
-        String accountType = getResources().getString(R.string.passenger); // ou driver
+        String accountType = getResources().getString(R.string.passenger);
         int safeScore = 95;
 
         textViewName.setText(userName);
@@ -63,7 +62,6 @@ public class ProfileActivity extends AppCompatActivity {
         progressBarSafeScore.setProgress(safeScore);
     }
 
-    // Método para iniciar a HomeActivity
     private void openHomeActivity() {
         Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
         startActivity(intent);

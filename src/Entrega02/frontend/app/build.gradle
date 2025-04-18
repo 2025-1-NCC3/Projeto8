@@ -37,9 +37,9 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
-    // Use direct implementation instead of version catalog for retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
     implementation "androidx.activity:activity:1.8.2"
     implementation "com.google.android.material:material:1.8.0"
+    implementation 'com.airbnb.android:lottie:5.2.0'
 }

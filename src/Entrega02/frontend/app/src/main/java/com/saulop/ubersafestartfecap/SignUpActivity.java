@@ -22,7 +22,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SignUpActivity extends AppCompatActivity {
-    private EditText editTextFullName, editTextEmailSignUp, editTextPasswordSignUp, editTextConfirmPasswordSignUp;
+    private EditText editTextFullName, editTextEmailSignUp, editTextPasswordSignUp, editTextConfirmPasswordSignUp, editTextPhoneSignUp;
     private Button buttonSignUp;
     private MaterialCardView cardViewPassenger, cardViewDriver;
     private AuthService authService;
@@ -37,6 +37,9 @@ public class SignUpActivity extends AppCompatActivity {
                     ".{8,}" +
                     "$");
 
+    private static final Pattern PHONE_PATTERN =
+            Pattern.compile("^[0-9]{10,15}$");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +49,7 @@ public class SignUpActivity extends AppCompatActivity {
         editTextEmailSignUp = findViewById(R.id.editTextEmailSignUp);
         editTextPasswordSignUp = findViewById(R.id.editTextPasswordSignUp);
         editTextConfirmPasswordSignUp = findViewById(R.id.editTextConfirmPasswordSignUp);
+        editTextPhoneSignUp = findViewById(R.id.editTextPhoneSignUp);
         buttonSignUp = findViewById(R.id.buttonSignUp);
         cardViewPassenger = findViewById(R.id.cardViewPassenger);
         cardViewDriver = findViewById(R.id.cardViewDriver);
@@ -85,13 +89,18 @@ public class SignUpActivity extends AppCompatActivity {
         return PASSWORD_PATTERN.matcher(password).matches();
     }
 
+    private boolean isPhoneValid(String phone) {
+        return PHONE_PATTERN.matcher(phone).matches();
+    }
+
     private void signUpUser() {
         String fullName = editTextFullName.getText().toString().trim();
         String email = editTextEmailSignUp.getText().toString().trim();
         String password = editTextPasswordSignUp.getText().toString().trim();
         String confirmPassword = editTextConfirmPasswordSignUp.getText().toString().trim();
+        String phone = editTextPhoneSignUp.getText().toString().trim();
 
-        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() || phone.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -107,7 +116,12 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        User user = new User(fullName, email, password, selectedAccountType, "");
+        if (!isPhoneValid(phone)) {
+            Toast.makeText(this, "Please enter a valid phone number (10-15 digits)", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        User user = new User(fullName, email, password, selectedAccountType, phone);
 
         authService.registerUser(user).enqueue(new Callback<ApiResponse>() {
             @Override

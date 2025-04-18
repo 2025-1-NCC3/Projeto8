@@ -22,6 +22,8 @@
     <string name="create_password_hint">Crie uma senha</string>
     <string name="confirm_password">Confirmar senha</string>
     <string name="confirm_password_hint">Confirme a senha</string>
+    <string name="phone_number">Telefone</string>
+    <string name="phone_hint">Digite seu número de telefone</string>
     <string name="account_type">Tipo de conta</string>
     <string name="passenger">PASSAGEIRO</string>
     <string name="driver">MOTORISTA</string>

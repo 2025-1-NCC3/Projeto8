@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         btnStartRide.setOnClickListener(v -> {
             if (allChecksCompleted()) {
                 Toast.makeText(MainActivity.this, "Iniciando corrida...", Toast.LENGTH_SHORT).show();
-                // Add your logic to start the ride here
             }
         });
     }

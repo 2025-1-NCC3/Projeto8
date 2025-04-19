@@ -16,8 +16,8 @@ const db = mysql.createConnection({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
-    rejectUnauthorized: true,
-  },
+    rejectUnauthorized: false  // Try this for testing, but use proper SSL in production
+  }
 });
 
 db.connect((err) => {

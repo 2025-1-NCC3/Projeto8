@@ -7,7 +7,6 @@
     android:background="@color/black"
     tools:context=".HomeActivity">
 
-    <!-- Top Bar -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewTopBar"
         android:layout_width="match_parent"
@@ -19,7 +18,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Car Icon -->
             <ImageView
                 android:id="@+id/imageViewCar"
                 android:layout_width="40dp"
@@ -32,13 +30,12 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
-            <!-- Viagens Text -->
             <TextView
                 android:id="@+id/textViewViagens"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="@string/viagens"
+                android:text="@string/inicio"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -49,7 +46,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Divider Line -->
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
@@ -57,7 +53,7 @@
         android:background="#333333"
         app:layout_constraintTop_toBottomOf="@+id/cardViewTopBar" />
 
-    <!-- Search Container -->
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewSearch"
         android:layout_width="match_parent"
@@ -75,7 +71,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Search Icon -->
             <ImageView
                 android:id="@+id/imageViewSearch"
                 android:layout_width="24dp"
@@ -88,7 +83,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:tint="@color/white" />
 
-            <!-- EditText for Input -->
             <EditText
                 android:id="@+id/editTextSearch"
                 android:layout_width="0dp"
@@ -105,7 +99,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 android:padding="8dp" />
 
-            <!-- Vertical Divider -->
             <View
                 android:id="@+id/verticalDivider"
                 android:layout_width="1dp"
@@ -115,7 +108,6 @@
                 app:layout_constraintEnd_toStartOf="@+id/layoutSchedule"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Clock Icon and Mais tarde Text -->
             <LinearLayout
                 android:id="@+id/layoutSchedule"
                 android:layout_width="wrap_content"
@@ -148,7 +140,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Recent Locations -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardViewRecentLocation1"
         android:layout_width="match_parent"
@@ -167,7 +158,6 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Clock Icon Container -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardViewClockIcon1"
                 android:layout_width="48dp"
@@ -187,7 +177,6 @@
                     app:tint="@color/white" />
             </androidx.cardview.widget.CardView>
 
-            <!-- Location Text -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -216,7 +205,6 @@
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Arrow Icon -->
             <ImageView
                 android:id="@+id/imageViewArrow1"
                 android:layout_width="24dp"

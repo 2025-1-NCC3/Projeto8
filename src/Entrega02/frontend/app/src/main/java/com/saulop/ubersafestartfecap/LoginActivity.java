@@ -1,6 +1,7 @@
 package com.saulop.ubersafestartfecap;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,7 +64,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    // Salva dados no SharedPreferences
+                    SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = ((android.content.SharedPreferences) prefs).edit();
+            
+                    editor.putString("token", response.body().getToken());
+                    editor.putString("username", response.body().getUsername());
+                    editor.putString("email", response.body().getEmail());
+                    editor.putString("phone", response.body().getPhone());
+                    editor.putString("type", response.body().getType());
+                    editor.apply();
+            
                     Toast.makeText(LoginActivity.this, "Login bem-sucedido", Toast.LENGTH_SHORT).show();
+            
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
@@ -71,7 +84,6 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Erro no login", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "Falha na conexão", Toast.LENGTH_SHORT).show();

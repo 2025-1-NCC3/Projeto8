@@ -28,6 +28,14 @@
         </activity>
 
         <activity
+<<<<<<< HEAD
+=======
+            android:name=".HomeActivity"
+            android:exported="false">
+        </activity>
+
+        <activity
+>>>>>>> 9fffdf525ba8ecd2ea3103480e8db820b5002ddd
             android:name=".SignUpActivity"
             android:exported="false"
             android:theme="@style/Theme.MaterialComponents.NoActionBar">

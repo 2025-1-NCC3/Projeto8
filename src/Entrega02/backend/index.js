@@ -9,22 +9,30 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-    // Conexão com o banco
-const db = mysql.createConnection({
+// Pool de conexão com o banco de dados
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+<<<<<<< HEAD
   ssl: {
     rejectUnauthorized: false  // Try this for testing, but use proper SSL in production
   }
+=======
+  ssl: { rejectUnauthorized: true },
+  connectionLimit: 20,
+  waitForConnections: true,
+>>>>>>> 9fffdf525ba8ecd2ea3103480e8db820b5002ddd
 });
 
-db.connect((err) => {
+// Verifica conexão do pool
+db.getConnection((err, connection) => {
   if (err) {
-    console.error("Erro ao conectar ao banco de dados:", err);
+    console.error("Erro ao obter conexão do pool:", err);
   } else {
-    console.log("Conectado ao banco de dados!");
+    console.log("Conectado ao banco de dados via pool!");
+    connection.release();
   }
 });
 
@@ -39,9 +47,23 @@ const createUsersTable = `CREATE TABLE IF NOT EXISTS User (
   registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
 )`;
 
-db.query(createUsersTable, (err, result) => {
-  if (err) console.error("Erro ao criar tabela:", err);
-  else console.log("Tabela de usuários pronta");
+db.query(createUsersTable, (err) => {
+  if (err) console.error("Erro ao criar tabela User:", err);
+  else console.log("Tabela User pronta");
+});
+
+// Criação da tabela SafeScore
+const createSafeScoreTable = `CREATE TABLE IF NOT EXISTS SafeScore (
+  safescore_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  score DECIMAL(3,2) NOT NULL CHECK (score BETWEEN 0 AND 5),
+  last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES User(user_id)
+)`;
+
+db.query(createSafeScoreTable, (err) => {
+  if (err) console.error("Erro ao criar tabela SafeScore:", err);
+  else console.log("Tabela SafeScore pronta");
 });
 
 // Middleware de autenticação JWT
@@ -63,7 +85,9 @@ const authMiddleware = (req, res, next) => {
 app.post("/api/auth/signup", async (req, res) => {
   const { username, email, password, type, phone } = req.body;
   if (!username || !email || !password || !type) {
-    return res.status(400).json({ message: "Todos os campos obrigatórios devem ser preenchidos" });
+    return res
+      .status(400)
+      .json({ message: "Todos os campos obrigatórios devem ser preenchidos" });
   }
 
   try {
@@ -71,18 +95,22 @@ app.post("/api/auth/signup", async (req, res) => {
     db.query(
       "INSERT INTO User (username, email, password, type, phone) VALUES (?, ?, ?, ?, ?)",
       [username, email, hashedPassword, type, phone || null],
-      (error, results) => {
+      (error) => {
         if (error) {
-          return res.status(500).json({
-            message: "Erro ao registrar usuário",
-            error: error.message,
-          });
+          return res
+            .status(500)
+            .json({
+              message: "Erro ao registrar usuário",
+              error: error.message,
+            });
         }
         res.status(201).json({ message: "Usuário cadastrado com sucesso!" });
       }
     );
   } catch (error) {
-    res.status(500).json({ message: "Erro ao processar a senha", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Erro ao processar a senha", error: error.message });
   }
 });
 
@@ -109,12 +137,98 @@ app.post("/api/auth/login", (req, res) => {
           process.env.JWT_SECRET,
           { expiresIn: "1h" }
         );
-        res.status(200).json({ message: "Login bem-sucedido", token });
+        return res.status(200).json({
+          message: "Login bem-sucedido",
+          token,
+          username: user.username,
+          email: user.email,
+          phone: user.phone,
+          type: user.type,
+        });
       } else {
-        res.status(401).json({ message: "Credenciais inválidas" });
+        return res.status(401).json({ message: "Senha incorreta" });
       }
     }
   );
+});
+
+// Rota protegida para inserir ou atualizar SafeScore
+app.post("/api/safescore", authMiddleware, (req, res) => {
+  const { score } = req.body;
+  const userId = req.user.user_id;
+
+  if (score === undefined || score < 0 || score > 5) {
+    return res.status(400).json({ message: "Nota deve ser entre 0 e 5" });
+  }
+
+  const checkQuery = "SELECT * FROM SafeScore WHERE user_id = ?";
+  db.query(checkQuery, [userId], (err, results) => {
+    if (err)
+      return res
+        .status(500)
+        .json({ message: "Erro ao verificar nota", error: err.message });
+
+    if (results.length > 0) {
+      const updateQuery = "UPDATE SafeScore SET score = ? WHERE user_id = ?";
+      db.query(updateQuery, [score, userId], (err) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ message: "Erro ao atualizar nota", error: err.message });
+        res.status(200).json({ message: "Nota atualizada com sucesso" });
+      });
+    } else {
+      const insertQuery =
+        "INSERT INTO SafeScore (user_id, score) VALUES (?, ?)";
+      db.query(insertQuery, [userId, score], (err) => {
+        if (err)
+          return res
+            .status(500)
+            .json({ message: "Erro ao salvar nota", error: err.message });
+        res.status(201).json({ message: "Nota cadastrada com sucesso" });
+      });
+    }
+  });
+});
+
+// Rota para exibir média do SafeScore do usuário autenticado
+app.get("/api/safescore/media", authMiddleware, (req, res) => {
+  const userId = req.user.user_id;
+
+  const query = "SELECT AVG(score) AS media FROM SafeScore WHERE user_id = ?";
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Erro ao calcular a média", error: err.message });
+    }
+
+    const media = results[0].media;
+    if (media === null) {
+      return res
+        .status(404)
+        .json({ message: "Nenhuma nota encontrada para este usuário" });
+    }
+
+    res
+      .status(200)
+      .json({ user_id: userId, media: parseFloat(media.toFixed(2)) });
+  });
+});
+
+// Rota protegida para retornar dados do usuário logado
+app.get("/api/profile", authMiddleware, (req, res) => {
+  const userId = req.user.user_id;
+
+  const query =
+    "SELECT username, email, phone, type FROM User WHERE user_id = ?";
+  db.query(query, [userId], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.status(200).json(results[0]);
+  });
 });
 
 // Porta do servidor

@@ -1,9 +1,9 @@
 package com.saulop.ubersafestartfecap;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -48,30 +48,26 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        Intent intent = getIntent();
-        String userType = intent.getStringExtra("USER_TYPE");
-        String userName = intent.getStringExtra("USER_NAME");
+        // Recuperar dados do SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+        String username = prefs.getString("username", "Usuário");
+        String email = prefs.getString("email", "email@exemplo.com");
+        String phone = prefs.getString("phone", "Não informado");
+        String userType = prefs.getString("type", "passenger");
 
-        if (userType == null) userType = "passenger";
-        if (userName == null) userName = "Usuário";
+        // Definir os dados nos TextViews
+        textViewName.setText(username);
+        textViewEmail.setText(email);
+        textViewPhone.setText(phone);
+        textViewAccountType.setText(userType.equals("driver") ? "Motorista" : "Passageiro");
 
-        if (userType.equals("driver")) {
-            textViewName.setText(userName);
-            textViewEmail.setText("joao.silva@email.com");
-            textViewPhone.setText("(11) 98765-4321");
-            textViewAccountType.setText("Motorista");
-            textViewRating.setText("4.8");
-            textViewSafeScore.setText("95/100");
-            progressBarSafeScore.setProgress(95);
-        } else {
-            textViewName.setText(userName);
-            textViewEmail.setText("maria.santos@email.com");
-            textViewPhone.setText("(11) 98765-4321");
-            textViewAccountType.setText("Passageiro");
-            textViewRating.setText("4.9");
-            textViewSafeScore.setText("90/100");
-            progressBarSafeScore.setProgress(90);
-        }
+        // Definir valores mockados para SafeScore e Rating (ajuste conforme necessário)
+        int safeScore = userType.equals("driver") ? 95 : 90;
+        float rating = userType.equals("driver") ? 4.8f : 4.9f;
+
+        textViewSafeScore.setText(safeScore + "/100");
+        textViewRating.setText(String.valueOf(rating));
+        progressBarSafeScore.setProgress(safeScore);
     }
 
     private void setupClickListeners() {
@@ -84,6 +80,12 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         buttonLogout.setOnClickListener(v -> {
+            // Limpar SharedPreferences ao fazer logout
+            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.clear();
+            editor.apply();
+
             Toast.makeText(ProfileActivity.this, "Saindo...", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -92,8 +94,9 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         navHome.setOnClickListener(v -> {
-            String userType = getIntent().getStringExtra("USER_TYPE");
-            if (userType != null && userType.equals("driver")) {
+            SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+            String userType = prefs.getString("type", "passenger");
+            if (userType.equals("driver")) {
                 startActivity(new Intent(ProfileActivity.this, DriverHomeActivity.class));
             } else {
                 startActivity(new Intent(ProfileActivity.this, HomeActivity.class));

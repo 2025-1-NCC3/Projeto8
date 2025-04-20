@@ -145,6 +145,7 @@ public class HomeActivity extends AppCompatActivity {
             }, 1000);
         }, 3000);
     }
+
     private void showDriverInfoDialog(String destination) {
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
         View driverInfoView = LayoutInflater.from(this).inflate(R.layout.dialog_driver_info, null);
@@ -179,6 +180,7 @@ public class HomeActivity extends AppCompatActivity {
             navigateToSafetyChecklist(destination, driverName, ridePrice);
         });
     }
+
     private void navigateToSafetyChecklist(String destination, String driverName, String ridePrice) {
         Intent intent = new Intent(HomeActivity.this, MainActivity.class);
         intent.putExtra("DESTINATION", destination);
@@ -192,5 +194,14 @@ public class HomeActivity extends AppCompatActivity {
     private void openProfileActivity() {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setMessage("Deseja sair do aplicativo?")
+                .setPositiveButton("Sim", (dialog, which) -> finishAffinity())
+                .setNegativeButton("Não", null)
+                .show();
     }
 }

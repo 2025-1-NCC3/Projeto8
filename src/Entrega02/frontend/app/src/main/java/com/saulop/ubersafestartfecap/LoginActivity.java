@@ -64,20 +64,30 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Salva dados no SharedPreferences
                     SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = ((android.content.SharedPreferences) prefs).edit();
-            
+                    SharedPreferences.Editor editor = prefs.edit();
+
                     editor.putString("token", response.body().getToken());
                     editor.putString("username", response.body().getUsername());
                     editor.putString("email", response.body().getEmail());
                     editor.putString("phone", response.body().getPhone());
                     editor.putString("type", response.body().getType());
                     editor.apply();
-            
+
                     Toast.makeText(LoginActivity.this, "Login bem-sucedido", Toast.LENGTH_SHORT).show();
-            
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+
+                    String userType = response.body().getType();
+                    Intent intent;
+
+                    if ("driver".equals(userType)) {
+                        intent = new Intent(LoginActivity.this, DriverHomeActivity.class);
+                    } else if ("passenger".equals(userType)) {
+                        intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    } else {
+                        intent = new Intent(LoginActivity.this, HomeActivity.class);
+                        Toast.makeText(LoginActivity.this, "Tipo de usuário não reconhecido, redirecionando para Home", Toast.LENGTH_SHORT).show();
+                    }
+
                     startActivity(intent);
                     finish();
                 } else {

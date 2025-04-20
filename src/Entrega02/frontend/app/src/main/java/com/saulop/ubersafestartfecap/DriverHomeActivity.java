@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+
 
 import java.util.Calendar;
 
@@ -72,8 +74,15 @@ public class DriverHomeActivity extends AppCompatActivity {
     }
 
     private void loadDriverData() {
-        String driverName = "João";
-        textViewDriverName.setText(driverName);
+        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+        String fullName = prefs.getString("username", "Motorista");
+
+        String firstName = fullName;
+        if (fullName.contains(" ")) {
+            firstName = fullName.substring(0, fullName.indexOf(" "));
+        }
+
+        textViewDriverName.setText(firstName);
     }
 
     private void setupNavigationListeners() {
@@ -128,10 +137,8 @@ public class DriverHomeActivity extends AppCompatActivity {
         TextView statusText = loadingView.findViewById(R.id.textViewStatus);
         ImageView checkmarkImage = loadingView.findViewById(R.id.imageViewCheckmark);
 
-        // Change text to passenger search
         statusText.setText("Procurando passageiros próximos...");
 
-        // Simulate 5-second search
         new Handler().postDelayed(() -> {
             statusText.setText("Passageiro encontrado!");
             progressBar.setVisibility(View.GONE);

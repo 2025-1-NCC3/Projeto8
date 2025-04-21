@@ -271,12 +271,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/button_disabled"
+                android:background="@drawable/button_enabled"
                 android:padding="12dp"
                 android:text="Estou pronto para iniciar"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
-                android:enabled="false" />
+                android:enabled="true" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

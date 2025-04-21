@@ -5,14 +5,20 @@
     <color name="gray_color">#757575</color>
     <color name="gray_light">#AEAEAE</color>
     <color name="white_fff">#FFFFFF</color>
-    <color name="primary_color">#00BFA5</color>
     <color name="black_000">#000000</color>
 
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
     <color name="green_safe">#FF004D21</color>
     <color name="green_light">#FF00C853</color>
     <color name="dark_gray">#FF222222</color>
     <color name="light_gray">#FFAAAAAA</color>
     <color name="yellow_star">#FFFFD700</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="primary_color">#00C853</color>
+
+    <color name="button_green">#00C853</color>
+    <color name="button_disabled">#424242</color>
+    <color name="button_negative">#000000</color>
+    <color name="button_danger">#D32F2F</color>
 </resources>

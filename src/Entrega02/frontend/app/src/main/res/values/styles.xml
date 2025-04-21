@@ -3,5 +3,18 @@
     <style name="Theme.Ubersafestartfecap" parent="Theme.AppCompat.Light">
         <item name="android:windowBackground">@color/black_000</item>
         <item name="android:textColor">@color/white_fff</item>
+
+        <item name="android:buttonStyle">@style/UberSafeButton</item>
+    </style>
+
+    <style name="UberSafeButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@color/primary_color</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:background">#262626</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorAccent">@color/primary_color</item>
     </style>
 </resources>

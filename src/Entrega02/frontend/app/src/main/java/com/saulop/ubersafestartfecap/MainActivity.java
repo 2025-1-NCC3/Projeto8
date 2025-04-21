@@ -117,10 +117,12 @@ public class MainActivity extends AppCompatActivity {
 
         btnStartRide.setOnClickListener(v -> {
             if (allChecksCompleted()) {
-                Toast.makeText(MainActivity.this, "Corrida iniciada com segurança!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Iniciando corrida...", Toast.LENGTH_SHORT).show();
 
-            } else {
-                Toast.makeText(MainActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(MainActivity.this, RideInProgressActivity.class);
+                boolean isDriverMode = false;
+                intent.putExtra("IS_DRIVER_MODE", isDriverMode);
+                startActivity(intent);
             }
         });
     }
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateCardUI(CardView card, ImageView checkmark, boolean isChecked) {
         if (isChecked) {
             card.setCardBackgroundColor(Color.parseColor("#004D21")); // Verde escuro
-            checkmark.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00C853"))); // Verde claro
+            checkmark.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00C853"))); // Verde brilhante
         } else {
             card.setCardBackgroundColor(Color.parseColor("#262626")); // Cinza escuro
             checkmark.setImageTintList(ColorStateList.valueOf(Color.parseColor("#777777"))); // Cinza claro

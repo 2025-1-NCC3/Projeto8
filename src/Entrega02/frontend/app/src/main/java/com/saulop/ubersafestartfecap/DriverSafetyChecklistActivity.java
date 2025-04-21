@@ -1,5 +1,6 @@
 package com.saulop.ubersafestartfecap;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -111,7 +112,14 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
         btnStartRide.setOnClickListener(v -> {
             if (allChecksCompleted()) {
                 Toast.makeText(DriverSafetyChecklistActivity.this, "Viagem iniciada com segurança!", Toast.LENGTH_SHORT).show();
-                // Add your logic to start the ride here
+
+                // Iniciar a atividade RideInProgressActivity com o modo motorista
+                Intent intent = new Intent(DriverSafetyChecklistActivity.this, RideInProgressActivity.class);
+                intent.putExtra("IS_DRIVER_MODE", true);
+                intent.putExtra("PASSENGER_NAME", passengerName);
+                intent.putExtra("DESTINATION", destination);
+                intent.putExtra("RIDE_PRICE", ridePrice);
+                startActivity(intent);
             } else {
                 Toast.makeText(DriverSafetyChecklistActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
             }

@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Ubersafestartfecap" parent="Theme.AppCompat.Light">
-        <item name="android:windowBackground">@color/black_000</item>
-        <item name="android:textColor">@color/white_fff</item>
-
-        <item name="android:buttonStyle">@style/UberSafeButton</item>
+    <style name="Theme.Ubersafestartfecap" parent="Theme.UberSafeStartFecap">
     </style>
 
-    <style name="UberSafeButton" parent="Widget.AppCompat.Button">
-        <item name="android:background">@color/primary_color</item>
-        <item name="android:textColor">@color/white</item>
+    <style name="UberSafeButton" parent="Widget.App.Button">
     </style>
 
-    <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+    <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="android:background">#262626</item>
         <item name="android:textColorPrimary">@color/white</item>
-        <item name="colorAccent">@color/primary_color</item>
+        <item name="colorAccent">@color/button_green</item>
     </style>
 </resources>

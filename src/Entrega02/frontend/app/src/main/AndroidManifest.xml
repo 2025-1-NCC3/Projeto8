@@ -14,13 +14,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.MaterialComponents.Light.DarkActionBar"
+        android:theme="@style/Theme.UberSafeStartFecap"
         tools:targetApi="31">
-
         <activity
             android:name=".LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -35,37 +34,37 @@
         <activity
             android:name=".SignUpActivity"
             android:exported="false"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
             android:name=".RideInProgressActivity"
             android:exported="false"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
             android:name=".ProfileActivity"
             android:exported="false"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
             android:name=".DriverHomeActivity"
             android:exported="false"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
             android:name=".DriverSafetyChecklistActivity"
             android:exported="false"
-            android:theme="@style/Theme.MaterialComponents.NoActionBar">
+            android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
     </application>

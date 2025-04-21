@@ -104,8 +104,8 @@ public class RideInProgressActivity extends AppCompatActivity {
                 timerTextView.setText("0s");
                 timerProgressBar.setProgress(0);
 
-                // Mostrar diálogo de conclusão da viagem
-                showRideCompletedDialog();
+                // Imediatamente retornar ao menu principal e iniciar a tela de feedback
+                finishRideAndShowFeedback();
             }
         }.start();
     }
@@ -234,25 +234,25 @@ public class RideInProgressActivity extends AppCompatActivity {
         finish();
     }
 
-    private void showRideCompletedDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
-        builder.setTitle("Viagem Concluída");
-        builder.setMessage("Sua viagem foi concluída com sucesso!");
-        builder.setPositiveButton("Voltar ao menu", (dialog, which) -> {
-            // Retornar à tela inicial apropriada
-            Intent intent;
-            if (isDriverMode) {
-                intent = new Intent(RideInProgressActivity.this, DriverHomeActivity.class);
-            } else {
-                intent = new Intent(RideInProgressActivity.this, HomeActivity.class);
-            }
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-        });
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create();
-        dialog.show();
+    // Novo método para finalizar a viagem e mostrar a tela de feedback
+    private void finishRideAndShowFeedback() {
+        // Primeiro, navegue instantaneamente para a tela inicial apropriada
+        Intent homeIntent;
+        if (isDriverMode) {
+            homeIntent = new Intent(RideInProgressActivity.this, DriverHomeActivity.class);
+        } else {
+            homeIntent = new Intent(RideInProgressActivity.this, HomeActivity.class);
+        }
+        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(homeIntent);
+
+        // Em seguida, inicie a atividade de feedback
+        Intent feedbackIntent = new Intent(RideInProgressActivity.this, RideFeedbackActivity.class);
+        feedbackIntent.putExtra("IS_DRIVER_MODE", isDriverMode);
+        startActivity(feedbackIntent);
+
+        // Finalize esta atividade
+        finish();
     }
 
     @Override

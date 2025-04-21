@@ -67,6 +67,12 @@
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
+        <activity
+            android:name=".RideFeedbackActivity"
+            android:exported="false"
+            android:theme="@style/Theme.UberSafeStartFecap">
+        </activity>
+
     </application>
 
 </manifest>

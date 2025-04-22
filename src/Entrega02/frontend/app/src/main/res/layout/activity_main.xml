@@ -277,6 +277,17 @@
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:enabled="true" />
+            <!-- Adicione este botão após o btnStartRide no layout activity_main.xml -->
+            <Button
+                android:id="@+id/btnSkipChecklist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/button_secondary"
+                android:padding="12dp"
+                android:text="Ignorar e iniciar corrida"
+                android:textAllCaps="false"
+                android:textColor="#FF8A80" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

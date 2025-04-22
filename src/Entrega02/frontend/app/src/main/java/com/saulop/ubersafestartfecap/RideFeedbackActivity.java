@@ -1,7 +1,6 @@
 package com.saulop.ubersafestartfecap;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,6 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.saulop.ubersafestartfecap.utils.SafeScoreHelper;
 
 public class RideFeedbackActivity extends AppCompatActivity {
 
@@ -18,8 +19,6 @@ public class RideFeedbackActivity extends AppCompatActivity {
     private boolean isRespected = false;
     private boolean selectionMade = false;
     private boolean isDriverMode = false;
-    private static final String PREFS_NAME = "SafeScorePrefs";
-    private static final String SAFE_SCORE_KEY = "safeScore";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +35,10 @@ public class RideFeedbackActivity extends AppCompatActivity {
         btnSendFeedback = findViewById(R.id.btnSendFeedback);
         txtReturnToMenu = findViewById(R.id.txtReturnToMenu);
         editTextFeedback = findViewById(R.id.editTextFeedback);
+
+        // Alterar o texto para "Ignorar"
+        txtReturnToMenu.setText("Ignorar");
+        txtReturnToMenu.setTextColor(getResources().getColor(android.R.color.holo_red_light));
 
         setupButtonListeners();
     }
@@ -61,7 +64,8 @@ public class RideFeedbackActivity extends AppCompatActivity {
 
                 saveFeedback(isRespected, feedback);
 
-                updateSafeScore(5);
+                // Atualiza o SafeScore usando o SafeScoreHelper - 10 pontos por dar feedback
+                SafeScoreHelper.updateSafeScore(this, 10);
 
                 Toast.makeText(this, "Feedback enviado!", Toast.LENGTH_SHORT).show();
 
@@ -72,23 +76,20 @@ public class RideFeedbackActivity extends AppCompatActivity {
         });
 
         txtReturnToMenu.setOnClickListener(v -> {
+            SafeScoreHelper.updateSafeScore(this, -5);
+
+            Toast.makeText(this, "Feedback ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
+
             goToHomeScreen();
         });
     }
 
     private void saveFeedback(boolean isRespected, String comment) {
         System.out.println("Feedback: Respected = " + isRespected + ", Comment = " + comment);
-    }
 
-    private void updateSafeScore(int points) {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int currentScore = prefs.getInt(SAFE_SCORE_KEY, 0);
-
-        int newScore = currentScore + points;
-
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(SAFE_SCORE_KEY, newScore);
-        editor.apply();
+        if (!isRespected) {
+            System.out.println("Problema reportado: Usuário não se sentiu respeitado");
+        }
     }
 
     private void goToHomeScreen() {
@@ -105,6 +106,8 @@ public class RideFeedbackActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        SafeScoreHelper.updateSafeScore(this, -5);
+        Toast.makeText(this, "Feedback ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
         goToHomeScreen();
     }
 }

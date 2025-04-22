@@ -19,7 +19,7 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
 
     private CardView cardVehicleCondition, cardLicenseInsurance, cardRespectCode, cardRecording;
     private ImageView checkVehicleCondition, checkLicenseInsurance, checkRespectCode, checkRecording;
-    private Button btnStartRide;
+    private Button btnStartRide, btnSkipChecklist;
     private TextView textViewPassengerDestination, textViewPassengerInfo;
     private ImageView menuButton, notificationButton, profileButton;
 
@@ -63,6 +63,7 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
         checkRecording = findViewById(R.id.checkRecording);
 
         btnStartRide = findViewById(R.id.btnStartRide);
+        btnSkipChecklist = findViewById(R.id.btnSkipChecklist);
         textViewPassengerDestination = findViewById(R.id.textViewPassengerDestination);
         textViewPassengerInfo = findViewById(R.id.textViewPassengerInfo);
 
@@ -128,6 +129,22 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(DriverSafetyChecklistActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Novo botão para ignorar o checklist com penalidade no SafeScore
+        btnSkipChecklist.setOnClickListener(v -> {
+            // Reduzir o SafeScore em 5 pontos
+            SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, -5);
+
+            Toast.makeText(DriverSafetyChecklistActivity.this, "Checklist ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
+
+            // Mesmo assim, iniciar a corrida
+            Intent intent = new Intent(DriverSafetyChecklistActivity.this, RideInProgressActivity.class);
+            intent.putExtra("IS_DRIVER_MODE", true);
+            intent.putExtra("PASSENGER_NAME", passengerName);
+            intent.putExtra("DESTINATION", destination);
+            intent.putExtra("RIDE_PRICE", ridePrice);
+            startActivity(intent);
         });
     }
 

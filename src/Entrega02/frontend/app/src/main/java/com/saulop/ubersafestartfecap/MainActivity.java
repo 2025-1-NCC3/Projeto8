@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CardView cardIdentity, cardSeatbelt, cardRoute, cardVehicle;
     private ImageView checkIdentity, checkSeatbelt, checkRoute, checkVehicle;
-    private Button btnStartRide;
+    private Button btnStartRide, btnSkipChecklist;
     private TextView textViewRideDestination, textViewDriverInfo, textViewSafetyTitle, textViewTripInfo;
     private ImageView menuButton, notificationButton, profileButton;
 
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         checkVehicle = findViewById(R.id.checkVehicle);
 
         btnStartRide = findViewById(R.id.btnStartRide);
+        btnSkipChecklist = findViewById(R.id.btnSkipChecklist);
 
         updateUI();
     }
@@ -130,6 +131,19 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(MainActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        // Novo botão para ignorar o checklist com penalidade no SafeScore
+        btnSkipChecklist.setOnClickListener(v -> {
+            // Reduzir o SafeScore em 5 pontos
+            SafeScoreHelper.updateSafeScore(MainActivity.this, -5);
+
+            Toast.makeText(MainActivity.this, "Checklist ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
+
+            // Mesmo assim, iniciar a corrida
+            Intent intent = new Intent(MainActivity.this, RideInProgressActivity.class);
+            intent.putExtra("IS_DRIVER_MODE", false);
+            startActivity(intent);
         });
     }
 

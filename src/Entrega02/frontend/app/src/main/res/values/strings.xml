@@ -72,4 +72,6 @@
     <string name="activity_icon">Ícone de atividade</string>
     <string name="account_icon">Ícone de conta</string>
     <string name="profile_image">Imagem de perfil</string>
+
+    <string name="delete_account">Deletar Conta</string>
 </resources>

@@ -55,6 +55,7 @@
 
     <!-- Center Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/centerContent"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="24dp"
@@ -72,7 +73,8 @@
             app:layout_constraintBottom_toTopOf="@+id/textViewStatus"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.2">
 
             <!-- Greeting Text -->
             <TextView
@@ -82,7 +84,8 @@
                 android:text="Bom dia,"
                 android:textColor="@color/white"
                 android:textSize="32sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:gravity="center" />
 
             <!-- Driver Name -->
             <TextView
@@ -93,7 +96,8 @@
                 android:text="João"
                 android:textColor="@color/primary_color"
                 android:textSize="32sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:gravity="center" />
         </LinearLayout>
 
         <TextView
@@ -104,6 +108,7 @@
             android:text="Você está offline"
             android:textColor="#AAAAAA"
             android:textSize="18sp"
+            android:gravity="center"
             app:layout_constraintBottom_toTopOf="@+id/buttonStart"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -136,6 +141,7 @@
             android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
+            android:gravity="center"
             app:layout_constraintBottom_toTopOf="@+id/textViewEarningsAmount"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -150,23 +156,12 @@
             android:textColor="@color/primary_color"
             android:textSize="32sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/textViewTripCount"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewEarningsTitle" />
-
-        <TextView
-            android:id="@+id/textViewTripCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="0 viagens completadas"
-            android:textColor="#AAAAAA"
-            android:textSize="16sp"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewEarningsAmount" />
+            app:layout_constraintTop_toBottomOf="@+id/textViewEarningsTitle"
+            app:layout_constraintVertical_bias="0.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

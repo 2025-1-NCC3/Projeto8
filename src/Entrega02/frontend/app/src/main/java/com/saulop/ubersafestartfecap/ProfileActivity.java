@@ -6,18 +6,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
-
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.saulop.ubersafestartfecap.api.ApiClient;
 import com.saulop.ubersafestartfecap.api.AuthService;
+import com.saulop.ubersafestartfecap.model.ApiResponse;
 import com.saulop.ubersafestartfecap.model.ProfileResponse;
-import com.saulop.ubersafestartfecap.model.SafeScoreResponse;
-import com.saulop.ubersafestartfecap.utils.SafeScoreHelper;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,14 +28,11 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewEmail;
     private TextView textViewPhone;
     private TextView textViewAccountType;
-    private TextView textViewSafeScore;
     private TextView textViewRating;
-
-    private ProgressBar progressBarSafeScore;
 
     private Button buttonLogout;
     private Button buttonEditProfile;
-    private Button buttonSafetySettings;
+    private Button buttonDeleteAccount;
 
     private LinearLayout navHome;
     private LinearLayout navServices;
@@ -55,14 +50,11 @@ public class ProfileActivity extends AppCompatActivity {
         textViewEmail = findViewById(R.id.textViewEmail);
         textViewPhone = findViewById(R.id.textViewPhone);
         textViewAccountType = findViewById(R.id.textViewAccountType);
-        textViewSafeScore = findViewById(R.id.textViewSafeScore);
         textViewRating = findViewById(R.id.textViewRating);
-
-        progressBarSafeScore = findViewById(R.id.progressBarSafeScore);
 
         buttonLogout = findViewById(R.id.buttonLogout);
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
-        buttonSafetySettings = findViewById(R.id.buttonSafetySettings);
+        buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
 
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
@@ -90,10 +82,10 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        buttonSafetySettings.setOnClickListener(new View.OnClickListener() {
+        buttonDeleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ProfileActivity.this, "Configurações de segurança em desenvolvimento", Toast.LENGTH_SHORT).show();
+                showDeleteAccountConfirmation();
             }
         });
 
@@ -134,6 +126,100 @@ public class ProfileActivity extends AppCompatActivity {
         loadProfileData();
     }
 
+    private void showDeleteAccountConfirmation() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Deletar Conta");
+        builder.setMessage("Você tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.");
+
+        builder.setPositiveButton("Sim", (dialog, which) -> {
+            deleteUserAccount();
+        });
+
+        builder.setNegativeButton("Não", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void deleteUserAccount() {
+        SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
+        String token = prefs.getString("token", "");
+
+        if (token.isEmpty()) {
+            Toast.makeText(this, "Você não está logado", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show a loading indicator
+        Toast.makeText(this, "Processando solicitação...", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Iniciando requisição para deletar conta");
+
+        // Ensure token format is correct
+        String bearerToken = token;
+        if (!token.startsWith("Bearer ")) {
+            bearerToken = "Bearer " + token;
+        }
+
+        // Log request for debugging (mask most of the token)
+        String maskedToken = bearerToken.length() > 15 ?
+                bearerToken.substring(0, 10) + "..." : "[token vazio ou inválido]";
+        Log.d(TAG, "Token: " + maskedToken);
+
+        authService.deleteUser(bearerToken).enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Log.d(TAG, "Código de resposta: " + response.code());
+
+                if (response.isSuccessful()) {
+                    ApiResponse body = response.body();
+                    if (body != null) {
+                        Log.d(TAG, "Resposta: " + body.getMessage());
+                        if (body.isSuccess()) {
+                            Toast.makeText(ProfileActivity.this, "Conta deletada com sucesso", Toast.LENGTH_SHORT).show();
+
+                            // Clear user preferences
+                            prefs.edit().clear().apply();
+
+                            // Navigate back to SignUp screen
+                            Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // API returned success:false
+                            String errorMsg = body.getMessage();
+                            Log.e(TAG, "Erro na deleção: " + errorMsg);
+                            Toast.makeText(ProfileActivity.this, "Falha ao deletar conta: " + errorMsg, Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        // Response body is null
+                        Log.e(TAG, "Resposta vazia do servidor");
+                        Toast.makeText(ProfileActivity.this, "Falha ao deletar conta: Resposta vazia do servidor", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    // Response not successful
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() : "desconhecido";
+                        Log.e(TAG, "Erro HTTP " + response.code() + ": " + errorBody);
+                        Toast.makeText(ProfileActivity.this, "Falha ao deletar conta: Erro HTTP " + response.code(), Toast.LENGTH_LONG).show();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao ler errorBody", e);
+                        Toast.makeText(ProfileActivity.this, "Falha ao deletar conta: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Log.e(TAG, "Falha na requisição de deleção: ", t);
+                Toast.makeText(ProfileActivity.this, "Erro de conexão: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void loadProfileData() {
         SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
         String token = prefs.getString("token", "");
@@ -148,60 +234,6 @@ public class ProfileActivity extends AppCompatActivity {
         textViewEmail.setText(prefs.getString("email", ""));
         textViewPhone.setText(prefs.getString("phone", ""));
         textViewAccountType.setText(prefs.getString("type", ""));
-
-        int safeScore = prefs.getInt("safescore", 0);
-        textViewSafeScore.setText(String.valueOf(safeScore) + "/100");
-        progressBarSafeScore.setProgress(safeScore);
-
         textViewRating.setText("4.8");
-
-        authService.getSafeScore("Bearer " + token).enqueue(new Callback<SafeScoreResponse>() {
-            @Override
-            public void onResponse(Call<SafeScoreResponse> call, Response<SafeScoreResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    int safescore = response.body().getSafescore();
-                    textViewSafeScore.setText(String.valueOf(safescore) + "/100");
-                    progressBarSafeScore.setProgress(safescore);
-
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putInt("safescore", safescore);
-                    editor.apply();
-
-                    Log.d(TAG, "SafeScore atualizado do servidor: " + safescore);
-                } else {
-                    try {
-                        String errorBody = response.errorBody() != null ?
-                                response.errorBody().string() : "desconhecido";
-                        Log.e(TAG, "Erro ao buscar SafeScore: " + errorBody);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Erro ao ler errorBody", e);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SafeScoreResponse> call, Throwable t) {
-                Log.e(TAG, "Falha ao buscar SafeScore: " + t.getMessage());
-            }
-        });
-
-        authService.getSafeScore("Bearer " + token).enqueue(new Callback<SafeScoreResponse>() {
-            @Override
-            public void onResponse(Call<SafeScoreResponse> call, Response<SafeScoreResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    int safescore = response.body().getSafescore();
-                    textViewSafeScore.setText(String.valueOf(safescore) + "/100");
-                    progressBarSafeScore.setProgress(safescore);
-
-                    prefs.edit().putInt("safescore", safescore).apply();
-                    Log.d(TAG, "SafeScore atualizado: " + safescore);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SafeScoreResponse> call, Throwable t) {
-                Log.e(TAG, "Falha ao buscar SafeScore: " + t.getMessage());
-            }
-        });
     }
 }

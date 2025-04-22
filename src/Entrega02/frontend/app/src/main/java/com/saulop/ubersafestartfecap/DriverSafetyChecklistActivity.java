@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.saulop.ubersafestartfecap.utils.SafeScoreHelper;
+
 public class DriverSafetyChecklistActivity extends AppCompatActivity {
 
     private CardView cardVehicleCondition, cardLicenseInsurance, cardRespectCode, cardRecording;
@@ -111,6 +113,9 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
 
         btnStartRide.setOnClickListener(v -> {
             if (allChecksCompleted()) {
+                // Atualizar o SafeScore quando todos os checks estão completos
+                SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, 5);
+
                 Toast.makeText(DriverSafetyChecklistActivity.this, "Viagem iniciada com segurança!", Toast.LENGTH_SHORT).show();
 
                 // Iniciar a atividade RideInProgressActivity com o modo motorista

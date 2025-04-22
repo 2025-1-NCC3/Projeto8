@@ -1,16 +1,10 @@
 package com.saulop.ubersafestartfecap.model;
 
 public class SafeScoreUpdate {
-    private String userId;
     private int scoreChange;
 
-    public SafeScoreUpdate(String userId, int scoreChange) {
-        this.userId = userId;
+    public SafeScoreUpdate(int scoreChange) {
         this.scoreChange = scoreChange;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     public int getScoreChange() {

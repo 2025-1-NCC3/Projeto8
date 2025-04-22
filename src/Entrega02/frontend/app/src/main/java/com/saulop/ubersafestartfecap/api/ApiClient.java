@@ -9,7 +9,6 @@ public class ApiClient {
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-            //conexão com a api hospedada utilizando https
                     .baseUrl("https://7zdq8c-3001.csb.app")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();

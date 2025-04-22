@@ -3,6 +3,7 @@ package com.saulop.ubersafestartfecap;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,6 +15,10 @@ import com.saulop.ubersafestartfecap.api.ApiClient;
 import com.saulop.ubersafestartfecap.api.AuthService;
 import com.saulop.ubersafestartfecap.model.LoginRequest;
 import com.saulop.ubersafestartfecap.model.LoginResponse;
+import com.saulop.ubersafestartfecap.utils.SafeScoreHelper;
+import com.saulop.ubersafestartfecap.model.ProfileResponse;
+
+import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,6 +26,7 @@ import retrofit2.Response;
 
 
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LoginActivity";
     private EditText editTextEmail, editTextPassword;
     private Button buttonLogin;
     private AuthService authService;
@@ -59,41 +65,72 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        Log.d(TAG, "Tentando login com email: " + email);
+
         LoginRequest request = new LoginRequest(email, password);
         authService.loginUser(request).enqueue(new Callback<LoginResponse>() {
+
+
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    String token = response.body().getToken();
+
                     SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
+                    prefs.edit().putString("token", token).apply();
 
-                    editor.putString("token", response.body().getToken());
-                    editor.putString("username", response.body().getUsername());
-                    editor.putString("email", response.body().getEmail());
-                    editor.putString("phone", response.body().getPhone());
-                    editor.putString("type", response.body().getType());
-                    editor.apply();
+                    authService.getProfile("Bearer " + token).enqueue(new Callback<ProfileResponse>() {
+                        @Override
+                        public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                ProfileResponse profile = response.body();
 
-                    Toast.makeText(LoginActivity.this, "Login bem-sucedido", Toast.LENGTH_SHORT).show();
+                                SafeScoreHelper.saveAuthData(
+                                        LoginActivity.this,
+                                        token,
+                                        profile.getUsername(),
+                                        profile.getEmail(),
+                                        profile.getType(),
+                                        profile.getPhone()
+                                );
 
-                    String userType = response.body().getType();
-                    Intent intent;
+                                Toast.makeText(LoginActivity.this, "Login bem-sucedido", Toast.LENGTH_SHORT).show();
 
-                    if ("driver".equals(userType)) {
-                        intent = new Intent(LoginActivity.this, DriverHomeActivity.class);
-                    } else if ("passenger".equals(userType)) {
-                        intent = new Intent(LoginActivity.this, HomeActivity.class);
-                    } else {
-                        intent = new Intent(LoginActivity.this, HomeActivity.class);
-                        Toast.makeText(LoginActivity.this, "Tipo de usuário não reconhecido, redirecionando para Home", Toast.LENGTH_SHORT).show();
-                    }
+                                Intent intent;
+                                if ("driver".equalsIgnoreCase(profile.getType())) {
+                                    intent = new Intent(LoginActivity.this, DriverHomeActivity.class);
+                                } else {
+                                    intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                }
 
-                    startActivity(intent);
-                    finish();
+                                startActivity(intent);
+                                finish();
+                            } else {
+                                // Mesmo com falha, podemos prosseguir com os dados básicos
+                                Toast.makeText(LoginActivity.this, "Login bem-sucedido, mas falha ao carregar perfil",
+                                        Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ProfileResponse> call, Throwable t) {
+                            Toast.makeText(LoginActivity.this, "Login bem-sucedido, mas falha de conexão",
+                                    Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
                 } else {
                     Toast.makeText(LoginActivity.this, "Erro no login", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 Toast.makeText(LoginActivity.this, "Falha na conexão", Toast.LENGTH_SHORT).show();

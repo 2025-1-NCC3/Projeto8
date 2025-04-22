@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.bumptech.glide.Glide;
+import com.saulop.ubersafestartfecap.utils.SafeScoreHelper;
 
 public class RideInProgressActivity extends AppCompatActivity {
 
@@ -154,6 +155,8 @@ public class RideInProgressActivity extends AppCompatActivity {
 
         btnOk.setOnClickListener(v -> {
             // Usuário confirma que está tudo bem
+            // Atualizar o SafeScore
+            SafeScoreHelper.updateSafeScore(RideInProgressActivity.this, 5);
             popupWindow.dismiss();
         });
 
@@ -236,7 +239,6 @@ public class RideInProgressActivity extends AppCompatActivity {
 
     // Novo método para finalizar a viagem e mostrar a tela de feedback
     private void finishRideAndShowFeedback() {
-        // Primeiro, navegue instantaneamente para a tela inicial apropriada
         Intent homeIntent;
         if (isDriverMode) {
             homeIntent = new Intent(RideInProgressActivity.this, DriverHomeActivity.class);
@@ -246,12 +248,10 @@ public class RideInProgressActivity extends AppCompatActivity {
         homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(homeIntent);
 
-        // Em seguida, inicie a atividade de feedback
         Intent feedbackIntent = new Intent(RideInProgressActivity.this, RideFeedbackActivity.class);
         feedbackIntent.putExtra("IS_DRIVER_MODE", isDriverMode);
         startActivity(feedbackIntent);
 
-        // Finalize esta atividade
         finish();
     }
 

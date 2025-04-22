@@ -1,23 +1,11 @@
 package com.saulop.ubersafestartfecap.model;
 
-public class LoginResponse {
-    private String message;
-    private String token;
+public class ProfileResponse {
     private String username;
     private String email;
     private String phone;
     private String type;
-    private String userId;
-    private int safeScore;
-
-    // Getters
-    public String getMessage() {
-        return message;
-    }
-
-    public String getToken() {
-        return token;
-    }
+    private int safescore;
 
     public String getUsername() {
         return username;
@@ -35,11 +23,7 @@ public class LoginResponse {
         return type;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-
-    public int getSafeScore() {
-        return safeScore;
+    public int getSafescore() {
+        return safescore;
     }
 }

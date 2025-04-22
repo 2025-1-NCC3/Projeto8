@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.saulop.ubersafestartfecap.utils.SafeScoreHelper;
+
 public class MainActivity extends AppCompatActivity {
 
     private CardView cardIdentity, cardSeatbelt, cardRoute, cardVehicle;
@@ -117,12 +119,16 @@ public class MainActivity extends AppCompatActivity {
 
         btnStartRide.setOnClickListener(v -> {
             if (allChecksCompleted()) {
-                Toast.makeText(MainActivity.this, "Iniciando corrida...", Toast.LENGTH_SHORT).show();
+                // Atualizar o SafeScore quando todos os checks estão completos
+                SafeScoreHelper.updateSafeScore(MainActivity.this, 5);
+
+                Toast.makeText(MainActivity.this, "Iniciando corrida com segurança...", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(MainActivity.this, RideInProgressActivity.class);
-                boolean isDriverMode = false;
-                intent.putExtra("IS_DRIVER_MODE", isDriverMode);
+                intent.putExtra("IS_DRIVER_MODE", false);
                 startActivity(intent);
+            } else {
+                Toast.makeText(MainActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
             }
         });
     }

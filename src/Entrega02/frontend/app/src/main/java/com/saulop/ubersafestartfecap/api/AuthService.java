@@ -31,4 +31,8 @@ public interface AuthService {
     Call<ProfileResponse> getProfile(
             @Header("Authorization") String bearerToken
     );
+    @DELETE("/api/user")
+    Call<ApiResponse> deleteUser(
+            @Header("Authorization") String bearerToken
+    );
 }

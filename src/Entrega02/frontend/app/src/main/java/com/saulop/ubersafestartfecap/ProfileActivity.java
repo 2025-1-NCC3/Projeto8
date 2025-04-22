@@ -38,7 +38,6 @@ public class ProfileActivity extends AppCompatActivity {
     private Button buttonLogout;
     private Button buttonEditProfile;
     private Button buttonSafetySettings;
-    private Button buttonTestSafeScore;
 
     private LinearLayout navHome;
     private LinearLayout navServices;
@@ -64,7 +63,6 @@ public class ProfileActivity extends AppCompatActivity {
         buttonLogout = findViewById(R.id.buttonLogout);
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
         buttonSafetySettings = findViewById(R.id.buttonSafetySettings);
-        buttonTestSafeScore = findViewById(R.id.buttonTestSafeScore);
 
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
@@ -98,18 +96,6 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(ProfileActivity.this, "Configurações de segurança em desenvolvimento", Toast.LENGTH_SHORT).show();
             }
         });
-
-        if (buttonTestSafeScore != null) {
-            buttonTestSafeScore.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Adicionar 5 pontos ao SafeScore como teste
-                    SafeScoreHelper.addTestPoints(ProfileActivity.this, 5);
-                    // Recarregar os dados do perfil
-                    loadProfileData();
-                }
-            });
-        }
 
         navHome.setOnClickListener(new View.OnClickListener() {
             @Override

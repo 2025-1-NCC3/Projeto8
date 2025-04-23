@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout;
@@ -16,6 +17,7 @@ import com.saulop.ubersafestartfecap.api.ApiClient;
 import com.saulop.ubersafestartfecap.api.AuthService;
 import com.saulop.ubersafestartfecap.model.ApiResponse;
 import com.saulop.ubersafestartfecap.model.ProfileResponse;
+import com.saulop.ubersafestartfecap.model.SafeScoreResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,10 +31,13 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView textViewPhone;
     private TextView textViewAccountType;
     private TextView textViewRating;
+    private TextView textViewSafeScore;
+    private ProgressBar progressBarSafeScore;
 
     private Button buttonLogout;
     private Button buttonEditProfile;
     private Button buttonDeleteAccount;
+    private Button buttonSafetySettings;
 
     private LinearLayout navHome;
     private LinearLayout navServices;
@@ -51,10 +56,13 @@ public class ProfileActivity extends AppCompatActivity {
         textViewPhone = findViewById(R.id.textViewPhone);
         textViewAccountType = findViewById(R.id.textViewAccountType);
         textViewRating = findViewById(R.id.textViewRating);
+        textViewSafeScore = findViewById(R.id.textViewSafeScore);
+        progressBarSafeScore = findViewById(R.id.progressBarSafeScore);
 
         buttonLogout = findViewById(R.id.buttonLogout);
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
+        buttonSafetySettings = findViewById(R.id.buttonSafetySettings);
 
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
@@ -86,6 +94,13 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDeleteAccountConfirmation();
+            }
+        });
+
+        buttonSafetySettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ProfileActivity.this, "Configurações de segurança em desenvolvimento", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -235,5 +250,41 @@ public class ProfileActivity extends AppCompatActivity {
         textViewPhone.setText(prefs.getString("phone", ""));
         textViewAccountType.setText(prefs.getString("type", ""));
         textViewRating.setText("4.8");
+
+        // Added SafeScore display from local storage
+        int safeScore = prefs.getInt("safescore", 0);
+        textViewSafeScore.setText(String.valueOf(safeScore) + "/100");
+        progressBarSafeScore.setProgress(safeScore);
+
+        // Fetch SafeScore from server
+        authService.getSafeScore("Bearer " + token).enqueue(new Callback<SafeScoreResponse>() {
+            @Override
+            public void onResponse(Call<SafeScoreResponse> call, Response<SafeScoreResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    int safescore = response.body().getSafescore();
+                    textViewSafeScore.setText(String.valueOf(safescore) + "/100");
+                    progressBarSafeScore.setProgress(safescore);
+
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("safescore", safescore);
+                    editor.apply();
+
+                    Log.d(TAG, "SafeScore atualizado do servidor: " + safescore);
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ?
+                                response.errorBody().string() : "desconhecido";
+                        Log.e(TAG, "Erro ao buscar SafeScore: " + errorBody);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao ler errorBody", e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SafeScoreResponse> call, Throwable t) {
+                Log.e(TAG, "Falha ao buscar SafeScore: " + t.getMessage());
+            }
+        });
     }
 }

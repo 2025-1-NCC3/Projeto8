@@ -17,7 +17,7 @@
         android:theme="@style/Theme.UberSafeStartFecap"
         tools:targetApi="31">
         <activity
-            android:name=".LoginActivity"
+            android:name="br.fecap.pi.ubersafestart.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.UberSafeStartFecap">
             <intent-filter>
@@ -27,48 +27,48 @@
         </activity>
 
         <activity
-            android:name=".HomeActivity"
+            android:name="br.fecap.pi.ubersafestart.HomeActivity"
             android:exported="false">
         </activity>
 
         <activity
-            android:name=".SignUpActivity"
+            android:name="br.fecap.pi.ubersafestart.SignUpActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name="br.fecap.pi.ubersafestart.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
-            android:name=".RideInProgressActivity"
+            android:name="br.fecap.pi.ubersafestart.RideInProgressActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
-            android:name=".ProfileActivity"
+            android:name="br.fecap.pi.ubersafestart.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
-            android:name=".DriverHomeActivity"
+            android:name="br.fecap.pi.ubersafestart.DriverHomeActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
-            android:name=".DriverSafetyChecklistActivity"
+            android:name="br.fecap.pi.ubersafestart.DriverSafetyChecklistActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>
 
         <activity
-            android:name=".RideFeedbackActivity"
+            android:name="br.fecap.pi.ubersafestart.RideFeedbackActivity"
             android:exported="false"
             android:theme="@style/Theme.UberSafeStartFecap">
         </activity>

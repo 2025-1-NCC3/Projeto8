@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context=".RideInProgressActivity">
+    tools:context="br.fecap.pi.ubersafestart.RideInProgressActivity">
 
     <LinearLayout
         android:id="@+id/toolbar"

@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.saulop.ubersafestartfecap'
+    namespace 'br.fecap.pi.ubersafestart'
     compileSdk 35
 
     defaultConfig {
-        applicationId "com.saulop.ubersafestartfecap"
+        applicationId "br.fecap.pi.ubersafestart"
         minSdk 24
         targetSdk 34
         versionCode 1

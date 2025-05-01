@@ -258,14 +258,12 @@ public class HomeActivity extends AppCompatActivity {
         intent.putExtra("RIDE_PRICE", ridePrice);
         intent.putExtra("DRIVER_NAME", driverName);
         startActivity(intent);
-        // Apply forward navigation animation
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
     private void openProfileActivity() {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
-        // Apply slide up animation for profile
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
@@ -275,7 +273,6 @@ public class HomeActivity extends AppCompatActivity {
                 .setMessage("Deseja sair do aplicativo?")
                 .setPositiveButton("Sim", (dialog, which) -> {
                     finishAffinity();
-                    // Optional fade out for app exit
                     overridePendingTransition(0, R.anim.fade_out);
                 })
                 .setNegativeButton("Não", null)

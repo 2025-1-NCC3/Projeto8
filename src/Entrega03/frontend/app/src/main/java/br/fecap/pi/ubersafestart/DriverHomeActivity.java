@@ -92,8 +92,7 @@ public class DriverHomeActivity extends AppCompatActivity {
             intent.putExtra("USER_TYPE", "driver");
             intent.putExtra("USER_NAME", textViewDriverName.getText().toString());
             startActivity(intent);
-            // Apply fade animation for profile
-            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
         navHome.setOnClickListener(v -> {

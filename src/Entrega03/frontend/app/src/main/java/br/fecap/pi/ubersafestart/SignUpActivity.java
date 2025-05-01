@@ -64,7 +64,6 @@ public class SignUpActivity extends AppCompatActivity {
         if (buttonBack != null) {
             buttonBack.setOnClickListener(v -> {
                 finish();
-                // Apply backward navigation animation
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             });
         }
@@ -73,7 +72,6 @@ public class SignUpActivity extends AppCompatActivity {
         textViewLoginLink.setOnClickListener(v -> {
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(intent);
-            // Apply backward navigation animation as we're going back to login
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             finish();
         });
@@ -143,7 +141,6 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
-                    // Apply backward navigation animation as we're going back to login
                     overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                     finish();
                 } else {
@@ -165,7 +162,6 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        // Apply backward navigation animation
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

@@ -78,8 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
                 Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-                // Apply fade out for logout
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
             }
         });
@@ -119,8 +118,8 @@ public class ProfileActivity extends AppCompatActivity {
                 }
 
                 startActivity(intent);
-                // Apply fade transition back to home
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                // Alterado de fade para slide left
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
             }
         });
@@ -199,8 +198,7 @@ public class ProfileActivity extends AppCompatActivity {
                             Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
-                            // Apply fade transition
-                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+                            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                             finish();
                         } else {
                             String errorMsg = body.getMessage();
@@ -288,7 +286,6 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        // Apply fade transition when going back
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 }

@@ -234,7 +234,6 @@ public class RideInProgressActivity extends AppCompatActivity {
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        // Apply slide transition to home
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
     }
@@ -248,14 +247,12 @@ public class RideInProgressActivity extends AppCompatActivity {
         }
         homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(homeIntent);
-        // Apply slide transition
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 
         Intent feedbackIntent = new Intent(RideInProgressActivity.this, RideFeedbackActivity.class);
         feedbackIntent.putExtra("IS_DRIVER_MODE", isDriverMode);
         startActivity(feedbackIntent);
-        // Apply fade animation for feedback
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
         finish();
     }

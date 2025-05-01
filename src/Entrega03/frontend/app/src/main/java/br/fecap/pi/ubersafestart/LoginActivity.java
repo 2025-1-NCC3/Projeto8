@@ -42,7 +42,6 @@ public class LoginActivity extends AppCompatActivity {
         textViewSignUpLink.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
-            // Apply forward navigation animation
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
@@ -102,7 +101,6 @@ public class LoginActivity extends AppCompatActivity {
                                 }
 
                                 startActivity(intent);
-                                // Apply forward navigation animation
                                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                 finish();
                             } else {
@@ -112,7 +110,6 @@ public class LoginActivity extends AppCompatActivity {
 
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
-                                // Apply forward navigation animation
                                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                 finish();
                             }
@@ -125,7 +122,6 @@ public class LoginActivity extends AppCompatActivity {
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
-                            // Apply forward navigation animation
                             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                             finish();
                         }
@@ -145,7 +141,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        // Apply backward navigation animation
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

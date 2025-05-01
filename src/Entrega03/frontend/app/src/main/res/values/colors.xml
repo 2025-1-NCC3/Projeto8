@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cores principais do aplicativo -->
+    <color name="primary_color">#00C853</color>
+    <color name="button_green">#00C853</color>
+
+    <!-- Cores para diferentes estados de botões -->
+
+    <color name="button_danger">#F44336</color>
+    <color name="button_negative">#F44336</color>
+
+    <!-- Cores básicas -->
+    <color name="uber_blue">#2979FF</color>
+    <color name="uber_blue_dark">#2962FF</color>
+    <color name="primary_button_bg_dark">#000000</color>
+    <color name="primary_button_text_dark">#FFFFFF</color>
+    <color name="primary_button_bg_light">#FFFFFF</color>
+    <color name="primary_button_text_light">#000000</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_fff">#FFFFFF</color>
+    <color name="black_000">#000000</color>
+    <color name="black_background">#000000</color>
+    <color name="gray_background_light">#1A1A1A</color>
+    <color name="gray_medium">#777777</color>
+    <color name="button_disabled">#555555</color>
+    <color name="status_warning">#FFA000</color>
+    <color name="status_error">#D32F2F</color>
+
+    <!-- Diferentes tons de cinza -->
+    <color name="gray_color">#777777</color>
+    <color name="gray_dark">#333333</color>
+    <color name="gray_light">#AAAAAA</color>
+    <color name="gray_very_dark">#262626</color>
+
+    <!-- Outras cores possivelmente necessárias -->
+    <color name="transparent">#00000000</color>
+</resources>

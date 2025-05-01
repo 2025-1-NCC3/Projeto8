@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Ubersafestartfecap" parent="Theme.UberSafeStartFecap"></style>
+
+    <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.Dialog.Alert">
+        <item name="colorSurface">@color/gray_very_dark</item>
+        <item name="colorOnSurface">@color/white_fff</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text
+        </item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text
+        </item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button.Dialog</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button.Dialog</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.App.Button.Dialog.Neutral</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textColor">@color/white_fff</item>
+    </style>
+
+    <style name="MaterialAlertDialog.App.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textColor">@color/gray_light</item>
+    </style>
+
+    <style name="Widget.App.Button.Dialog" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/uber_blue</item>
+    </style>
+
+    <style name="Widget.App.Button.Dialog.Neutral" parent="Widget.Material3.Button.TextButton.Dialog.Flush">
+        <item name="android:textColor">@color/gray_medium</item>
+    </style>
+
+</resources>

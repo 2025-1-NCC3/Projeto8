@@ -2,6 +2,7 @@ package br.fecap.pi.ubersafestart;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -10,8 +11,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.card.MaterialCardView;
-import br.fecap.pi.ubersafestart.R;
-
 import br.fecap.pi.ubersafestart.api.ApiClient;
 import br.fecap.pi.ubersafestart.api.AuthService;
 import br.fecap.pi.ubersafestart.model.ApiResponse;
@@ -60,10 +59,22 @@ public class SignUpActivity extends AppCompatActivity {
 
         setupAccountTypeSelection();
 
+        // Find back button if present
+        View buttonBack = findViewById(R.id.buttonBackSignUp);
+        if (buttonBack != null) {
+            buttonBack.setOnClickListener(v -> {
+                finish();
+                // Apply backward navigation animation
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            });
+        }
+
         TextView textViewLoginLink = findViewById(R.id.textViewLoginLink);
         textViewLoginLink.setOnClickListener(v -> {
             Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
             startActivity(intent);
+            // Apply backward navigation animation as we're going back to login
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
             finish();
         });
 
@@ -132,6 +143,8 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
+                    // Apply backward navigation animation as we're going back to login
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                     finish();
                 } else {
                     String errorMsg = "Registration failed";
@@ -147,5 +160,12 @@ public class SignUpActivity extends AppCompatActivity {
                 Toast.makeText(SignUpActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Apply backward navigation animation
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

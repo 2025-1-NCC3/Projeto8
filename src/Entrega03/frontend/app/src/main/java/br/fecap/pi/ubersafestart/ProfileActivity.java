@@ -14,7 +14,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import br.fecap.pi.ubersafestart.R;
-
 import br.fecap.pi.ubersafestart.api.ApiClient;
 import br.fecap.pi.ubersafestart.api.AuthService;
 import br.fecap.pi.ubersafestart.model.ApiResponse;
@@ -76,10 +75,11 @@ public class ProfileActivity extends AppCompatActivity {
                 SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
                 prefs.edit().clear().apply();
 
-                // Return to login screen
                 Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                // Apply fade out for logout
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
             }
         });
@@ -119,6 +119,8 @@ public class ProfileActivity extends AppCompatActivity {
                 }
 
                 startActivity(intent);
+                // Apply fade transition back to home
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                 finish();
             }
         });
@@ -143,7 +145,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showDeleteAccountConfirmation() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
         builder.setTitle("Deletar Conta");
         builder.setMessage("Você tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.");
 
@@ -168,17 +170,14 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // Show a loading indicator
         Toast.makeText(this, "Processando solicitação...", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Iniciando requisição para deletar conta");
 
-        // Ensure token format is correct
         String bearerToken = token;
         if (!token.startsWith("Bearer ")) {
             bearerToken = "Bearer " + token;
         }
 
-        // Log request for debugging (mask most of the token)
         String maskedToken = bearerToken.length() > 15 ?
                 bearerToken.substring(0, 10) + "..." : "[token vazio ou inválido]";
         Log.d(TAG, "Token: " + maskedToken);
@@ -195,27 +194,24 @@ public class ProfileActivity extends AppCompatActivity {
                         if (body.isSuccess()) {
                             Toast.makeText(ProfileActivity.this, "Conta deletada com sucesso", Toast.LENGTH_SHORT).show();
 
-                            // Clear user preferences
                             prefs.edit().clear().apply();
 
-                            // Navigate back to SignUp screen
                             Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
+                            // Apply fade transition
+                            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                             finish();
                         } else {
-                            // API returned success:false
                             String errorMsg = body.getMessage();
                             Log.e(TAG, "Erro na deleção: " + errorMsg);
                             Toast.makeText(ProfileActivity.this, "Falha ao deletar conta: " + errorMsg, Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        // Response body is null
                         Log.e(TAG, "Resposta vazia do servidor");
                         Toast.makeText(ProfileActivity.this, "Falha ao deletar conta: Resposta vazia do servidor", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    // Response not successful
                     try {
                         String errorBody = response.errorBody() != null ?
                                 response.errorBody().string() : "desconhecido";
@@ -287,5 +283,12 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.e(TAG, "Falha ao buscar SafeScore: " + t.getMessage());
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Apply fade transition when going back
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 }

@@ -1,35 +1,33 @@
-package br.fecap.pi.ubersafestart; // Ajuste o package se for br.fecap...
+package br.fecap.pi.ubersafestart;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import androidx.core.content.ContextCompat;
 import android.os.Bundle;
-import android.util.Log; // Importar Log
-import android.view.View;
-import android.widget.Button; // Ou MaterialButton
+import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-// Importar MaterialToolbar
-import com.google.android.material.appbar.MaterialToolbar;
-// Importar MaterialButton se for usar
-// import com.google.android.material.button.MaterialButton;
+import androidx.core.content.ContextCompat;
 
-import br.fecap.pi.ubersafestart.utils.SafeScoreHelper; // Ajuste o package se necessário
+import com.google.android.material.appbar.MaterialToolbar;
+import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
+import nl.dionsegijn.konfetti.KonfettiView;
+import br.fecap.pi.ubersafestart.utils.ConfettiManager;
 
 public class DriverSafetyChecklistActivity extends AppCompatActivity {
 
-    private static final String TAG = "DriverChecklist"; // Tag para Log
+    private static final String TAG = "DriverChecklist";
 
     private CardView cardVehicleCondition, cardLicenseInsurance, cardRespectCode, cardRecording;
     private ImageView checkVehicleCondition, checkLicenseInsurance, checkRespectCode, checkRecording;
-    private Button btnStartRide, btnSkipChecklist; // Ou MaterialButton
+    private Button btnStartRide, btnSkipChecklist;
     private TextView textViewPassengerDestination, textViewPassengerInfo;
-    // REMOVIDO: private ImageView menuButton, notificationButton, profileButton;
-    private MaterialToolbar toolbar; // ADICIONADO
+    private MaterialToolbar toolbar;
+    private KonfettiView konfettiViewDriver;
 
     private boolean isVehicleConditionChecked = false;
     private boolean isLicenseInsuranceChecked = false;
@@ -44,7 +42,6 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Certifique-se que este é o layout XML refatorado
         setContentView(R.layout.activity_driver_safety_checklist);
 
         Bundle extras = getIntent().getExtras();
@@ -61,10 +58,8 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        // Encontra a nova Toolbar pelo ID definido no XML refatorado
-        toolbar = findViewById(R.id.toolbarDriverChecklist); // ID da Toolbar no XML
+        toolbar = findViewById(R.id.toolbarDriverChecklist);
 
-        // Views do checklist
         cardVehicleCondition = findViewById(R.id.cardVehicleCondition);
         cardLicenseInsurance = findViewById(R.id.cardLicenseInsurance);
         cardRespectCode = findViewById(R.id.cardRespectCode);
@@ -75,21 +70,17 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
         checkRespectCode = findViewById(R.id.checkRespectCode);
         checkRecording = findViewById(R.id.checkRecording);
 
-        // Botões
         btnStartRide = findViewById(R.id.btnStartRide);
         btnSkipChecklist = findViewById(R.id.btnSkipChecklist);
-
-        // Textos de informação da corrida
         textViewPassengerDestination = findViewById(R.id.textViewPassengerDestination);
         textViewPassengerInfo = findViewById(R.id.textViewPassengerInfo);
 
-        // REMOVIDO: findViewById para menuButton, notificationButton, profileButton
+        konfettiViewDriver = findViewById(R.id.konfettiViewDriver);
 
-        updateUI(); // Chama após inicializar todas as views necessárias
+        updateUI();
     }
 
     private void displayRideInfo() {
-        // Verifica se os TextViews não são nulos antes de usar
         if (textViewPassengerDestination != null) {
             textViewPassengerDestination.setText("Destino: " + destination);
         }
@@ -99,46 +90,71 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        // Configura o botão de voltar (navigation icon) da nova Toolbar
         if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> finish()); // Fecha a activity
+            toolbar.setNavigationOnClickListener(v -> {
+                finish();
+                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            });
         } else {
             Log.e(TAG, "Toolbar não encontrada no layout.");
         }
 
-        // REMOVIDO: Listeners dos botões da toolbar antiga
-
-        // Listeners dos cards do checklist (com verificações de nulidade)
         if (cardVehicleCondition != null) {
             cardVehicleCondition.setOnClickListener(v -> {
                 isVehicleConditionChecked = !isVehicleConditionChecked;
                 updateUI();
+
+                // Mostrar efeito de confete se o item foi marcado
+                if (isVehicleConditionChecked && konfettiViewDriver != null) {
+                    ConfettiManager.showConfetti(konfettiViewDriver);
+                }
             });
-        } else { Log.e(TAG, "CardView cardVehicleCondition não encontrado."); }
+        } else {
+            Log.e(TAG, "CardView cardVehicleCondition não encontrado.");
+        }
 
         if (cardLicenseInsurance != null) {
             cardLicenseInsurance.setOnClickListener(v -> {
                 isLicenseInsuranceChecked = !isLicenseInsuranceChecked;
                 updateUI();
+
+                // Mostrar efeito de confete se o item foi marcado
+                if (isLicenseInsuranceChecked && konfettiViewDriver != null) {
+                    ConfettiManager.showConfetti(konfettiViewDriver);
+                }
             });
-        } else { Log.e(TAG, "CardView cardLicenseInsurance não encontrado."); }
+        } else {
+            Log.e(TAG, "CardView cardLicenseInsurance não encontrado.");
+        }
 
         if (cardRespectCode != null) {
             cardRespectCode.setOnClickListener(v -> {
                 isRespectCodeChecked = !isRespectCodeChecked;
                 updateUI();
+
+                // Mostrar efeito de confete se o item foi marcado
+                if (isRespectCodeChecked && konfettiViewDriver != null) {
+                    ConfettiManager.showConfetti(konfettiViewDriver);
+                }
             });
-        } else { Log.e(TAG, "CardView cardRespectCode não encontrado."); }
+        } else {
+            Log.e(TAG, "CardView cardRespectCode não encontrado.");
+        }
 
         if (cardRecording != null) {
             cardRecording.setOnClickListener(v -> {
                 isRecordingChecked = !isRecordingChecked;
                 updateUI();
+
+                // Mostrar efeito de confete se o item foi marcado
+                if (isRecordingChecked && konfettiViewDriver != null) {
+                    ConfettiManager.showConfetti(konfettiViewDriver);
+                }
             });
-        } else { Log.e(TAG, "CardView cardRecording não encontrado."); }
+        } else {
+            Log.e(TAG, "CardView cardRecording não encontrado.");
+        }
 
-
-        // Listeners dos botões de ação (com verificações de nulidade)
         if (btnStartRide != null) {
             btnStartRide.setOnClickListener(v -> {
                 if (allChecksCompleted()) {
@@ -150,12 +166,15 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
                     intent.putExtra("DESTINATION", destination);
                     intent.putExtra("RIDE_PRICE", ridePrice);
                     startActivity(intent);
-                    finish(); // Fecha a tela de checklist após iniciar
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    finish();
                 } else {
                     Toast.makeText(DriverSafetyChecklistActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
                 }
             });
-        } else { Log.e(TAG, "Button btnStartRide não encontrado."); }
+        } else {
+            Log.e(TAG, "Button btnStartRide não encontrado.");
+        }
 
         if (btnSkipChecklist != null) {
             btnSkipChecklist.setOnClickListener(v -> {
@@ -167,46 +186,46 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
                 intent.putExtra("DESTINATION", destination);
                 intent.putExtra("RIDE_PRICE", ridePrice);
                 startActivity(intent);
-                finish(); // Fecha a tela de checklist após iniciar
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish();
             });
-        } else { Log.e(TAG, "Button btnSkipChecklist não encontrado."); }
+        } else {
+            Log.e(TAG, "Button btnSkipChecklist não encontrado.");
+        }
     }
 
     private void updateUI() {
-        // Atualiza a aparência dos cards e checkmarks
-        if(cardVehicleCondition != null && checkVehicleCondition != null)
+        if (cardVehicleCondition != null && checkVehicleCondition != null)
             updateCardUI(cardVehicleCondition, checkVehicleCondition, isVehicleConditionChecked);
-        if(cardLicenseInsurance != null && checkLicenseInsurance != null)
+        if (cardLicenseInsurance != null && checkLicenseInsurance != null)
             updateCardUI(cardLicenseInsurance, checkLicenseInsurance, isLicenseInsuranceChecked);
-        if(cardRespectCode != null && checkRespectCode != null)
+        if (cardRespectCode != null && checkRespectCode != null)
             updateCardUI(cardRespectCode, checkRespectCode, isRespectCodeChecked);
-        if(cardRecording != null && checkRecording != null)
+        if (cardRecording != null && checkRecording != null)
             updateCardUI(cardRecording, checkRecording, isRecordingChecked);
 
-        // Habilita/Desabilita o botão principal
         boolean allCompleted = allChecksCompleted();
         if (btnStartRide != null) {
             btnStartRide.setEnabled(allCompleted);
-            // A aparência habilitado/desabilitado é controlada pelo MaterialButton ou por um seletor de drawable
-            // A linha abaixo que usava setBackgroundResource pode ser removida se usar MaterialButton
-            // btnStartRide.setBackgroundResource(allCompleted ? R.drawable.button_enabled : R.drawable.button_disabled);
+        }
+
+        // Mostrar confete de sucesso se todos os itens foram marcados
+        if (allCompleted && konfettiViewDriver != null) {
+            ConfettiManager.showSuccessConfetti(konfettiViewDriver);
         }
     }
 
     private void updateCardUI(CardView card, ImageView checkmark, boolean isChecked) {
-        // Usa as cores neutras/azuis definidas
-        int cardBgColor = ContextCompat.getColor(this, R.color.gray_very_dark); // Fundo do card interno
+        int cardBgColor = ContextCompat.getColor(this, R.color.gray_very_dark);
         ColorStateList checkmarkTint = isChecked ?
-                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.uber_blue)) : // Azul para checado
-                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray_medium)); // Cinza para não checado
-        // Troca o drawable entre preenchido e contorno
+                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.uber_blue)) :
+                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray_medium));
         int checkmarkDrawable = isChecked ? R.drawable.ic_check_circle : R.drawable.ic_check_circle_outline;
 
-        // Verifica se checkmark não é nulo antes de usar
         if (checkmark != null) {
             if (card != null) card.setCardBackgroundColor(cardBgColor);
-            checkmark.setImageResource(checkmarkDrawable); // Define o ícone correto
-            checkmark.setImageTintList(checkmarkTint); // Define a cor correta
+            checkmark.setImageResource(checkmarkDrawable);
+            checkmark.setImageTintList(checkmarkTint);
         } else {
             Log.e(TAG, "ImageView checkmark é nulo dentro de updateCardUI para o card com ID: " + (card != null ? card.getId() : "desconhecido"));
         }
@@ -214,5 +233,11 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
 
     private boolean allChecksCompleted() {
         return isVehicleConditionChecked && isLicenseInsuranceChecked && isRespectCodeChecked && isRecordingChecked;
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

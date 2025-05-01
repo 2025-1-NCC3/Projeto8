@@ -3,6 +3,8 @@ package br.fecap.pi.ubersafestart.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
@@ -107,28 +109,33 @@ public class SafeScoreHelper {
             LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.layout_safescore_notification, null);
 
-            // Configurar o texto com os pontos ganhos e o total usando os IDs corretos
+            // Configurar o texto com os pontos ganhos e o total
             TextView textViewScoreChange = popupView.findViewById(R.id.textViewScoreChange);
             TextView textViewCurrentScore = popupView.findViewById(R.id.textViewCurrentScore);
 
-            if (textViewScoreChange != null) {
+            if (points > 0) {
                 textViewScoreChange.setText("+" + points + " pontos");
+                textViewScoreChange.setTextColor(Color.parseColor("#00C853")); // Verde para pontos positivos
+            } else {
+                textViewScoreChange.setText(points + " pontos");
+                textViewScoreChange.setTextColor(Color.parseColor("#FF5252")); // Vermelho para pontos negativos
             }
 
-            if (textViewCurrentScore != null) {
-                textViewCurrentScore.setText(totalScore + "/100");
-            }
+            textViewCurrentScore.setText(totalScore + "/100");
 
             // Criar o popup
             popupWindow = new PopupWindow(
                     popupView,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
-                    false
+                    true
             );
 
             // Configurar animação
             popupWindow.setAnimationStyle(android.R.style.Animation_Toast);
+
+            // Tornar o fundo visível
+            popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
             // Garantir que a janela atual tem foco
             popupWindow.setFocusable(false);
@@ -144,6 +151,9 @@ public class SafeScoreHelper {
                     popupWindow.dismiss();
                 }
             }, 3000);
+
+            // Log para debug
+            Log.d(TAG, "Notification displayed: Points=" + points + ", Total=" + totalScore);
         } catch (Exception e) {
             Log.e(TAG, "Erro ao mostrar notificação do SafeScore", e);
         }

@@ -13,11 +13,9 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.SharedPreferences;
-
 
 import br.fecap.pi.ubersafestart.R;
 
@@ -94,6 +92,8 @@ public class DriverHomeActivity extends AppCompatActivity {
             intent.putExtra("USER_TYPE", "driver");
             intent.putExtra("USER_NAME", textViewDriverName.getText().toString());
             startActivity(intent);
+            // Apply fade animation for profile
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         });
 
         navHome.setOnClickListener(v -> {
@@ -125,7 +125,7 @@ public class DriverHomeActivity extends AppCompatActivity {
     }
 
     private void showSearchingPassengerDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(DriverHomeActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(DriverHomeActivity.this, R.style.AlertDialogTheme);
         View loadingView = LayoutInflater.from(this).inflate(R.layout.dialog_ride_loading, null);
         builder.setView(loadingView);
         builder.setCancelable(false);
@@ -155,7 +155,7 @@ public class DriverHomeActivity extends AppCompatActivity {
     }
 
     private void showPassengerInfoDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(DriverHomeActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(DriverHomeActivity.this, R.style.AlertDialogTheme);
         View passengerInfoView = LayoutInflater.from(this).inflate(R.layout.dialog_passenger_info, null);
         builder.setView(passengerInfoView);
         builder.setCancelable(true);
@@ -199,7 +199,22 @@ public class DriverHomeActivity extends AppCompatActivity {
         intent.putExtra("DESTINATION", destination);
         intent.putExtra("RIDE_PRICE", ridePrice);
         startActivity(intent);
+        // Apply forward navigation animation
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
         Toast.makeText(DriverHomeActivity.this, "Corrida aceita! Verifique os itens de segurança.", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                .setMessage("Deseja sair do aplicativo?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    finishAffinity();
+                    // Optional fade out for app exit
+                    overridePendingTransition(0, R.anim.fade_out);
+                })
+                .setNegativeButton("Não", null)
+                .show();
     }
 }

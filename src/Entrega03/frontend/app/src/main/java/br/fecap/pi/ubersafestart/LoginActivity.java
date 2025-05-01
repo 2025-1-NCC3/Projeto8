@@ -12,7 +12,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import br.fecap.pi.ubersafestart.R;
-
 import br.fecap.pi.ubersafestart.api.ApiClient;
 import br.fecap.pi.ubersafestart.api.AuthService;
 import br.fecap.pi.ubersafestart.model.LoginRequest;
@@ -23,7 +22,6 @@ import br.fecap.pi.ubersafestart.model.ProfileResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -44,6 +42,8 @@ public class LoginActivity extends AppCompatActivity {
         textViewSignUpLink.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
+            // Apply forward navigation animation
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
 
         authService = ApiClient.getClient().create(AuthService.class);
@@ -69,8 +69,6 @@ public class LoginActivity extends AppCompatActivity {
 
         LoginRequest request = new LoginRequest(email, password);
         authService.loginUser(request).enqueue(new Callback<LoginResponse>() {
-
-
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -104,6 +102,8 @@ public class LoginActivity extends AppCompatActivity {
                                 }
 
                                 startActivity(intent);
+                                // Apply forward navigation animation
+                                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                 finish();
                             } else {
                                 // Mesmo com falha, podemos prosseguir com os dados básicos
@@ -112,6 +112,8 @@ public class LoginActivity extends AppCompatActivity {
 
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
+                                // Apply forward navigation animation
+                                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                                 finish();
                             }
                         }
@@ -123,6 +125,8 @@ public class LoginActivity extends AppCompatActivity {
 
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
+                            // Apply forward navigation animation
+                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                             finish();
                         }
                     });
@@ -136,5 +140,12 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "Falha na conexão", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Apply backward navigation animation
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

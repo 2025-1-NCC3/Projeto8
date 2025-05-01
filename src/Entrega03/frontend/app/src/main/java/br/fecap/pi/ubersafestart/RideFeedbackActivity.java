@@ -10,7 +10,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import br.fecap.pi.ubersafestart.R;
-
 import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
 
 public class RideFeedbackActivity extends AppCompatActivity {
@@ -103,6 +102,8 @@ public class RideFeedbackActivity extends AppCompatActivity {
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        // Adiciona animação de transição ao voltar para a tela inicial
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
     }
 
@@ -111,5 +112,11 @@ public class RideFeedbackActivity extends AppCompatActivity {
         SafeScoreHelper.updateSafeScore(this, -5);
         Toast.makeText(this, "Feedback ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
         goToHomeScreen();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

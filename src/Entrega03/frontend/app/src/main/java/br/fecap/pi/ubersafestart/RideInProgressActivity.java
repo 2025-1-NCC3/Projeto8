@@ -22,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import br.fecap.pi.ubersafestart.R;
-
 import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
 
 public class RideInProgressActivity extends AppCompatActivity {
@@ -48,7 +47,7 @@ public class RideInProgressActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_in_progress);
 
-        // Checar se é modo motorista ou passageiro (você pode passar isso via Intent)
+        // Checar se é modo motorista ou passageiro
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             isDriverMode = extras.getBoolean("IS_DRIVER_MODE", false);
@@ -235,10 +234,11 @@ public class RideInProgressActivity extends AppCompatActivity {
         }
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        // Apply slide transition to home
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
     }
 
-    // Novo método para finalizar a viagem e mostrar a tela de feedback
     private void finishRideAndShowFeedback() {
         Intent homeIntent;
         if (isDriverMode) {
@@ -248,10 +248,14 @@ public class RideInProgressActivity extends AppCompatActivity {
         }
         homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(homeIntent);
+        // Apply slide transition
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
 
         Intent feedbackIntent = new Intent(RideInProgressActivity.this, RideFeedbackActivity.class);
         feedbackIntent.putExtra("IS_DRIVER_MODE", isDriverMode);
         startActivity(feedbackIntent);
+        // Apply fade animation for feedback
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
         finish();
     }
@@ -268,5 +272,17 @@ public class RideInProgressActivity extends AppCompatActivity {
         if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                .setTitle("Cancelar Viagem")
+                .setMessage("Você deseja realmente cancelar esta viagem?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    cancelRideAndReturnToHome();
+                })
+                .setNegativeButton("Não", null)
+                .show();
     }
 }

@@ -4,407 +4,439 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context="br.fecap.pi.ubersafestart.HomeActivity">
+    android:background="@color/black_background"
+    tools:context=".HomeActivity">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewTopBar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:backgroundTint="@color/black"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/imageViewCar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/ic_car"
-                android:contentDescription="@string/car_icon"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/textViewViagens"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="@string/inicio"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageViewCar"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#333333"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewTopBar" />
-
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewSearch"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textViewTitleHome"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:text="@string/inicio"
+        android:textColor="@color/white_fff"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageViewAppLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
         android:layout_marginEnd="16dp"
-        app:cardCornerRadius="32dp"
-        app:cardBackgroundColor="#2A2A2A"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/uber_safe_start_logo"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewTitleHome"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewTitleHome"
+        app:tint="@color/white_fff" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardViewSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="#1A1A1A"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider">
+        app:layout_constraintTop_toBottomOf="@+id/textViewTitleHome"
+        app:strokeColor="@color/gray_dark"
+        app:strokeWidth="1dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/imageViewSearch"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="16dp"
-                android:contentDescription="@string/search_icon"
-                android:src="@drawable/ic_search"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/white" />
-
-            <EditText
-                android:id="@+id/editTextSearch"
+            <LinearLayout
+                android:id="@+id/layoutSearchClickable"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:hint="@string/para_onde"
-                android:textColor="@color/white"
-                android:textSize="18sp"
-                android:backgroundTint="#2A2A2A"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageViewSearch"
-                app:layout_constraintTop_toTopOf="parent"
-                android:padding="8dp" />
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:contentDescription="@string/search_icon"
+                    android:src="@drawable/ic_search"
+                    app:tint="@color/gray_light" />
+
+                <TextView
+                    android:id="@+id/textViewSearchHint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/para_onde"
+                    android:textColor="@color/gray_light"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <View
-                android:id="@+id/verticalDivider"
                 android:layout_width="1dp"
-                android:layout_height="0dp"
-                android:background="#444444"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/layoutSchedule"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/gray_dark" />
 
             <LinearLayout
                 android:id="@+id/layoutSchedule"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp">
 
                 <ImageView
                     android:id="@+id/imageViewClock"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="6dp"
                     android:contentDescription="@string/clock_icon"
                     android:src="@drawable/ic_clock"
-                    app:tint="@color/white" />
+                    app:tint="@color/white_fff" />
 
                 <TextView
                     android:id="@+id/textViewSchedule"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/mais_tarde"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:textColor="@color/white_fff"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
             </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewRecentLocation1"
-        android:layout_width="match_parent"
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:id="@+id/layoutRecentLocations"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="#222222"
-        app:cardCornerRadius="12dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewSearch">
+        app:layout_constraintTop_toBottomOf="@id/cardViewSearch">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewRecentLocation1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/gray_dark"
+            app:strokeWidth="1dp">
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewClockIcon1"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:cardBackgroundColor="#333333"
-                app:cardCornerRadius="24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardIconBg1"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cardBackgroundColor="@color/gray_dark"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/imageViewClockIcon1"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/recent_location_icon"
+                        android:src="@drawable/ic_clock_history"
+                        app:tint="@color/white_fff" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="@+id/cardIconBg1"
+                    app:layout_constraintEnd_toStartOf="@+id/imageViewArrow1"
+                    app:layout_constraintStart_toEndOf="@+id/cardIconBg1"
+                    app:layout_constraintTop_toTopOf="@+id/cardIconBg1">
+
+                    <TextView
+                        android:id="@+id/textViewLocationName1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:text="Avenida Paulista, 1578"
+                        android:textColor="@color/white_fff"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/textViewLocationAddress1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bela Vista, São Paulo - SP"
+                        android:textColor="@color/gray_light"
+                        android:textSize="14sp"
+                        android:visibility="visible" />
+
+                </LinearLayout>
 
                 <ImageView
+                    android:id="@+id/imageViewArrow1"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/recent_location_icon"
-                    android:src="@drawable/ic_clock_history"
-                    app:tint="@color/white" />
-            </androidx.cardview.widget.CardView>
+                    android:contentDescription="@string/arrow_icon"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/gray_light" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageViewArrow1"
-                app:layout_constraintStart_toEndOf="@+id/cardViewClockIcon1"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/textViewLocationName1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/textViewLocationAddress1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="#AAAAAA"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <ImageView
-                android:id="@+id/imageViewArrow1"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/arrow_icon"
-                android:src="@drawable/ic_arrow_right"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="#AAAAAA" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Second Recent Location -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewRecentLocation2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="#222222"
-        app:cardCornerRadius="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewRecentLocation1">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardViewRecentLocation2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#1A1A1A"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/gray_dark"
+            app:strokeWidth="1dp">
 
-            <!-- Clock Icon Container -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewClockIcon2"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                app:cardBackgroundColor="#333333"
-                app:cardCornerRadius="24dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardIconBg2"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:cardBackgroundColor="@color/gray_dark"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/imageViewClockIcon2"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/recent_location_icon"
+                        android:src="@drawable/ic_clock_history"
+                        app:tint="@color/white_fff" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="@+id/cardIconBg2"
+                    app:layout_constraintEnd_toStartOf="@+id/imageViewArrow2"
+                    app:layout_constraintStart_toEndOf="@+id/cardIconBg2"
+                    app:layout_constraintTop_toTopOf="@+id/cardIconBg2">
+
+                    <TextView
+                        android:id="@+id/textViewLocationName2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:text="Parque Ibirapuera"
+                        android:textColor="@color/white_fff"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/textViewLocationAddress2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Av. Pedro Álvares Cabral"
+                        android:textColor="@color/gray_light"
+                        android:textSize="14sp"
+                        android:visibility="visible" />
+
+                </LinearLayout>
 
                 <ImageView
+                    android:id="@+id/imageViewArrow2"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@string/recent_location_icon"
-                    android:src="@drawable/ic_clock_history"
-                    app:tint="@color/white" />
-            </androidx.cardview.widget.CardView>
+                    android:contentDescription="@string/arrow_icon"
+                    android:src="@drawable/ic_arrow_right"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/gray_light" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Location Text -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageViewArrow2"
-                app:layout_constraintStart_toEndOf="@+id/cardViewClockIcon2"
-                app:layout_constraintTop_toTopOf="parent">
+    </LinearLayout>
 
-                <TextView
-                    android:id="@+id/textViewLocationName2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/textViewLocationAddress2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="#AAAAAA"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <!-- Arrow Icon -->
-            <ImageView
-                android:id="@+id/imageViewArrow2"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:contentDescription="@string/arrow_icon"
-                android:src="@drawable/ic_arrow_right"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:tint="#AAAAAA" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="#111111"
+        android:layout_height="60dp"
+        android:background="@color/black_background"
+        android:elevation="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Home -->
         <LinearLayout
             android:id="@+id/navHome"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <ImageView
+                android:id="@+id/iconHome"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/home_icon"
                 android:src="@drawable/ic_home"
-                app:tint="@color/white" />
+                app:tint="@color/white_fff" />
 
             <TextView
+                android:id="@+id/textHome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="@string/inicio"
-                android:textColor="@color/white"
+                android:textColor="@color/white_fff"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Services -->
         <LinearLayout
             android:id="@+id/navServices"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <ImageView
+                android:id="@+id/iconServices"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/services_icon"
                 android:src="@drawable/ic_grid"
-                app:tint="#AAAAAA" />
+                app:tint="@color/gray_light" />
 
             <TextView
+                android:id="@+id/textServices"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="@string/opcoes"
-                android:textColor="#AAAAAA"
+                android:textColor="@color/gray_light"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Activity -->
         <LinearLayout
             android:id="@+id/navActivity"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <ImageView
+                android:id="@+id/iconActivity"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/activity_icon"
                 android:src="@drawable/ic_activity"
-                app:tint="#AAAAAA" />
+                app:tint="@color/gray_light" />
 
             <TextView
+                android:id="@+id/textActivity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="@string/atividade"
-                android:textColor="#AAAAAA"
+                android:textColor="@color/gray_light"
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Account -->
         <LinearLayout
             android:id="@+id/navAccount"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:gravity="center"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
             <ImageView
+                android:id="@+id/iconAccount"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="@string/account_icon"
                 android:src="@drawable/ic_account"
-                app:tint="#AAAAAA" />
+                app:tint="@color/gray_light" />
 
             <TextView
+                android:id="@+id/textAccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:text="@string/conta"
-                android:textColor="#AAAAAA"
+                android:textColor="@color/gray_light"
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

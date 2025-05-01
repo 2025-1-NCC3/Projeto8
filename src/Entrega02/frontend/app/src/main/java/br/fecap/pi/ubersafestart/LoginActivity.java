@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         editTextPassword = findViewById(R.id.editTextPasswordLogin);
         buttonLogin = findViewById(R.id.buttonLogin);
 
-        TextView textViewSignUpLink = findViewById(R.id.textViewSignUpLink);
+        TextView textViewSignUpLink = findViewById(R.id.textViewSignUp);
         textViewSignUpLink.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);

@@ -1,28 +1,35 @@
-package br.fecap.pi.ubersafestart;
+package br.fecap.pi.ubersafestart; // Ajuste o package se for br.fecap...
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
+import androidx.core.content.ContextCompat;
 import android.os.Bundle;
-import android.widget.Button;
+import android.util.Log; // Importar Log
+import android.view.View;
+import android.widget.Button; // Ou MaterialButton
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+// Importar MaterialToolbar
+import com.google.android.material.appbar.MaterialToolbar;
+// Importar MaterialButton se for usar
+// import com.google.android.material.button.MaterialButton;
 
-import br.fecap.pi.ubersafestart.R;
-
-import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
+import br.fecap.pi.ubersafestart.utils.SafeScoreHelper; // Ajuste o package se necessário
 
 public class DriverSafetyChecklistActivity extends AppCompatActivity {
 
+    private static final String TAG = "DriverChecklist"; // Tag para Log
+
     private CardView cardVehicleCondition, cardLicenseInsurance, cardRespectCode, cardRecording;
     private ImageView checkVehicleCondition, checkLicenseInsurance, checkRespectCode, checkRecording;
-    private Button btnStartRide, btnSkipChecklist;
+    private Button btnStartRide, btnSkipChecklist; // Ou MaterialButton
     private TextView textViewPassengerDestination, textViewPassengerInfo;
-    private ImageView menuButton, notificationButton, profileButton;
+    // REMOVIDO: private ImageView menuButton, notificationButton, profileButton;
+    private MaterialToolbar toolbar; // ADICIONADO
 
     private boolean isVehicleConditionChecked = false;
     private boolean isLicenseInsuranceChecked = false;
@@ -37,6 +44,7 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Certifique-se que este é o layout XML refatorado
         setContentView(R.layout.activity_driver_safety_checklist);
 
         Bundle extras = getIntent().getExtras();
@@ -53,6 +61,10 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        // Encontra a nova Toolbar pelo ID definido no XML refatorado
+        toolbar = findViewById(R.id.toolbarDriverChecklist); // ID da Toolbar no XML
+
+        // Views do checklist
         cardVehicleCondition = findViewById(R.id.cardVehicleCondition);
         cardLicenseInsurance = findViewById(R.id.cardLicenseInsurance);
         cardRespectCode = findViewById(R.id.cardRespectCode);
@@ -63,110 +75,140 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
         checkRespectCode = findViewById(R.id.checkRespectCode);
         checkRecording = findViewById(R.id.checkRecording);
 
+        // Botões
         btnStartRide = findViewById(R.id.btnStartRide);
         btnSkipChecklist = findViewById(R.id.btnSkipChecklist);
+
+        // Textos de informação da corrida
         textViewPassengerDestination = findViewById(R.id.textViewPassengerDestination);
         textViewPassengerInfo = findViewById(R.id.textViewPassengerInfo);
 
-        menuButton = findViewById(R.id.menuButton);
-        notificationButton = findViewById(R.id.notificationButton);
-        profileButton = findViewById(R.id.profileButton);
+        // REMOVIDO: findViewById para menuButton, notificationButton, profileButton
 
-        updateUI();
+        updateUI(); // Chama após inicializar todas as views necessárias
     }
 
     private void displayRideInfo() {
-        textViewPassengerDestination.setText("Destino: " + destination);
-        textViewPassengerInfo.setText("Passageiro: " + passengerName + " | Embarque: " + pickupLocation);
+        // Verifica se os TextViews não são nulos antes de usar
+        if (textViewPassengerDestination != null) {
+            textViewPassengerDestination.setText("Destino: " + destination);
+        }
+        if (textViewPassengerInfo != null) {
+            textViewPassengerInfo.setText("Passageiro: " + passengerName + " | Embarque: " + pickupLocation);
+        }
     }
 
     private void setupClickListeners() {
-        menuButton.setOnClickListener(v -> {
-            Toast.makeText(DriverSafetyChecklistActivity.this, "Menu", Toast.LENGTH_SHORT).show();
-        });
+        // Configura o botão de voltar (navigation icon) da nova Toolbar
+        if (toolbar != null) {
+            toolbar.setNavigationOnClickListener(v -> finish()); // Fecha a activity
+        } else {
+            Log.e(TAG, "Toolbar não encontrada no layout.");
+        }
 
-        notificationButton.setOnClickListener(v -> {
-            Toast.makeText(DriverSafetyChecklistActivity.this, "Notificações", Toast.LENGTH_SHORT).show();
-        });
+        // REMOVIDO: Listeners dos botões da toolbar antiga
 
-        profileButton.setOnClickListener(v -> {
-            Toast.makeText(DriverSafetyChecklistActivity.this, "Perfil", Toast.LENGTH_SHORT).show();
-        });
+        // Listeners dos cards do checklist (com verificações de nulidade)
+        if (cardVehicleCondition != null) {
+            cardVehicleCondition.setOnClickListener(v -> {
+                isVehicleConditionChecked = !isVehicleConditionChecked;
+                updateUI();
+            });
+        } else { Log.e(TAG, "CardView cardVehicleCondition não encontrado."); }
 
-        cardVehicleCondition.setOnClickListener(v -> {
-            isVehicleConditionChecked = !isVehicleConditionChecked;
-            updateUI();
-        });
+        if (cardLicenseInsurance != null) {
+            cardLicenseInsurance.setOnClickListener(v -> {
+                isLicenseInsuranceChecked = !isLicenseInsuranceChecked;
+                updateUI();
+            });
+        } else { Log.e(TAG, "CardView cardLicenseInsurance não encontrado."); }
 
-        cardLicenseInsurance.setOnClickListener(v -> {
-            isLicenseInsuranceChecked = !isLicenseInsuranceChecked;
-            updateUI();
-        });
+        if (cardRespectCode != null) {
+            cardRespectCode.setOnClickListener(v -> {
+                isRespectCodeChecked = !isRespectCodeChecked;
+                updateUI();
+            });
+        } else { Log.e(TAG, "CardView cardRespectCode não encontrado."); }
 
-        cardRespectCode.setOnClickListener(v -> {
-            isRespectCodeChecked = !isRespectCodeChecked;
-            updateUI();
-        });
+        if (cardRecording != null) {
+            cardRecording.setOnClickListener(v -> {
+                isRecordingChecked = !isRecordingChecked;
+                updateUI();
+            });
+        } else { Log.e(TAG, "CardView cardRecording não encontrado."); }
 
-        cardRecording.setOnClickListener(v -> {
-            isRecordingChecked = !isRecordingChecked;
-            updateUI();
-        });
 
-        btnStartRide.setOnClickListener(v -> {
-            if (allChecksCompleted()) {
-                // Atualizar o SafeScore quando todos os checks estão completos
-                SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, 5);
+        // Listeners dos botões de ação (com verificações de nulidade)
+        if (btnStartRide != null) {
+            btnStartRide.setOnClickListener(v -> {
+                if (allChecksCompleted()) {
+                    SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, 5);
+                    Toast.makeText(DriverSafetyChecklistActivity.this, "Viagem iniciada com segurança!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(DriverSafetyChecklistActivity.this, RideInProgressActivity.class);
+                    intent.putExtra("IS_DRIVER_MODE", true);
+                    intent.putExtra("PASSENGER_NAME", passengerName);
+                    intent.putExtra("DESTINATION", destination);
+                    intent.putExtra("RIDE_PRICE", ridePrice);
+                    startActivity(intent);
+                    finish(); // Fecha a tela de checklist após iniciar
+                } else {
+                    Toast.makeText(DriverSafetyChecklistActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else { Log.e(TAG, "Button btnStartRide não encontrado."); }
 
-                Toast.makeText(DriverSafetyChecklistActivity.this, "Viagem iniciada com segurança!", Toast.LENGTH_SHORT).show();
-
-                // Iniciar a atividade RideInProgressActivity com o modo motorista
+        if (btnSkipChecklist != null) {
+            btnSkipChecklist.setOnClickListener(v -> {
+                SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, -5);
+                Toast.makeText(DriverSafetyChecklistActivity.this, "Checklist ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(DriverSafetyChecklistActivity.this, RideInProgressActivity.class);
                 intent.putExtra("IS_DRIVER_MODE", true);
                 intent.putExtra("PASSENGER_NAME", passengerName);
                 intent.putExtra("DESTINATION", destination);
                 intent.putExtra("RIDE_PRICE", ridePrice);
                 startActivity(intent);
-            } else {
-                Toast.makeText(DriverSafetyChecklistActivity.this, "Complete todos os itens de segurança primeiro", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Novo botão para ignorar o checklist com penalidade no SafeScore
-        btnSkipChecklist.setOnClickListener(v -> {
-            // Reduzir o SafeScore em 5 pontos
-            SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, -5);
-
-            Toast.makeText(DriverSafetyChecklistActivity.this, "Checklist ignorado! -5 pontos de SafeScore.", Toast.LENGTH_SHORT).show();
-
-            // Mesmo assim, iniciar a corrida
-            Intent intent = new Intent(DriverSafetyChecklistActivity.this, RideInProgressActivity.class);
-            intent.putExtra("IS_DRIVER_MODE", true);
-            intent.putExtra("PASSENGER_NAME", passengerName);
-            intent.putExtra("DESTINATION", destination);
-            intent.putExtra("RIDE_PRICE", ridePrice);
-            startActivity(intent);
-        });
+                finish(); // Fecha a tela de checklist após iniciar
+            });
+        } else { Log.e(TAG, "Button btnSkipChecklist não encontrado."); }
     }
 
     private void updateUI() {
-        updateCardUI(cardVehicleCondition, checkVehicleCondition, isVehicleConditionChecked);
-        updateCardUI(cardLicenseInsurance, checkLicenseInsurance, isLicenseInsuranceChecked);
-        updateCardUI(cardRespectCode, checkRespectCode, isRespectCodeChecked);
-        updateCardUI(cardRecording, checkRecording, isRecordingChecked);
+        // Atualiza a aparência dos cards e checkmarks
+        if(cardVehicleCondition != null && checkVehicleCondition != null)
+            updateCardUI(cardVehicleCondition, checkVehicleCondition, isVehicleConditionChecked);
+        if(cardLicenseInsurance != null && checkLicenseInsurance != null)
+            updateCardUI(cardLicenseInsurance, checkLicenseInsurance, isLicenseInsuranceChecked);
+        if(cardRespectCode != null && checkRespectCode != null)
+            updateCardUI(cardRespectCode, checkRespectCode, isRespectCodeChecked);
+        if(cardRecording != null && checkRecording != null)
+            updateCardUI(cardRecording, checkRecording, isRecordingChecked);
 
+        // Habilita/Desabilita o botão principal
         boolean allCompleted = allChecksCompleted();
-        btnStartRide.setEnabled(allCompleted);
-        btnStartRide.setBackgroundResource(allCompleted ? R.drawable.button_enabled : R.drawable.button_disabled);
+        if (btnStartRide != null) {
+            btnStartRide.setEnabled(allCompleted);
+            // A aparência habilitado/desabilitado é controlada pelo MaterialButton ou por um seletor de drawable
+            // A linha abaixo que usava setBackgroundResource pode ser removida se usar MaterialButton
+            // btnStartRide.setBackgroundResource(allCompleted ? R.drawable.button_enabled : R.drawable.button_disabled);
+        }
     }
 
     private void updateCardUI(CardView card, ImageView checkmark, boolean isChecked) {
-        if (isChecked) {
-            card.setCardBackgroundColor(Color.parseColor("#004D21"));
-            checkmark.setImageTintList(ColorStateList.valueOf(Color.parseColor("#00C853")));
+        // Usa as cores neutras/azuis definidas
+        int cardBgColor = ContextCompat.getColor(this, R.color.gray_very_dark); // Fundo do card interno
+        ColorStateList checkmarkTint = isChecked ?
+                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.uber_blue)) : // Azul para checado
+                ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray_medium)); // Cinza para não checado
+        // Troca o drawable entre preenchido e contorno
+        int checkmarkDrawable = isChecked ? R.drawable.ic_check_circle : R.drawable.ic_check_circle_outline;
+
+        // Verifica se checkmark não é nulo antes de usar
+        if (checkmark != null) {
+            if (card != null) card.setCardBackgroundColor(cardBgColor);
+            checkmark.setImageResource(checkmarkDrawable); // Define o ícone correto
+            checkmark.setImageTintList(checkmarkTint); // Define a cor correta
         } else {
-            card.setCardBackgroundColor(Color.parseColor("#262626"));
-            checkmark.setImageTintList(ColorStateList.valueOf(Color.parseColor("#777777")));
+            Log.e(TAG, "ImageView checkmark é nulo dentro de updateCardUI para o card com ID: " + (card != null ? card.getId() : "desconhecido"));
         }
     }
 

@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Base.Theme.UberSafeStartFecap" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Cores do Material Design 3 -->
-        <item name="colorPrimary">@color/button_green</item>
-        <item name="colorPrimaryVariant">@color/button_green</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/button_green</item>
-        <item name="colorSecondaryVariant">@color/button_green</item>
-        <item name="colorOnSecondary">@color/white</item>
 
-        <!-- Material3 específico -->
-        <item name="colorPrimaryContainer">@color/button_green</item>
-        <item name="colorOnPrimaryContainer">@color/white</item>
-        <item name="colorSecondaryContainer">@color/button_green</item>
-        <item name="colorOnSecondaryContainer">@color/white</item>
+        <item name="colorPrimary">@color/uber_blue</item>
+        <item name="colorPrimaryVariant">@color/uber_blue_dark</item>
+        <item name="colorOnPrimary">@color/white_fff</item>
 
-        <item name="android:colorControlHighlight">@android:color/transparent</item>
+        <item name="colorSecondary">@color/uber_blue</item>
+        <item name="colorSecondaryVariant">@color/uber_blue_dark</item>
+        <item name="colorOnSecondary">@color/white_fff</item>
 
-        <!-- Estilo dos botões -->
-        <item name="materialButtonStyle">@style/Widget.App.Button</item>
-        <item name="buttonStyle">@style/Widget.App.Button</item>
-    </style>
+        <item name="colorPrimaryContainer">@color/gray_background_light</item>
+        <item name="colorOnPrimaryContainer">@color/white_fff</item>
+        <item name="colorSecondaryContainer">@color/gray_very_dark</item>
+        <item name="colorOnSecondaryContainer">@color/white_fff</item>
 
-    <style name="Widget.App.Button" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@null</item>
-        <item name="android:background">@drawable/button_enabled</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:enabled">true</item>
+        <item name="android:colorBackground">@color/black_background</item>
+        <item name="colorSurface">@color/gray_background_light</item>
+        <item name="colorOnSurface">@color/white_fff</item>
+        <item name="colorError">@color/status_error</item>
+        <item name="colorOnError">@color/white_fff</item>
+
+        <item name="android:statusBarColor">@color/black_background</item>
+        <item name="android:navigationBarColor">@color/black_background</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.UberSafeStartFecap" parent="Base.Theme.UberSafeStartFecap" />
+
 </resources>

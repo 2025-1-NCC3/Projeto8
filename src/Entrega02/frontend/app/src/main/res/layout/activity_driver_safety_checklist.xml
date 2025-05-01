@@ -1,63 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context="br.fecap.pi.ubersafestart.DriverSafetyChecklistActivity">
+    android:background="@color/black_background"
+    android:fitsSystemWindows="true"
+    tools:context=".DriverSafetyChecklistActivity">
 
-    <LinearLayout
-        android:id="@+id/toolbar"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayoutDriverChecklist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="#1A1A1A"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="@color/black_background"
+        app:elevation="0dp">
 
-        <ImageView
-            android:id="@+id/menuButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_menu" />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarDriverChecklist"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white_fff"
+            app:title="Verificação de Segurança"
+            app:titleTextColor="@color/white_fff" />
 
-        <TextView
-            android:id="@+id/textViewTripInfo"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="Verificação de Segurança"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <ImageView
-            android:id="@+id/notificationButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="16dp"
-            android:src="@drawable/ic_notification" />
-
-        <ImageView
-            android:id="@+id/profileButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_profile" />
-    </LinearLayout>
-
-    <!-- Card com informações da corrida -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewRideInfo"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="#262626"
-        app:cardCornerRadius="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -65,230 +37,268 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
-                android:id="@+id/textViewPassengerDestination"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardViewRideInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Destino: "
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/textViewPassengerInfo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Passageiro: "
-                android:textColor="#AAAAAA"
-                android:textSize="14sp" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        app:cardBackgroundColor="#1A1A1A"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardViewRideInfo"
-        app:layout_constraintVertical_bias="0.2">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/securityShield"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:src="@drawable/ic_shield"
-                android:tint="#00C853" />
-
-            <TextView
-                android:id="@+id/textViewSafetyTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Lista de Segurança do Motorista"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingBottom="16dp"
-                android:text="Complete todas as verificações antes de iniciar"
-                android:textColor="#AAAAAA"
-                android:textSize="14sp" />
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardVehicleCondition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="#262626"
-                app:cardCornerRadius="8dp">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/gray_background_light"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gray_dark"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/textViewPassengerDestination"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Veículo em condições seguras (freios, luzes, pneus)"
-                        android:textColor="@android:color/white"
+                        android:text="Destino: Exemplo Destino"
+                        android:textColor="@color/white_fff"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textViewPassengerInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Passageiro: Nome Passageiro"
+                        android:textColor="@color/gray_light"
                         android:textSize="14sp" />
-
-                    <ImageView
-                        android:id="@+id/checkVehicleCondition"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_check_circle"
-                        android:tint="#777777" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardLicenseInsurance"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardChecklistItemsDriver"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="#262626"
-                app:cardCornerRadius="8dp">
+                app:cardBackgroundColor="@color/gray_background_light"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gray_dark"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Documentação em dia (CNH, seguro, licenciamento)"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <ImageView
-                        android:id="@+id/checkLicenseInsurance"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_check_circle"
-                        android:tint="#777777" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardRespectCode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="#262626"
-                app:cardCornerRadius="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                        android:id="@+id/securityShield"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp"
+                        android:src="@drawable/ic_shield_check"
+                        app:tint="@color/uber_blue" />
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/textViewSafetyTitle"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Compromisso com o Código de Respeito"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp" />
-
-                    <ImageView
-                        android:id="@+id/checkRespectCode"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_check_circle"
-                        android:tint="#777777" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardRecording"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                app:cardBackgroundColor="#262626"
-                app:cardCornerRadius="8dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
+                        android:layout_marginBottom="4dp"
+                        android:gravity="center"
+                        android:text="Lista de Segurança do Motorista"
+                        android:textColor="@color/white_fff"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Ativar gravação de áudio da viagem"
-                        android:textColor="@android:color/white"
+                        android:gravity="center"
+                        android:paddingBottom="16dp"
+                        android:text="Complete as verificações antes de iniciar"
+                        android:textColor="@color/gray_light"
                         android:textSize="14sp" />
 
-                    <ImageView
-                        android:id="@+id/checkRecording"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_check_circle"
-                        android:tint="#777777" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardVehicleCondition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/gray_very_dark"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp">
 
-            <Button
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Veículo em condições seguras (freios, luzes, pneus)"
+                                android:textColor="@color/white_fff"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/checkVehicleCondition"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_check_circle_outline"
+                                app:tint="@color/gray_medium" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLicenseInsurance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/gray_very_dark"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Documentação em dia (CNH, seguro, licenciamento)"
+                                android:textColor="@color/white_fff"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/checkLicenseInsurance"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_check_circle_outline"
+                                app:tint="@color/gray_medium" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardRespectCode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/gray_very_dark"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Compromisso com o Código de Respeito"
+                                android:textColor="@color/white_fff"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/checkRespectCode"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_check_circle_outline"
+                                app:tint="@color/gray_medium" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardRecording"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/gray_very_dark"
+                        app:cardCornerRadius="8dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:padding="14dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Ativar gravação de áudio da viagem"
+                                android:textColor="@color/white_fff"
+                                android:textSize="14sp" />
+
+                            <ImageView
+                                android:id="@+id/checkRecording"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_check_circle_outline"
+                                app:tint="@color/gray_medium" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnStartRide"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/button_enabled"
-                android:padding="12dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/primary_button_bg_dark"
+                android:enabled="false"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                 android:text="Estou pronto para iniciar"
                 android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:enabled="true" />
+                android:textColor="@color/primary_button_text_dark"
+                android:textSize="16sp"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/gray_dark"
+                app:strokeWidth="1dp" />
 
-            <!-- Adicione este botão após o btnStartRide no layout activity_driver_safety_checklist.xml -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSkipChecklist"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/button_secondary"
-                android:padding="12dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
                 android:text="Ignorar e iniciar corrida"
                 android:textAllCaps="false"
-                android:textColor="#FF8A80" />
+                android:textColor="@color/white_fff"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/white_fff" />
+
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -37,7 +37,6 @@ public class ProfileActivity extends AppCompatActivity {
     private Button buttonLogout;
     private Button buttonEditProfile;
     private Button buttonDeleteAccount;
-    private Button buttonSafetySettings;
 
     private LinearLayout navHome;
     private LinearLayout navServices;
@@ -62,7 +61,6 @@ public class ProfileActivity extends AppCompatActivity {
         buttonLogout = findViewById(R.id.buttonLogout);
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
-        buttonSafetySettings = findViewById(R.id.buttonSafetySettings);
 
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
@@ -94,13 +92,6 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDeleteAccountConfirmation();
-            }
-        });
-
-        buttonSafetySettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(ProfileActivity.this, "Configurações de segurança em desenvolvimento", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -243,7 +234,17 @@ public class ProfileActivity extends AppCompatActivity {
         textViewName.setText(prefs.getString("username", ""));
         textViewEmail.setText(prefs.getString("email", ""));
         textViewPhone.setText(prefs.getString("phone", ""));
-        textViewAccountType.setText(prefs.getString("type", ""));
+
+        // Alteração para exibir "Motorista" ou "Passageiro" em vez de "driver" ou "passenger"
+        String accountType = prefs.getString("type", "");
+        if ("driver".equalsIgnoreCase(accountType)) {
+            textViewAccountType.setText("Motorista");
+        } else if ("passenger".equalsIgnoreCase(accountType)) {
+            textViewAccountType.setText("Passageiro");
+        } else {
+            textViewAccountType.setText(accountType); // Para qualquer outro tipo que venha a existir
+        }
+
         textViewRating.setText("4.8");
 
         // Added SafeScore display from local storage

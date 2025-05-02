@@ -2,12 +2,15 @@ package br.fecap.pi.ubersafestart;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Color; // Import necessário
+import android.graphics.drawable.ColorDrawable; // Import necessário
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window; // Import pode ser necessário dependendo do seu SDK mínimo
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -66,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadLocationHistoryData() {
+        // Seu código para carregar dados de localização...
         String location1Name = "Avenida Paulista, 1578";
         String location1Address = "Bela Vista, São Paulo - SP";
         String location2Name = "Parque Ibirapuera";
@@ -96,6 +100,7 @@ public class HomeActivity extends AppCompatActivity {
         if (layoutSearchClickable != null) {
             layoutSearchClickable.setOnClickListener(v -> {
                 Toast.makeText(HomeActivity.this, "Abrir tela de busca...", Toast.LENGTH_SHORT).show();
+                // Implementar lógica de busca
             });
         } else {
             Log.e(TAG, "LinearLayout layoutSearchClickable não encontrado.");
@@ -106,6 +111,7 @@ public class HomeActivity extends AppCompatActivity {
         if (layoutSchedule != null) {
             layoutSchedule.setOnClickListener(v -> {
                 Toast.makeText(HomeActivity.this, "Abrir agendamento...", Toast.LENGTH_SHORT).show();
+                // Implementar lógica de agendamento
             });
         } else {
             Log.e(TAG, "LinearLayout layoutSchedule não encontrado.");
@@ -133,10 +139,11 @@ public class HomeActivity extends AppCompatActivity {
         if (navActivity != null) navActivity.setOnClickListener(listener); else Log.e(TAG, "LinearLayout navActivity não encontrado.");
         if (navAccount != null) navAccount.setOnClickListener(listener); else Log.e(TAG, "LinearLayout navAccount não encontrado.");
 
-        updateBottomNavigationSelection(R.id.navHome);
+        updateBottomNavigationSelection(R.id.navHome); // Mantém Home selecionada inicialmente
     }
 
     private void updateBottomNavigationSelection(int selectedItemId) {
+        // Seu código para atualizar a navegação inferior...
         LinearLayout[] navItems = {navHome, navServices, navActivity, navAccount};
         int[] iconIds = {R.id.iconHome, R.id.iconServices, R.id.iconActivity, R.id.iconAccount};
         int[] textIds = {R.id.textHome, R.id.textServices, R.id.textActivity, R.id.textAccount};
@@ -192,37 +199,49 @@ public class HomeActivity extends AppCompatActivity {
         builder.setCancelable(false);
 
         final AlertDialog loadingDialog = builder.create();
-        loadingDialog.show();
+
+        // --- CORREÇÃO ADICIONADA AQUI ---
+        if (loadingDialog.getWindow() != null) {
+            // Define o fundo da JANELA do diálogo como transparente
+            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        // --- FIM DA CORREÇÃO ---
+
+        loadingDialog.show(); // Exibe o diálogo
 
         ProgressBar progressBar = loadingView.findViewById(R.id.progressBar);
         TextView statusText = loadingView.findViewById(R.id.textViewStatus);
         ImageView checkmarkImage = loadingView.findViewById(R.id.imageViewCheckmark);
 
-        if(statusText != null) statusText.setText("Procurando motorista...");
+        // Lógica de visibilidade inicial
+        if(statusText != null) statusText.setText(R.string.dialog_loading_status_searching); // Use string resource
         if(progressBar != null) progressBar.setVisibility(View.VISIBLE);
         if(checkmarkImage != null) checkmarkImage.setVisibility(View.GONE);
 
+        // Simula busca e sucesso
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // Verifica se a activity ainda existe e o diálogo está sendo exibido
             if (!isFinishing() && !isDestroyed() && loadingDialog.isShowing()) {
-                if(statusText != null) statusText.setText("Motorista encontrado!");
+                if(statusText != null) statusText.setText("Motorista encontrado!"); // TODO: Usar string resource
                 if(progressBar != null) progressBar.setVisibility(View.GONE);
                 if(checkmarkImage != null) checkmarkImage.setVisibility(View.VISIBLE);
 
+                // Pequeno delay para mostrar o checkmark antes de fechar
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     if (!isFinishing() && !isDestroyed() && loadingDialog.isShowing()) {
                         loadingDialog.dismiss();
-                        showDriverInfoDialog(destination);
+                        showDriverInfoDialog(destination); // Chama o próximo diálogo
                     }
-                }, 1000);
+                }, 1000); // Delay de 1 segundo para mostrar o checkmark
             }
-        }, 3000);
+        }, 3000); // Delay de 3 segundos simulando busca
     }
 
     private void showDriverInfoDialog(String destination) {
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this, R.style.AlertDialogTheme);
         View driverInfoView = LayoutInflater.from(this).inflate(R.layout.dialog_driver_info, null);
         builder.setView(driverInfoView);
-        builder.setCancelable(true);
+        builder.setCancelable(true); // Permite fechar clicando fora
 
         TextView tvDriverName = driverInfoView.findViewById(R.id.textViewDriverName);
         TextView tvCarInfo = driverInfoView.findViewById(R.id.textViewCarInfo);
@@ -232,6 +251,7 @@ public class HomeActivity extends AppCompatActivity {
         RatingBar safeScoreBar = driverInfoView.findViewById(R.id.ratingBarSafeScore);
         Button btnPayment = driverInfoView.findViewById(R.id.buttonPayment);
 
+        // TODO: Substituir por dados reais do motorista encontrado
         String driverName = "João Silva";
         String ridePrice = "R$ 23,50";
         if (tvDriverName != null) tvDriverName.setText(driverName);
@@ -239,9 +259,17 @@ public class HomeActivity extends AppCompatActivity {
         if (tvPrice != null) tvPrice.setText(ridePrice);
         if (tvDestination != null) tvDestination.setText("Para: " + destination);
         if (ratingBar != null) ratingBar.setRating(4.7f);
-        if (safeScoreBar != null) safeScoreBar.setRating(4.9f);
+        if (safeScoreBar != null) safeScoreBar.setRating(4.9f); // Exemplo de Safe Score
 
         final AlertDialog driverDialog = builder.create();
+
+        // --- ADIÇÃO PARA CANTOS ARREDONDADOS (OPCIONAL, mas recomendado com setView) ---
+        if (driverDialog.getWindow() != null) {
+            // Define o fundo da JANELA do diálogo como transparente
+            driverDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        // --- FIM DA ADIÇÃO ---
+
         driverDialog.show();
 
         if (btnPayment != null) {
@@ -253,7 +281,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void navigateToSafetyChecklist(String destination, String driverName, String ridePrice) {
-        Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+        Intent intent = new Intent(HomeActivity.this, MainActivity.class); // MainActivity é o Checklist? Confirme o nome.
         intent.putExtra("DESTINATION", destination);
         intent.putExtra("RIDE_PRICE", ridePrice);
         intent.putExtra("DRIVER_NAME", driverName);
@@ -264,18 +292,18 @@ public class HomeActivity extends AppCompatActivity {
     private void openProfileActivity() {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out); // Animação suave para perfil
     }
 
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setMessage("Deseja sair do aplicativo?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    finishAffinity();
-                    overridePendingTransition(0, R.anim.fade_out);
+                .setMessage("Deseja sair do aplicativo?") // TODO: Usar string resource
+                .setPositiveButton("Sim", (dialog, which) -> { // TODO: Usar string resource
+                    finishAffinity(); // Fecha todas as activities da task
+                    overridePendingTransition(0, R.anim.fade_out); // Animação de saída
                 })
-                .setNegativeButton("Não", null)
+                .setNegativeButton("Não", null) // TODO: Usar string resource
                 .show();
     }
 }

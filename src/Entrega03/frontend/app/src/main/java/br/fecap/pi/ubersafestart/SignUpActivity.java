@@ -2,6 +2,7 @@ package br.fecap.pi.ubersafestart;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -59,7 +60,6 @@ public class SignUpActivity extends AppCompatActivity {
 
         setupAccountTypeSelection();
 
-        // Find back button if present
         View buttonBack = findViewById(R.id.buttonBackSignUp);
         if (buttonBack != null) {
             buttonBack.setOnClickListener(v -> {
@@ -137,18 +137,38 @@ public class SignUpActivity extends AppCompatActivity {
         authService.registerUser(user).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                                    finish();
+                                } catch (Exception e) {
+                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        }, 1000);
+                    } else {
+                        String errorMsg = "Registration failed";
+                        if (response.body() != null && response.body().getMessage() != null) {
+                            errorMsg = response.body().getMessage();
+                        }
+                        Toast.makeText(SignUpActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                     finish();
-                } else {
-                    String errorMsg = "Registration failed";
-                    if (response.body() != null) {
-                        errorMsg = response.body().getMessage();
-                    }
-                    Toast.makeText(SignUpActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                 }
             }
 

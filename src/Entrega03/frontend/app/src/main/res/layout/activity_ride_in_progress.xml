@@ -4,56 +4,61 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/black_background"
     tools:context=".RideInProgressActivity">
 
     <LinearLayout
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="#1A1A1A"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content" android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"    android:paddingBottom="16dp" android:background="@color/black_background" app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/reportButton"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/ride_in_progress_menu_report"
             android:src="@drawable/ic_warning"
-            android:tint="#FF5252" />
+            app:tint="@color/white_fff" />
 
         <TextView
+            android:id="@+id/toolbarTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="16dp"
-            android:text="Viagem em Andamento"
-            android:textColor="@color/white"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:text="@string/ride_in_progress_title"
+            android:textColor="@color/white_fff"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:gravity="center" />
+            android:textStyle="bold" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/audioStatusIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_mic_off"
-            android:tint="#777777" />
+            app:tint="@color/white_fff" android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/ride_in_progress_menu_audio" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="30s"
-        android:textColor="@color/white"
+        android:layout_marginTop="16dp" android:text="00:00" android:textColor="@color/white_fff"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbarLayout" />
 
     <ProgressBar
         android:id="@+id/timerProgressBar"
@@ -63,32 +68,40 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        android:progressTint="@color/white"
-        android:progressBackgroundTint="#444444"
+        android:progress="50" android:progressTint="@color/white_fff"
+        android:progressBackgroundTint="@color/gray_dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/timerTextView" />
 
     <ImageView
         android:id="@+id/carImageView"
-        android:layout_width="299dp"
-        android:layout_height="128dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="16dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
         android:src="@drawable/car_animated"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription="@string/ride_in_progress_car_animation_desc"
+        app:layout_constraintBottom_toTopOf="@+id/statusTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/timerProgressBar"
+        app:layout_constraintDimensionRatio="H,16:9"/>
 
     <TextView
         android:id="@+id/statusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Viagem em andamento..."
-        android:textColor="@color/white"
+        android:layout_marginBottom="32dp"
+        android:text="@string/ride_in_progress_status"
+        android:textColor="@color/white_fff"
         android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/carImageView" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,6 +14,15 @@
     <string name="forgot_password">Esqueceu a senha?</string>
     <string name="dont_have_account">Não tem uma conta?</string>
     <string name="login_button">Entrar</string>
+    <string name="ride_in_progress_title">Viagem em Andamento</string>
+    <string name="ride_in_progress_status">Viagem em andamento...</string>
+    <string name="ride_in_progress_menu_report">Reportar Problema</string>
+    <string name="ride_in_progress_menu_audio">Gravação de Áudio</string>
+    <string name="ride_in_progress_car_animation_desc">Animação de carro em movimento</string>
+
+    <string name="midway_check_subtitle">Está tudo bem com a sua viagem?</string>
+    <string name="midway_check_problem_button">Tenho um problema</string>
+    <string name="midway_check_ok_button">Está tudo bem</string>
 
     <string name="create_account">Criar conta</string>
     <string name="create_account_subtitle">Junte-se ao UberSafeStart para aproveitar viagens mais seguras</string>
@@ -55,6 +64,24 @@
     <string name="audio_recording_consent">Consentimento de gravação de áudio</string>
     <string name="safety_settings">Configurações de Segurança</string>
     <string name="logout">Sair</string>
+    <string name="dialog_driver_info_title">Corrida encontrada!</string>
+    <string name="dialog_driver_info_destination_placeholder">Para: Destino Exemplo</string>
+    <string name="dialog_driver_info_photo_desc">Foto do Motorista</string>
+    <string name="dialog_driver_info_name_placeholder">Nome do Motorista</string>
+    <string name="dialog_driver_info_car_placeholder">Modelo do Carro - Placa</string>
+    <string name="dialog_driver_info_safescore_label">SafeScore:</string>
+    <string name="dialog_driver_info_price_placeholder">R$ 0,00</string>
+    <string name="dialog_driver_info_accept_button">Confirmar Corrida</string>
+
+    <string name="dialog_passenger_info_title">Passageiro encontrado!</string>
+    <string name="dialog_passenger_info_destination_placeholder">Destino: Local Exemplo</string>
+    <string name="dialog_passenger_info_photo_desc">Foto do Passageiro</string>
+    <string name="dialog_passenger_info_name_placeholder">Nome do Passageiro</string>
+    <string name="dialog_passenger_info_pickup_placeholder">Local de embarque Exemplo</string>
+    <string name="dialog_passenger_info_safescore_label">SafeScore:</string>
+    <string name="dialog_passenger_info_price_placeholder">R$ 0,00</string>
+    <string name="dialog_passenger_info_accept_button">Aceitar Corrida</string>
+
 
     <!-- Navigation -->
     <string name="inicio">Início</string>
@@ -71,6 +98,8 @@
     <string name="services_icon">Ícone de serviços</string>
     <string name="activity_icon">Ícone de atividade</string>
     <string name="account_icon">Ícone de conta</string>
+    <string name="dialog_loading_status_searching">Procurando motoristas próximos...</string>
+    <string name="dialog_loading_checkmark_desc">Ícone de confirmação</string>
     <string name="profile_image">Imagem de perfil</string>
 
     <string name="delete_account">Deletar Conta</string>

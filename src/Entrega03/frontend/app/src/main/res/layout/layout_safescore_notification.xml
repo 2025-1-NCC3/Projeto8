@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
-    app:cardBackgroundColor="#004D21"
+    app:cardBackgroundColor="#132B5E"
     app:cardCornerRadius="12dp"
-    app:cardElevation="6dp">
+    app:cardElevation="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:layout_height="24dp"
             android:layout_gravity="center_vertical"
             android:src="@drawable/ic_safety"
-            android:tint="#00C853" />
+            app:tint="@color/uber_blue" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -43,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="+5 pontos"
-                android:textColor="#00C853"
+                android:textColor="@color/uber_blue"
                 android:textSize="14sp" />
         </LinearLayout>
 

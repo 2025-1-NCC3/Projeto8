@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -36,9 +37,9 @@ public class RideInProgressActivity extends AppCompatActivity {
     private ValueAnimator progressAnimator;
     private boolean isReportActive = false;
     private int reportCount = 0;
-    private final long TIMER_DURATION = 30000; // 30 segundos
-    private final long TIMER_INTERVAL = 1000; // Intervalo de 1 segundo
-    private final long MIDWAY_CHECKPOINT = 15000; // 15 segundos
+    private final long TIMER_DURATION = 30000;
+    private final long TIMER_INTERVAL = 1000;
+    private final long MIDWAY_CHECKPOINT = 15000;
     private boolean isDriverMode = false;
     private PopupWindow popupWindow;
 
@@ -47,13 +48,11 @@ public class RideInProgressActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ride_in_progress);
 
-        // Checar se é modo motorista ou passageiro
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             isDriverMode = extras.getBoolean("IS_DRIVER_MODE", false);
         }
 
-        // Inicializar views
         timerTextView = findViewById(R.id.timerTextView);
         timerProgressBar = findViewById(R.id.timerProgressBar);
         reportButton = findViewById(R.id.reportButton);
@@ -61,24 +60,19 @@ public class RideInProgressActivity extends AppCompatActivity {
         carImageView = findViewById(R.id.carImageView);
         statusTextView = findViewById(R.id.statusTextView);
 
-        // Carregar e animar o GIF do carro usando Glide
         Glide.with(this)
                 .asGif()
                 .load(R.drawable.car_animated)
                 .into(carImageView);
 
-        // Configurar o ícone de áudio como mutado inicialmente
         audioStatusIcon.setImageResource(R.drawable.ic_mic_off);
         audioStatusIcon.setColorFilter(Color.parseColor("#777777"));
 
-        // Configurar o listener do botão de report
         reportButton.setOnClickListener(v -> showReportDialog());
 
-        // Configurar a barra de progresso
         timerProgressBar.setMax((int) TIMER_DURATION);
         timerProgressBar.setProgress((int) TIMER_DURATION);
 
-        // Iniciar o timer de contagem regressiva
         startRideTimer();
     }
 
@@ -86,14 +80,11 @@ public class RideInProgressActivity extends AppCompatActivity {
         countDownTimer = new CountDownTimer(TIMER_DURATION, TIMER_INTERVAL) {
             @Override
             public void onTick(long millisUntilFinished) {
-                // Atualizar texto do timer
                 int seconds = (int) (millisUntilFinished / 1000);
                 timerTextView.setText(seconds + "s");
 
-                // Animar a barra de progresso suavemente
                 updateProgressBarSmoothly(millisUntilFinished);
 
-                // Verificar se estamos no ponto médio para mostrar o diálogo de checagem
                 if (millisUntilFinished <= MIDWAY_CHECKPOINT &&
                         millisUntilFinished > MIDWAY_CHECKPOINT - TIMER_INTERVAL) {
                     showMidwayCheckPopup();
@@ -105,26 +96,21 @@ public class RideInProgressActivity extends AppCompatActivity {
                 timerTextView.setText("0s");
                 timerProgressBar.setProgress(0);
 
-                // Imediatamente retornar ao menu principal e iniciar a tela de feedback
                 finishRideAndShowFeedback();
             }
         }.start();
     }
 
     private void updateProgressBarSmoothly(long millisUntilFinished) {
-        // Cancelar animador anterior se existir
         if (progressAnimator != null) {
             progressAnimator.cancel();
         }
 
-        // Valor atual da barra de progresso
         int currentProgress = timerProgressBar.getProgress();
-        // Valor alvo para a próxima atualização
         int targetProgress = (int) millisUntilFinished;
 
-        // Criar e iniciar um animador para transição suave
         progressAnimator = ValueAnimator.ofInt(currentProgress, targetProgress);
-        progressAnimator.setDuration(900); // Um pouco menos que o intervalo para garantir que termine antes da próxima atualização
+        progressAnimator.setDuration(900);
         progressAnimator.setInterpolator(new LinearInterpolator());
         progressAnimator.addUpdateListener(animation -> {
             int animatedValue = (int) animation.getAnimatedValue();
@@ -134,85 +120,106 @@ public class RideInProgressActivity extends AppCompatActivity {
     }
 
     private void showMidwayCheckPopup() {
-        // Inflar o layout personalizado
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.activity_midway_check_dialog, null);
 
-        // Criar o popup window
+        int width = (int)(getResources().getDisplayMetrics().widthPixels * 0.85);
+
         popupWindow = new PopupWindow(
                 popupView,
-                ViewGroup.LayoutParams.MATCH_PARENT,
+                width,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 true
         );
 
-        // Configurar animação
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setFocusable(true);
+
+        View rootView = getWindow().getDecorView().getRootView();
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.alpha = 0.8f;
+        getWindow().setAttributes(params);
+
+        popupWindow.setOnDismissListener(() -> {
+            WindowManager.LayoutParams dismissParams = getWindow().getAttributes();
+            dismissParams.alpha = 1f;
+            getWindow().setAttributes(dismissParams);
+        });
+
         popupWindow.setAnimationStyle(android.R.style.Animation_Dialog);
 
-        // Configurar botões
         Button btnOk = popupView.findViewById(R.id.btnOk);
         Button btnProblem = popupView.findViewById(R.id.btnProblem);
 
         btnOk.setOnClickListener(v -> {
-            // Usuário confirma que está tudo bem
-            // Atualizar o SafeScore
             SafeScoreHelper.updateSafeScore(RideInProgressActivity.this, 5);
             popupWindow.dismiss();
         });
 
         btnProblem.setOnClickListener(v -> {
-            // Usuário tem um problema, mostrar diálogo de report
             popupWindow.dismiss();
             showReportDialog();
         });
 
-        // Mostrar o popup abaixo da mensagem "Viagem em andamento..."
-        popupWindow.showAsDropDown(statusTextView, 0, 20, Gravity.CENTER);
+        popupWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+    }
+
+    private void activateAudioRecording() {
+        isReportActive = true;
+
+        audioStatusIcon.setImageResource(R.drawable.ic_mic);
+        audioStatusIcon.setColorFilter(Color.parseColor("#2979FF"));
+
+        Toast.makeText(RideInProgressActivity.this,
+                "Audio recording started",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void deactivateAudioRecording() {
+        isReportActive = false;
+
+        audioStatusIcon.setImageResource(R.drawable.ic_mic_off);
+        audioStatusIcon.setColorFilter(Color.parseColor("#777777"));
+
+        Toast.makeText(RideInProgressActivity.this,
+                "Audio recording stopped",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void showReportDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
 
         if (reportCount == 0) {
-            // Primeiro report - mostrar diálogo de gravação
             View reportView = getLayoutInflater().inflate(R.layout.dialog_report, null);
             Button btnStartRecording = reportView.findViewById(R.id.btnStartRecording);
 
             builder.setView(reportView);
-            builder.setTitle("Reportar Problema");
+            builder.setTitle("Report Problem");
 
             AlertDialog dialog = builder.create();
 
             btnStartRecording.setOnClickListener(v -> {
                 reportCount++;
 
-                // Ativar gravação
                 isReportActive = true;
-                btnStartRecording.setText("Gravação ativada");
+                btnStartRecording.setText("Recording activated");
                 btnStartRecording.setEnabled(false);
 
-                // Atualizar ícone de áudio para indicar gravação ativa
-                audioStatusIcon.setImageResource(R.drawable.ic_mic);
-                audioStatusIcon.setColorFilter(Color.parseColor("#00C853")); // Verde
+                activateAudioRecording();
 
-                Toast.makeText(RideInProgressActivity.this,
-                        "Gravação de áudio iniciada",
-                        Toast.LENGTH_SHORT).show();
                 dialog.dismiss();
             });
 
             dialog.show();
         } else {
-            // Segundo report - mostrar diálogo de confirmação de cancelamento
-            builder.setTitle("Cancelar Viagem");
-            builder.setMessage("Você está prestes a cancelar a viagem por motivos de segurança. Deseja prosseguir?");
-            builder.setPositiveButton("Cancelar Viagem", (dialog, which) -> {
+            builder.setTitle("Cancel Ride");
+            builder.setMessage("You are about to cancel the ride for safety reasons. Do you want to proceed?");
+            builder.setPositiveButton("Cancel Ride", (dialog, which) -> {
                 reportCount++;
                 dialog.dismiss();
-                cancelRideAndReturnToHome();  // Chama método que cancela a viagem
+                cancelRideAndReturnToHome();
             });
-            builder.setNegativeButton("Voltar", (dialog, which) -> {
-                // Apenas fecha o diálogo
+            builder.setNegativeButton("Go Back", (dialog, which) -> {
                 dialog.dismiss();
             });
 
@@ -222,10 +229,8 @@ public class RideInProgressActivity extends AppCompatActivity {
     }
 
     private void cancelRideAndReturnToHome() {
-        // Breve mensagem Toast para feedback visual
-        Toast.makeText(this, "Viagem cancelada por motivos de segurança", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Ride cancelled for safety reasons", Toast.LENGTH_SHORT).show();
 
-        // Retornar à tela inicial apropriada
         Intent intent;
         if (isDriverMode) {
             intent = new Intent(RideInProgressActivity.this, DriverHomeActivity.class);
@@ -274,12 +279,12 @@ public class RideInProgressActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Cancelar Viagem")
-                .setMessage("Você deseja realmente cancelar esta viagem?")
-                .setPositiveButton("Sim", (dialog, which) -> {
+                .setTitle("Cancel Ride")
+                .setMessage("Do you really want to cancel this ride?")
+                .setPositiveButton("Yes", (dialog, which) -> {
                     cancelRideAndReturnToHome();
                 })
-                .setNegativeButton("Não", null)
+                .setNegativeButton("No", null)
                 .show();
     }
 }

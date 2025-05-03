@@ -95,9 +95,6 @@ public class SafeScoreHelper {
         });
     }
 
-    /**
-     * Mostra a notificação personalizada do SafeScore
-     */
     private static void showSafeScoreNotification(Activity activity, int points, int totalScore) {
         // Fechar popup anterior se existir
         if (popupWindow != null && popupWindow.isShowing()) {
@@ -115,7 +112,7 @@ public class SafeScoreHelper {
 
             if (points > 0) {
                 textViewScoreChange.setText("+" + points + " pontos");
-                textViewScoreChange.setTextColor(Color.parseColor("#00C853")); // Verde para pontos positivos
+                textViewScoreChange.setTextColor(Color.parseColor("#2979FF")); // Azul do Uber para pontos positivos
             } else {
                 textViewScoreChange.setText(points + " pontos");
                 textViewScoreChange.setTextColor(Color.parseColor("#FF5252")); // Vermelho para pontos negativos

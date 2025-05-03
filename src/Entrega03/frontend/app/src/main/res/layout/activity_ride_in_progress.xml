@@ -10,11 +10,15 @@
     <LinearLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:orientation="horizontal"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:paddingTop="16dp"    android:paddingBottom="16dp" android:background="@color/black_background" app:layout_constraintTop_toTopOf="parent"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:background="@color/black_background"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -25,7 +29,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/ride_in_progress_menu_report"
             android:src="@drawable/ic_warning"
-            app:tint="@color/white_fff" />
+            app:tint="@color/uber_blue" />
 
         <TextView
             android:id="@+id/toolbarTitle"
@@ -45,7 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_mic_off"
-            app:tint="@color/white_fff" android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/gray_medium"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/ride_in_progress_menu_audio" />
     </LinearLayout>
 
@@ -53,7 +58,9 @@
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp" android:text="00:00" android:textColor="@color/white_fff"
+        android:layout_marginTop="16dp"
+        android:text="00:00"
+        android:textColor="@color/white_fff"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,7 +75,8 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        android:progress="50" android:progressTint="@color/white_fff"
+        android:progress="50"
+        android:progressTint="@color/uber_blue"
         android:progressBackgroundTint="@color/gray_dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

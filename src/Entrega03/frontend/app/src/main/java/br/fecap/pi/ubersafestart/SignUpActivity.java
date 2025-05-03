@@ -60,6 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         setupAccountTypeSelection();
 
+        // Find back button if present
         View buttonBack = findViewById(R.id.buttonBackSignUp);
         if (buttonBack != null) {
             buttonBack.setOnClickListener(v -> {
@@ -141,21 +142,24 @@ public class SignUpActivity extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
 
+                        // Add a slight delay to ensure Toast is visible
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 try {
+                                    // Start login activity and finish current activity
                                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                                     startActivity(intent);
                                     overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                                    finish();
+                                    finish(); // Close the current activity
                                 } catch (Exception e) {
+                                    // Fallback without animation if it fails
                                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                                     startActivity(intent);
                                     finish();
                                 }
                             }
-                        }, 1000);
+                        }, 1000); // 1 second delay
                     } else {
                         String errorMsg = "Registration failed";
                         if (response.body() != null && response.body().getMessage() != null) {
@@ -164,8 +168,10 @@ public class SignUpActivity extends AppCompatActivity {
                         Toast.makeText(SignUpActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
                     }
                 } catch (Exception e) {
+                    // Handle any unexpected exceptions
                     Toast.makeText(SignUpActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 
+                    // Try to navigate to login anyway as a fallback
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();

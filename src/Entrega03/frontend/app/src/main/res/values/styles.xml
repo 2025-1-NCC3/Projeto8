@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Ubersafestartfecap" parent="Theme.UberSafeStartFecap"></style>
-
     <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="colorSurface">@color/gray_very_dark</item>
         <item name="colorOnSurface">@color/white_fff</item>
-        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text
-        </item>
-        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text
-        </item>
+        <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.App.Title.Text</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.App.Body.Text</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.App.Button.Dialog</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.App.Button.Dialog</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.App.Button.Dialog.Neutral</item>
@@ -30,5 +26,11 @@
     <style name="Widget.App.Button.Dialog.Neutral" parent="Widget.Material3.Button.TextButton.Dialog.Flush">
         <item name="android:textColor">@color/gray_medium</item>
     </style>
+
+    <style name="RatingBar" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:progressTint">@color/uber_blue</item>
+        <item name="android:progressBackgroundTint">@color/gray_medium</item>
+        <item name="android:secondaryProgressTint">@color/uber_blue_dark</item>
+        <item name="colorControlNormal">@color/gray_medium</item> <item name="colorControlActivated">@color/uber_blue</item> </style>
 
 </resources>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <uses-permission android:name="android.permission.INTERNET" />
+    xmlns:tools="http://schemas.android.com/tools"
+    package="br.fecap.pi.ubersafestart"> <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
@@ -13,11 +12,20 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.UberSafeStartFecap"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
         <activity
-            android:name="br.fecap.pi.ubersafestart.LoginActivity"
+            android:name=".FullScreenStreetViewActivity"
+            android:exported="false"
+            android:label="Visualização da Rua"
+            android:theme="@style/Theme.UberSafeStartFecap" /> <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyB02n6zO_PAO82LI-8HsZ0JOOUPiePwh4A" />
+
+        <activity
+            android:name=".LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.UberSafeStartFecap">
             <intent-filter>
@@ -27,51 +35,42 @@
         </activity>
 
         <activity
-            android:name="br.fecap.pi.ubersafestart.HomeActivity"
-            android:exported="false">
-        </activity>
-
-        <activity
-            android:name="br.fecap.pi.ubersafestart.SignUpActivity"
+            android:name=".HomeActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
-
+            android:label="Início Passageiro" /> <activity
+        android:name=".SignUpActivity"
+        android:exported="false"
+        android:label="Cadastro"
+        android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
-            android:name="br.fecap.pi.ubersafestart.MainActivity"
+            android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
-
+            android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
-            android:name="br.fecap.pi.ubersafestart.RideInProgressActivity"
+            android:name=".RideInProgressActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
-
+            android:label="Corrida em Andamento"
+            android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
-            android:name="br.fecap.pi.ubersafestart.ProfileActivity"
+            android:name=".ProfileActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
-
+            android:label="Perfil"
+            android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
-            android:name="br.fecap.pi.ubersafestart.DriverHomeActivity"
+            android:name=".DriverHomeActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
-
+            android:label="Início Motorista"
+            android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
-            android:name="br.fecap.pi.ubersafestart.DriverSafetyChecklistActivity"
+            android:name=".DriverSafetyChecklistActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
-
+            android:label="Checklist de Segurança"
+            android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
-            android:name="br.fecap.pi.ubersafestart.RideFeedbackActivity"
+            android:name=".RideFeedbackActivity"
             android:exported="false"
-            android:theme="@style/Theme.UberSafeStartFecap">
-        </activity>
+            android:label="Avaliação da Corrida"
+            android:theme="@style/Theme.UberSafeStartFecap" />
 
     </application>
 

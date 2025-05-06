@@ -4,11 +4,7 @@
     <style name="Base.Theme.UberSafeStartFecap" parent="Theme.Material3.DayNight.NoActionBar">
 
         <item name="colorPrimary">@color/uber_blue</item>
-        <item name="colorPrimaryVariant">@color/uber_blue_dark</item>
-        <item name="colorOnPrimary">@color/white_fff</item>
-
-        <item name="colorSecondary">@color/uber_blue</item>
-        <item name="colorSecondaryVariant">@color/uber_blue_dark</item>
+        <item name="colorPrimaryVariant">@color/uber_blue_dark</item> <item name="colorOnPrimary">@color/white_fff</item> <item name="colorSecondary">@color/uber_blue</item> <item name="colorSecondaryVariant">@color/uber_blue_dark</item>
         <item name="colorOnSecondary">@color/white_fff</item>
 
         <item name="colorPrimaryContainer">@color/gray_background_light</item>
@@ -16,10 +12,7 @@
         <item name="colorSecondaryContainer">@color/gray_very_dark</item>
         <item name="colorOnSecondaryContainer">@color/white_fff</item>
 
-        <item name="android:colorBackground">@color/black_background</item>
-        <item name="colorSurface">@color/gray_background_light</item>
-        <item name="colorOnSurface">@color/white_fff</item>
-        <item name="colorError">@color/status_error</item>
+        <item name="android:colorBackground">@color/black_background</item> <item name="colorSurface">@color/gray_background_light</item> <item name="colorOnSurface">@color/white_fff</item> <item name="colorError">@color/status_error</item>
         <item name="colorOnError">@color/white_fff</item>
 
         <item name="android:statusBarColor">@color/black_background</item>

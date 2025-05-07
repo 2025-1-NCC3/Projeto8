@@ -7,7 +7,7 @@
 
 # Uber SafeStart
 
-## Integrantes: [Guilhermy Mariano](https://www.linkedin.com/in/guilhermy-lisboa-garcia-385656223?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app), [Gustavo Bernardi](https://linkedin.com/in/gustavo-bernardi-r), [Gustavo Oliveira Demetrio](https://www.linkedin.com/in/gustavo-demetrio-145151270?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app), [Saulo Pereira de Jesus](https://www.linkedin.com/in/saulo-pereira-jesus?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
+## Integrantes: [Guilhermy Garcia](https://www.linkedin.com/in/guilhermy-lisboa-garcia-385656223?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app), [Gustavo Bernardi](https://linkedin.com/in/gustavo-bernardi-r), [Gustavo Oliveira Demetrio](https://www.linkedin.com/in/gustavo-demetrio-145151270?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app), [Saulo Pereira de Jesus](https://www.linkedin.com/in/saulo-pereira-jesus?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)
 
 ## 👨‍🏫 Professores Orientadores: [Katia Milani Lara Bossi](https://www.linkedin.com/in/katia-bossi/), [Marco Aurelio](https://github.com/fecaphub/Portfolio/blob/main), [Victor Rosetti](https://www.linkedin.com/in/victorbarq/) e [Vinicius Heltai](https://www.linkedin.com/in/vheltai/)
 

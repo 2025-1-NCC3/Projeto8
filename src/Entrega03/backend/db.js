@@ -1,18 +1,18 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
-const dbPath = path.join(__dirname, 'safestart.db');
+const dbPath = path.join(__dirname, "safestart.db");
 
 // Cria e exporta a instância do banco de dados
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error("Erro ao conectar ao banco de dados SQLite:", err.message);
     // Considerar encerrar o processo se a conexão falhar
-    // process.exit(1); 
+    // process.exit(1);
   } else {
     console.log("Conectado ao banco de dados SQLite:", dbPath);
     // Habilita chaves estrangeiras assim que a conexão é estabelecida
-    db.run('PRAGMA foreign_keys = ON', (pragmaErr) => {
+    db.run("PRAGMA foreign_keys = ON", (pragmaErr) => {
       if (pragmaErr) {
         console.error("Erro ao habilitar foreign keys:", pragmaErr.message);
       } else {
@@ -33,6 +33,7 @@ function initializeDatabase() {
     password TEXT NOT NULL,
     type TEXT CHECK(type IN ('driver', 'passenger')) NOT NULL,
     phone TEXT,
+    gender TEXT CHECK(gender IN ('male', 'female', 'other', 'prefer_not_to_say')),
     registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`;
 
@@ -68,19 +69,26 @@ function initializeDatabase() {
 }
 
 const ensureSafeScoreEntry = (userId) => {
-    return new Promise((resolve, reject) => {
-      // Tenta inserir ignorando se já existir (mais eficiente que SELECT + INSERT)
-      db.run("INSERT OR IGNORE INTO SafeScore (user_id, score) VALUES (?, 0)", [userId], (err) => {
+  return new Promise((resolve, reject) => {
+    // Tenta inserir ignorando se já existir (mais eficiente que SELECT + INSERT)
+    db.run(
+      "INSERT OR IGNORE INTO SafeScore (user_id, score) VALUES (?, 0)",
+      [userId],
+      (err) => {
         if (err) {
-          console.error(`Erro ao garantir SafeScore para user_id ${userId}:`, err.message);
+          console.error(
+            `Erro ao garantir SafeScore para user_id ${userId}:`,
+            err.message
+          );
           return reject(new Error("Erro ao garantir SafeScore"));
         }
         // Não precisamos verificar se inseriu ou não, apenas que não houve erro.
         console.log(`Entrada SafeScore garantida para user_id ${userId}`);
         resolve();
-      });
-    });
+      }
+    );
+  });
 };
 
 // Exporta a instância do DB para ser usada em outros módulos
-module.exports = {db, ensureSafeScoreEntry};
+module.exports = { db, ensureSafeScoreEntry };

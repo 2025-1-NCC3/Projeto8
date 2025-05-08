@@ -29,18 +29,18 @@ import java.util.Locale;
 import java.util.Random;
 
 // Importações necessárias para a lógica de pareamento
-import br.fecap.pi.ubersafestart.model.SimulatedUser;
-import br.fecap.pi.ubersafestart.utils.StaticUserManager;
+import br.fecap.pi.ubersafestart.model.SimulatedUser; // Importar o modelo de utilizador simulado
+import br.fecap.pi.ubersafestart.utils.StaticUserManager; // Importar o gestor de utilizadores estáticos
 
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
 
-    // Constantes para SharedPreferences (USAR AS MESMAS DEFINIDAS EM ProfileActivity)
+    // Constantes para SharedPreferences (DEVEM SER AS MESMAS USADAS EM ProfileActivity)
     private static final String USER_LOGIN_PREFS = "userPrefs"; // Para dados de login (token, nome, genero do backend)
     private static final String USER_LOCAL_PREFERENCES = "UserPreferences"; // Para preferências locais (pareamento)
-    private static final String KEY_GENDER = "genero"; // Chave para gênero do usuário logado
-    private static final String KEY_SAME_GENDER_PAIRING = "sameGenderPairingEnabled"; // Chave para preferência local
+    private static final String KEY_GENDER = "gender"; // Chave para género do utilizador logado ('male', 'female', 'other')
+    private static final String KEY_SAME_GENDER_PAIRING = "sameGenderPairingEnabled"; // Chave para preferência local (boolean)
 
     // Componentes da UI
     private TextView textViewLocationName1;
@@ -55,6 +55,12 @@ public class HomeActivity extends AppCompatActivity {
     private LinearLayout navActivity;
     private CardView cardViewRecentLocation1;
     private CardView cardViewRecentLocation2;
+
+    // IDs dos Ícones e Textos da Barra de Navegação (AJUSTE CONFORME SEU XML activity_home.xml)
+    // Se os seus IDs forem diferentes, altere aqui!
+    private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconActivity, R.id.iconAccount};
+    private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textActivity, R.id.textAccount};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,16 +91,18 @@ public class HomeActivity extends AppCompatActivity {
 
     // Carrega dados de exemplo para locais recentes (pode ser adaptado ou removido)
     private void loadLocationHistoryData() {
+        // Dados de exemplo
         String location1Name = "Avenida Paulista, 1578";
         String location1Address = "Bela Vista, São Paulo - SP";
         String location2Name = "Parque Ibirapuera";
         String location2Address = "Av. Pedro Álvares Cabral";
 
+        // Atualiza a UI
         if (textViewLocationName1 != null) textViewLocationName1.setText(location1Name);
         if (textViewLocationAddress1 != null) textViewLocationAddress1.setText(location1Address);
         if (textViewLocationName2 != null) textViewLocationName2.setText(location2Name);
         if (textViewLocationAddress2 != null) textViewLocationAddress2.setText(location2Address);
-        // Controla visibilidade dos cards de locais recentes
+        // Controla visibilidade dos cards
         if (cardViewRecentLocation1 != null) cardViewRecentLocation1.setVisibility(View.VISIBLE);
         if (cardViewRecentLocation2 != null) cardViewRecentLocation2.setVisibility(View.VISIBLE);
     }
@@ -112,7 +120,8 @@ public class HomeActivity extends AppCompatActivity {
         if (layoutSearchClickable != null) {
             layoutSearchClickable.setOnClickListener(v -> {
                 Log.d(TAG, "Busca iniciada pelo campo de pesquisa.");
-                showLoadingDialog("Destino da Busca"); // Simula busca para um destino genérico
+                // Simula busca para um destino genérico
+                showLoadingDialog("Destino da Busca");
             });
         } else {
             Log.e(TAG, "LinearLayout layoutSearchClickable não encontrado.");
@@ -140,7 +149,7 @@ public class HomeActivity extends AppCompatActivity {
             if (id == R.id.navAccount) {
                 openProfileActivity();
             } else if (id == R.id.navHome) {
-                // Já está na Home, nenhuma ação necessária
+                // Já está na Home
             } else if (id == R.id.navServices) {
                 Toast.makeText(HomeActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.navActivity) {
@@ -158,13 +167,10 @@ public class HomeActivity extends AppCompatActivity {
     // Atualiza a aparência da barra de navegação inferior para destacar o item selecionado
     private void updateBottomNavigationSelection(int selectedItemId) {
         LinearLayout[] navItems = {navHome, navServices, navActivity, navAccount};
-        // IDs dos ícones e textos DENTRO de cada LinearLayout da navegação
-        // **IMPORTANTE:** Você PRECISA ter IDs únicos para estes elementos no seu activity_home.xml
-        int[] iconIds = {R.id.iconHome, R.id.iconServices, R.id.iconActivity, R.id.iconAccount}; // Exemplo de IDs, ajuste aos seus!
-        int[] textIds = {R.id.textHome, R.id.textServices, R.id.textActivity, R.id.textAccount}; // Exemplo de IDs, ajuste aos seus!
 
-        int activeColor = ContextCompat.getColor(this, R.color.white); // Cor para item ativo
-        int inactiveColor = ContextCompat.getColor(this, R.color.gray_light); // Cor para item inativo
+        // Cores para os estados ativo/inativo (ajuste conforme seu tema)
+        int activeColor = ContextCompat.getColor(this, R.color.white);
+        int inactiveColor = ContextCompat.getColor(this, R.color.gray_light); // Use uma cor cinza clara
 
         for (int i = 0; i < navItems.length; i++) {
             LinearLayout item = navItems[i];
@@ -173,16 +179,18 @@ public class HomeActivity extends AppCompatActivity {
                 continue;
             }
 
-            ImageView icon = item.findViewById(iconIds[i]);
-            TextView text = item.findViewById(textIds[i]);
+            // Encontra o ícone e o texto dentro do LinearLayout do item
+            ImageView icon = item.findViewById(navIconIds[i]);
+            TextView text = item.findViewById(navTextIds[i]);
 
-            if (icon == null) Log.w(TAG, "Ícone não encontrado para item " + i + " com ID " + getResources().getResourceEntryName(iconIds[i]));
-            if (text == null) Log.w(TAG, "Texto não encontrado para item " + i + " com ID " + getResources().getResourceEntryName(textIds[i]));
-            if (icon == null || text == null) continue; // Pula se não encontrar ícone ou texto
+            // Verifica se os componentes internos foram encontrados
+            if (icon == null) Log.w(TAG, "Ícone não encontrado para item " + i + " com ID " + getResources().getResourceEntryName(navIconIds[i]));
+            if (text == null) Log.w(TAG, "Texto não encontrado para item " + i + " com ID " + getResources().getResourceEntryName(navTextIds[i]));
+            if (icon == null || text == null) continue; // Pula se não encontrar
 
             boolean isActive = (item.getId() == selectedItemId);
 
-            // Define a cor do ícone e do texto baseado na seleção
+            // Define a cor (tint) do ícone e a cor do texto
             icon.setImageTintList(ColorStateList.valueOf(isActive ? activeColor : inactiveColor));
             text.setTextColor(isActive ? activeColor : inactiveColor);
         }
@@ -193,15 +201,17 @@ public class HomeActivity extends AppCompatActivity {
         View.OnClickListener recentLocationListener = v -> {
             String destination = "";
             int id = v.getId();
+            // Obtém o nome do destino do TextView correspondente ao card clicado
             if (id == R.id.cardViewRecentLocation1) {
                 if (textViewLocationName1 != null) destination = textViewLocationName1.getText().toString();
             } else if (id == R.id.cardViewRecentLocation2) {
                 if (textViewLocationName2 != null) destination = textViewLocationName2.getText().toString();
             }
 
+            // Se um destino foi encontrado, inicia a busca
             if (!destination.isEmpty()) {
                 Log.d(TAG, "Local recente clicado: " + destination);
-                showLoadingDialog(destination); // Inicia a busca de corrida para este destino
+                showLoadingDialog(destination);
             } else {
                 Log.w(TAG, "Nome do local recente está vazio.");
             }
@@ -237,24 +247,28 @@ public class HomeActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             // Verifica se a activity ainda existe e o diálogo está visível antes de continuar
             if (isFinishing() || isDestroyed() || !loadingDialog.isShowing()) {
+                Log.d(TAG, "Loading dialog fechado ou activity destruída antes da conclusão da busca.");
                 return;
             }
 
-            // 1. Obtém gênero e preferência do usuário atual (Passageiro)
+            // --- LÓGICA DE PAREAMENTO ---
+            // 1. Obtém género e preferência do utilizador atual (Passageiro)
             SharedPreferences loginPrefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
-            String currentUserGender = loginPrefs.getString(KEY_GENDER, "").toUpperCase(); // Gênero do backend
+            // Lê o género ('male', 'female', 'other') e normaliza para MAIÚSCULAS para a lógica
+            String currentUserGender = loginPrefs.getString(KEY_GENDER, "").toUpperCase(Locale.ROOT);
 
             SharedPreferences localPrefs = getSharedPreferences(USER_LOCAL_PREFERENCES, Context.MODE_PRIVATE);
-            boolean preferSameGender = localPrefs.getBoolean(KEY_SAME_GENDER_PAIRING, false); // Preferência local
+            boolean preferSameGender = localPrefs.getBoolean(KEY_SAME_GENDER_PAIRING, false); // Lê a preferência local
 
-            Log.d(TAG, "Buscando motorista. Gênero do passageiro: " + currentUserGender + ", Prefere mesmo gênero: " + preferSameGender);
+            Log.d(TAG, "Buscando motorista. Género do passageiro: '" + currentUserGender + "', Prefere mesmo género: " + preferSameGender);
 
-            // 2. Busca um motorista estático usando o StaticUserManager
+            // 2. Busca um motorista estático usando o StaticUserManager (que aplica o filtro)
             SimulatedUser driver = StaticUserManager.getRandomDriver(currentUserGender, preferSameGender);
+            // --------------------------
 
             if (driver != null) {
                 // Motorista encontrado! Atualiza UI do diálogo de loading
-                Log.d(TAG, "Motorista encontrado: " + driver.getNome() + " (" + driver.getGenero() + ")");
+                Log.d(TAG, "Motorista encontrado: " + driver.getName() + " (" + driver.getGender() + ")");
                 if (statusText != null) statusText.setText("Motorista encontrado!");
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 if (checkmarkImage != null) checkmarkImage.setVisibility(View.VISIBLE);
@@ -303,21 +317,21 @@ public class HomeActivity extends AppCompatActivity {
         TextView tvPrice = driverInfoView.findViewById(R.id.textViewPrice);
         TextView tvDestinationDialog = driverInfoView.findViewById(R.id.textViewDestination);
         RatingBar ratingBarDriver = driverInfoView.findViewById(R.id.ratingBarDriver);
-        RatingBar ratingBarSafeScore = driverInfoView.findViewById(R.id.ratingBarSafeScore); // RatingBar para SafeScore do motorista
+        RatingBar ratingBarSafeScore = driverInfoView.findViewById(R.id.ratingBarSafeScore);
         Button btnConfirmRide = driverInfoView.findViewById(R.id.buttonPayment); // Botão de confirmação
 
-        String ridePrice = generateRandomPriceHome(); // Gera um preço aleatório para a corrida
+        String ridePrice = generateRandomPriceHome(); // Gera um preço aleatório
 
-        // Popula os componentes com os dados do motorista simulado
+        // Popula os componentes com os dados do motorista simulado (usando getters corretos)
         if (tvDialogTitle != null) tvDialogTitle.setText("Motorista a caminho!");
-        if (tvDriverName != null) tvDriverName.setText(driver.getNome());
-        if (tvCarInfo != null) tvCarInfo.setText(driver.getModeloCarro() + " - " + driver.getPlacaCarro());
+        if (tvDriverName != null) tvDriverName.setText(driver.getName()); // Usa getName()
+        if (tvCarInfo != null) tvCarInfo.setText(driver.getCarModel() + " - " + driver.getLicensePlate()); // Usa getCarModel() e getLicensePlate()
         if (tvPrice != null) tvPrice.setText(ridePrice);
         if (tvDestinationDialog != null) tvDestinationDialog.setText("Para: " + destination);
-        if (ratingBarDriver != null) ratingBarDriver.setRating(driver.getNotaMotorista());
-        // Exibe a nota do motorista como "Safe Score" (adapte se tiver um campo específico)
-        if (ratingBarSafeScore != null) ratingBarSafeScore.setRating(driver.getNotaMotorista());
-        if (btnConfirmRide != null) btnConfirmRide.setText("Confirmar Motorista"); // Ajusta texto do botão
+        if (ratingBarDriver != null) ratingBarDriver.setRating(driver.getDriverRating()); // Usa getDriverRating()
+        // Exibe a nota do motorista como "Safe Score" (adapte se o modelo tiver campo específico)
+        if (ratingBarSafeScore != null) ratingBarSafeScore.setRating(driver.getDriverRating());
+        if (btnConfirmRide != null) btnConfirmRide.setText("Confirmar Motorista");
 
         final AlertDialog driverDialog = builder.create();
         if (driverDialog.getWindow() != null) {
@@ -329,10 +343,10 @@ public class HomeActivity extends AppCompatActivity {
         if (btnConfirmRide != null) {
             btnConfirmRide.setOnClickListener(v -> {
                 driverDialog.dismiss();
-                Log.d(TAG, "Motorista " + driver.getNome() + " confirmado para destino: " + destination);
+                Log.d(TAG, "Motorista " + driver.getName() + " confirmado para destino: " + destination);
                 // Navega para a próxima tela (ex: checklist ou tela de corrida em progresso)
-                navigateToSafetyChecklist(destination, driver.getNome(), ridePrice);
-                Toast.makeText(HomeActivity.this, "Viagem com " + driver.getNome() + " confirmada!", Toast.LENGTH_SHORT).show();
+                navigateToSafetyChecklist(destination, driver.getName(), ridePrice); // Passa os dados necessários
+                Toast.makeText(HomeActivity.this, "Viagem com " + driver.getName() + " confirmada!", Toast.LENGTH_SHORT).show();
             });
         } else {
             Log.e(TAG, "Botão de confirmação (buttonPayment) não encontrado no dialog_driver_info.");
@@ -348,13 +362,14 @@ public class HomeActivity extends AppCompatActivity {
     // Navega para a tela de checklist (ou outra tela após confirmar motorista)
     private void navigateToSafetyChecklist(String destination, String driverName, String ridePrice) {
         // **CONFIRME:** MainActivity é a tela correta para o checklist do PASSAGEIRO?
+        // Se for outra, altere aqui.
         Intent intent = new Intent(HomeActivity.this, MainActivity.class);
         intent.putExtra("DESTINATION", destination);
         intent.putExtra("RIDE_PRICE", ridePrice);
         intent.putExtra("DRIVER_NAME", driverName);
-        // Adicione mais dados do motorista se necessário (placa, modelo, etc.)
-        // intent.putExtra("DRIVER_CAR_MODEL", driver.getModeloCarro());
-        // intent.putExtra("DRIVER_LICENSE_PLATE", driver.getPlacaCarro());
+        // Adicione mais dados do motorista se necessário
+        // intent.putExtra("DRIVER_CAR_MODEL", driver.getCarModel());
+        // intent.putExtra("DRIVER_LICENSE_PLATE", driver.getLicensePlate());
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
@@ -364,7 +379,6 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-        // finish(); // Não finalizar para poder voltar
     }
 
     // Lida com o botão "Voltar" do Android

@@ -1,73 +1,50 @@
-package br.fecap.pi.ubersafestart.model; // Ou o pacote onde você guarda seus modelos
+package br.fecap.pi.ubersafestart.model; // Ajuste o pacote conforme sua estrutura
 
 import java.util.Locale;
 
-
 public class SimulatedUser {
     private String nome;
-    private String genero; // "MASCULINO", "FEMININO", "OUTROS"
-    private String tipoUsuario; // "MOTORISTA", "PASSAGEIRO"
+    private String gender; // Renomeado para consistência, armazena "MALE", "FEMALE", "OTHER"
+    private String userType; // Renomeado para consistência ("DRIVER", "PASSENGER")
 
     // Campos específicos do motorista
-    private String modeloCarro;
-    private String placaCarro;
-    private float notaMotorista; // Rating do motorista (ex: 0.0 a 5.0)
+    private String carModel;
+    private String licensePlate;
+    private float driverRating;
 
     // Campos específicos do passageiro (exemplo)
-    private float safeScorePassageiro; // (ex: 0.0 a 5.0, similar ao ratingBarSafeScore)
+    private float passengerSafeScore;
 
-    
-    public SimulatedUser(String nome, String genero, String modeloCarro, String placaCarro, float notaMotorista) {
+    // Construtor para Motorista
+    public SimulatedUser(String nome, String gender, String carModel, String licensePlate, float driverRating) {
         this.nome = nome;
-        // Garante que o gênero seja armazenado em maiúsculas e tenha um valor padrão
-        this.genero = (genero != null && !genero.isEmpty()) ? genero.toUpperCase(Locale.ROOT) : "OUTROS";
-        this.tipoUsuario = "MOTORISTA";
-        this.modeloCarro = modeloCarro;
-        this.placaCarro = placaCarro;
-        this.notaMotorista = notaMotorista;
-        this.safeScorePassageiro = 0; // Não aplicável para motorista
+        // Garante MAIÚSCULAS EM INGLÊS
+        this.gender = (gender != null && !gender.isEmpty()) ? gender.toUpperCase(Locale.ROOT) : "OTHER";
+        this.userType = "DRIVER";
+        this.carModel = carModel;
+        this.licensePlate = licensePlate;
+        this.driverRating = driverRating;
+        this.passengerSafeScore = 0;
     }
 
-    
-    public SimulatedUser(String nome, String genero, float safeScorePassageiro) {
+    // Construtor para Passageiro
+    public SimulatedUser(String nome, String gender, float passengerSafeScore) {
         this.nome = nome;
-        // Garante que o gênero seja armazenado em maiúsculas e tenha um valor padrão
-        this.genero = (genero != null && !genero.isEmpty()) ? genero.toUpperCase(Locale.ROOT) : "OUTROS";
-        this.tipoUsuario = "PASSAGEIRO";
-        this.safeScorePassageiro = safeScorePassageiro;
-        // Campos de motorista ficam nulos ou com valores padrão
-        this.modeloCarro = "";
-        this.placaCarro = "";
-        this.notaMotorista = 0;
+        // Garante MAIÚSCULAS EM INGLÊS
+        this.gender = (gender != null && !gender.isEmpty()) ? gender.toUpperCase(Locale.ROOT) : "OTHER";
+        this.userType = "PASSENGER";
+        this.passengerSafeScore = passengerSafeScore;
+        this.carModel = "";
+        this.licensePlate = "";
+        this.driverRating = 0;
     }
 
-    // --- Getters ---
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getGenero() {
-        return genero;
-    }
-
-    public String getTipoUsuario() {
-        return tipoUsuario;
-    }
-
-    public String getModeloCarro() {
-        return modeloCarro;
-    }
-
-    public String getPlacaCarro() {
-        return placaCarro;
-    }
-
-    public float getNotaMotorista() {
-        return notaMotorista;
-    }
-
-    public float getSafeScorePassageiro() {
-        return safeScorePassageiro;
-    }
+    // Getters (nomes atualizados para inglês para consistência)
+    public String getName() { return nome; }
+    public String getGender() { return gender; } // Retorna "MALE", "FEMALE", "OTHER"
+    public String getUserType() { return userType; } // Retorna "DRIVER", "PASSENGER"
+    public String getCarModel() { return carModel; }
+    public String getLicensePlate() { return licensePlate; }
+    public float getDriverRating() { return driverRating; }
+    public float getPassengerSafeScore() { return passengerSafeScore; }
 }

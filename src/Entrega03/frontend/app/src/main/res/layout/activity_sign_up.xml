@@ -238,6 +238,53 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
+                android:id="@+id/textViewGenderLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Gênero"
+                android:textColor="@color/white_fff"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/inputLayoutConfirmPasswordSignUp" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupGender"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textViewGenderLabel">
+
+                <RadioButton
+                    android:id="@+id/radioButtonMasculino"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Masculino"
+                    android:textColor="@color/white_fff"
+                    android:buttonTint="@color/primary_color" android:layout_marginEnd="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/radioButtonFeminino"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Feminino"
+                    android:textColor="@color/white_fff"
+                    android:buttonTint="@color/primary_color" android:layout_marginEnd="16dp"/>
+
+                <RadioButton
+                    android:id="@+id/radioButtonOutros"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Outros"
+                    android:textColor="@color/white_fff"
+                    android:buttonTint="@color/primary_color" /> </RadioGroup>
+
+
+            <TextView
                 android:id="@+id/textViewAccountTypeLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -247,100 +294,98 @@
                 android:textColor="@color/white_fff"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/inputLayoutConfirmPasswordSignUp" />
+                app:layout_constraintTop_toBottomOf="@id/radioGroupGender" /> <LinearLayout
+            android:id="@+id/layoutAccountTypeSelection"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewAccountTypeLabel">
 
-            <LinearLayout
-                android:id="@+id/layoutAccountTypeSelection"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardViewPassenger"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textViewAccountTypeLabel">
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:checkable="true"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/gray_background_light"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/white_fff"
+                app:strokeWidth="2dp">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardViewPassenger"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:checkable="true"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="@color/gray_background_light"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/white_fff"
-                    app:strokeWidth="2dp">
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:id="@+id/iconPassenger"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginBottom="8dp"
+                        android:src="@drawable/ic_passenger"
+                        app:tint="@color/white_fff" />
+
+                    <TextView
+                        android:id="@+id/textPassenger"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:text="@string/passenger"
+                        android:textColor="@color/white_fff"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                        <ImageView
-                            android:id="@+id/iconPassenger"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginBottom="8dp"
-                            android:src="@drawable/ic_passenger"
-                            app:tint="@color/white_fff" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardViewDriver"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:checkable="true"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/gray_background_light"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gray_dark"
+                app:strokeWidth="1dp">
 
-                        <TextView
-                            android:id="@+id/textPassenger"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/passenger"
-                            android:textColor="@color/white_fff"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardViewDriver"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:checkable="true"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:cardBackgroundColor="@color/gray_background_light"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/gray_dark"
-                    app:strokeWidth="1dp">
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:id="@+id/iconDriver"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginBottom="8dp"
+                        android:src="@drawable/ic_driver"
+                        app:tint="@color/white_fff" />
+
+                    <TextView
+                        android:id="@+id/textDriver"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="16dp">
-
-                        <ImageView
-                            android:id="@+id/iconDriver"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginBottom="8dp"
-                            android:src="@drawable/ic_driver"
-                            app:tint="@color/white_fff" />
-
-                        <TextView
-                            android:id="@+id/textDriver"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/driver"
-                            android:textColor="@color/white_fff"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
+                        android:text="@string/driver"
+                        android:textColor="@color/white_fff"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonSignUp"

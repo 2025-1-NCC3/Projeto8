@@ -75,10 +75,7 @@ public class FullScreenStreetViewActivity extends AppCompatActivity implements O
         }
     }
 
-    /**
-     * Callback chamado quando o StreetViewPanorama está pronto para ser usado.
-     * @param streetViewPanorama O objeto StreetViewPanorama pronto.
-     */
+    
     @Override
     public void onStreetViewPanoramaReady(@NonNull StreetViewPanorama streetViewPanorama) {
         Log.d(TAG, "onStreetViewPanoramaReady - Panorama está pronto.");

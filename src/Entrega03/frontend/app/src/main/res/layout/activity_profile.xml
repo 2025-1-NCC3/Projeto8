@@ -41,7 +41,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Profile Header Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -49,7 +48,6 @@
                 android:orientation="horizontal"
                 android:paddingBottom="24dp">
 
-                <!-- Profile Image -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="80dp"
                     android:layout_height="80dp"
@@ -65,7 +63,6 @@
                         android:src="@drawable/ic_account" />
                 </androidx.cardview.widget.CardView>
 
-                <!-- Name and Rating -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -106,7 +103,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Edit Button -->
                 <Button
                     android:id="@+id/buttonEditProfile"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -117,14 +113,12 @@
                     app:strokeColor="@color/white" />
             </LinearLayout>
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="16dp"
                 android:background="#333333" />
 
-            <!-- User Information Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -134,7 +128,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Email -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -171,7 +164,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Phone -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -208,7 +200,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Account Type -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -245,7 +236,46 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Divider -->
+            <LinearLayout
+                android:id="@+id/layoutGenderInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="Ícone de Gênero"
+                    android:src="@drawable/ic_person"
+                    app:tint="#AAAAAA" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gênero"
+                        android:textColor="#AAAAAA"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/textViewGender"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -253,7 +283,6 @@
                 android:layout_marginBottom="16dp"
                 android:background="#333333" />
 
-            <!-- Safety Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -263,7 +292,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Safe Score -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -316,7 +344,32 @@
                     android:progressTint="@color/uber_blue" />
             </LinearLayout>
 
-            <!-- Divider -->
+            <TextView
+                android:id="@+id/textViewPairingPreferencesLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="Preferências de Pareamento"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchSameGenderPairing"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:text="Parear apenas com mesmo gênero"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:visibility="gone"
+                app:thumbTint="@color/uber_blue"
+                app:trackTint="@color/uber_blue" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -324,7 +377,6 @@
                 android:layout_marginBottom="16dp"
                 android:background="#333333" />
 
-            <!-- Logout Button -->
             <Button
                 android:id="@+id/buttonLogout"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -336,7 +388,6 @@
                 android:textColor="@color/white"
                 app:strokeColor="@color/white" />
 
-            <!-- Delete Account Button -->
             <Button
                 android:id="@+id/buttonDeleteAccount"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -349,7 +400,6 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation -->
     <LinearLayout
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
@@ -358,7 +408,6 @@
         android:background="#111111"
         android:orientation="horizontal">
 
-        <!-- Home -->
         <LinearLayout
             android:id="@+id/navHome"
             android:layout_width="0dp"
@@ -382,7 +431,6 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Services -->
         <LinearLayout
             android:id="@+id/navServices"
             android:layout_width="0dp"
@@ -406,7 +454,6 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Activity -->
         <LinearLayout
             android:id="@+id/navActivity"
             android:layout_width="0dp"
@@ -430,7 +477,6 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Account -->
         <LinearLayout
             android:id="@+id/navAccount"
             android:layout_width="0dp"

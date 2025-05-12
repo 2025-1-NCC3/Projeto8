@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import br.fecap.pi.ubersafestart.R;
 import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
+import br.fecap.pi.ubersafestart.utils.AchievementTracker;
 
 public class RideInProgressActivity extends AppCompatActivity {
 
@@ -170,6 +171,8 @@ public class RideInProgressActivity extends AppCompatActivity {
         audioStatusIcon.setImageResource(R.drawable.ic_mic);
         audioStatusIcon.setColorFilter(Color.parseColor("#2979FF"));
 
+        AchievementTracker.trackAchievement(RideInProgressActivity.this, "audio", 1);
+
         Toast.makeText(RideInProgressActivity.this,
                 "Audio recording started",
                 Toast.LENGTH_SHORT).show();
@@ -244,6 +247,7 @@ public class RideInProgressActivity extends AppCompatActivity {
     }
 
     private void finishRideAndShowFeedback() {
+        AchievementTracker.trackAchievement(RideInProgressActivity.this, "trip", 1);
         Intent homeIntent;
         if (isDriverMode) {
             homeIntent = new Intent(RideInProgressActivity.this, DriverHomeActivity.class);

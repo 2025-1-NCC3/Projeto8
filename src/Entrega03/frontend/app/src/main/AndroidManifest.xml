@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="br.fecap.pi.ubersafestart"> <uses-permission android:name="android.permission.INTERNET" />
+    package="br.fecap.pi.ubersafestart">
+
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
@@ -20,9 +22,18 @@
             android:name=".FullScreenStreetViewActivity"
             android:exported="false"
             android:label="Visualização da Rua"
-            android:theme="@style/Theme.UberSafeStartFecap" /> <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="AIzaSyB02n6zO_PAO82LI-8HsZ0JOOUPiePwh4A" />
+            android:theme="@style/Theme.UberSafeStartFecap" />
+
+        <!-- Nova Activity de Conquistas adicionada aqui -->
+        <activity
+            android:name=".AchievementsActivity"
+            android:exported="false"
+            android:label="Conquistas"
+            android:theme="@style/Theme.UberSafeStartFecap" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyB02n6zO_PAO82LI-8HsZ0JOOUPiePwh4A" />
 
         <activity
             android:name=".LoginActivity"
@@ -37,11 +48,13 @@
         <activity
             android:name=".HomeActivity"
             android:exported="false"
-            android:label="Início Passageiro" /> <activity
-        android:name=".SignUpActivity"
-        android:exported="false"
-        android:label="Cadastro"
-        android:theme="@style/Theme.UberSafeStartFecap" />
+            android:label="Início Passageiro" />
+
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="false"
+            android:label="Cadastro"
+            android:theme="@style/Theme.UberSafeStartFecap" />
         <activity
             android:name=".MainActivity"
             android:exported="false"

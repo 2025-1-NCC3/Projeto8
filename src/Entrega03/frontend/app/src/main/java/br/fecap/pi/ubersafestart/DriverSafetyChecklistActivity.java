@@ -14,6 +14,8 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+
+import br.fecap.pi.ubersafestart.utils.AchievementTracker;
 import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
 import nl.dionsegijn.konfetti.KonfettiView;
 import br.fecap.pi.ubersafestart.utils.ConfettiManager;
@@ -159,6 +161,7 @@ public class DriverSafetyChecklistActivity extends AppCompatActivity {
             btnStartRide.setOnClickListener(v -> {
                 if (allChecksCompleted()) {
                     SafeScoreHelper.updateSafeScore(DriverSafetyChecklistActivity.this, 5);
+                    AchievementTracker.trackAchievement(DriverSafetyChecklistActivity.this, "checklist", 1);
                     Toast.makeText(DriverSafetyChecklistActivity.this, "Viagem iniciada com segurança!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(DriverSafetyChecklistActivity.this, RideInProgressActivity.class);
                     intent.putExtra("IS_DRIVER_MODE", true);

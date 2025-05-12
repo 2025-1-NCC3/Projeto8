@@ -15,6 +15,8 @@ import com.google.android.material.button.MaterialButton;
 
 import br.fecap.pi.ubersafestart.R;
 import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
+import br.fecap.pi.ubersafestart.utils.AchievementTracker;
+
 
 public class RideFeedbackActivity extends AppCompatActivity {
 
@@ -79,6 +81,8 @@ public class RideFeedbackActivity extends AppCompatActivity {
 
                 // Atualiza o SafeScore usando o SafeScoreHelper - 10 pontos por dar feedback
                 SafeScoreHelper.updateSafeScore(this, 10);
+
+                AchievementTracker.trackAchievement(this, "feedback", 1);
 
                 // Mostrar animação de sucesso
                 showSuccessAnimation();

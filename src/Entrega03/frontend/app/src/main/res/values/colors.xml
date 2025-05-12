@@ -29,4 +29,12 @@
     <color name="gray_very_dark">#262626</color>
 
     <color name="transparent">#00000000</color>
+
+
+    <color name="achievement_gold">#FFD700</color>
+    <color name="achievement_silver">#C0C0C0</color>
+    <color name="achievement_bronze">#CD7F32</color>
+    <color name="achievement_icon_bg">#2979FF</color>
+    <color name="achievement_completed">#00C853</color>
+    <color name="achievement_locked">#555555</color>
 </resources>

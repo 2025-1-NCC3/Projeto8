@@ -52,14 +52,14 @@ public class HomeActivity extends AppCompatActivity {
     private LinearLayout navAccount;
     private LinearLayout navHome;
     private LinearLayout navServices;
-    private LinearLayout navActivity;
+    private LinearLayout navAchievements;
     private CardView cardViewRecentLocation1;
     private CardView cardViewRecentLocation2;
 
     // IDs dos Ícones e Textos da Barra de Navegação (AJUSTE CONFORME SEU XML activity_home.xml)
-    // Se os seus IDs forem diferentes, altere aqui!
-    private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconActivity, R.id.iconAccount};
-    private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textActivity, R.id.textAccount};
+    // Atualizado para usar os novos IDs de iconAchievements e textAchievements
+    private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconAchievements, R.id.iconAccount};
+    private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textAchievements, R.id.textAccount};
 
 
     @Override
@@ -84,7 +84,7 @@ public class HomeActivity extends AppCompatActivity {
         navAccount = findViewById(R.id.navAccount);
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
-        navActivity = findViewById(R.id.navActivity);
+        navAchievements = findViewById(R.id.navAchievements);
         cardViewRecentLocation1 = findViewById(R.id.cardViewRecentLocation1);
         cardViewRecentLocation2 = findViewById(R.id.cardViewRecentLocation2);
     }
@@ -152,21 +152,23 @@ public class HomeActivity extends AppCompatActivity {
                 // Já está na Home
             } else if (id == R.id.navServices) {
                 Toast.makeText(HomeActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.navActivity) {
-                Toast.makeText(HomeActivity.this, "Atividade em desenvolvimento", Toast.LENGTH_SHORT).show();
+            } else if (id == R.id.navAchievements) {
+                Intent intent = new Intent(HomeActivity.this, AchievementsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         };
 
         // Atribui o listener a cada item de navegação
         if (navHome != null) navHome.setOnClickListener(listener); else Log.e(TAG, "navHome nulo");
         if (navServices != null) navServices.setOnClickListener(listener); else Log.e(TAG, "navServices nulo");
-        if (navActivity != null) navActivity.setOnClickListener(listener); else Log.e(TAG, "navActivity nulo");
+        if (navAchievements != null) navAchievements.setOnClickListener(listener); else Log.e(TAG, "navAchievements nulo");
         if (navAccount != null) navAccount.setOnClickListener(listener); else Log.e(TAG, "navAccount nulo");
     }
 
     // Atualiza a aparência da barra de navegação inferior para destacar o item selecionado
     private void updateBottomNavigationSelection(int selectedItemId) {
-        LinearLayout[] navItems = {navHome, navServices, navActivity, navAccount};
+        LinearLayout[] navItems = {navHome, navServices, navAchievements, navAccount};
 
         // Cores para os estados ativo/inativo (ajuste conforme seu tema)
         int activeColor = ContextCompat.getColor(this, R.color.white);

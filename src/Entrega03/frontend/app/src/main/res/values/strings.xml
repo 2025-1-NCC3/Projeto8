@@ -103,4 +103,11 @@
     <string name="profile_image">Imagem de perfil</string>
 
     <string name="delete_account">Deletar Conta</string>
+
+    <!-- Adicionar novas strings para Conquistas -->
+    <string name="conquistas">Conquistas</string>
+    <string name="achievements_icon">Ícone de Conquistas</string>
+    <string name="suas_conquistas">Suas Conquistas</string>
+    <string name="seu_nivel_seguranca">Seu Nível de Segurança</string>
+    <string name="proximo_nivel">Próximo Nível</string>
 </resources>

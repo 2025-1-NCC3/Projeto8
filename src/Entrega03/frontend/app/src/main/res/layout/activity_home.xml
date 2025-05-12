@@ -380,8 +380,9 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- Alteração do LinearLayout navActivity para navAchievements -->
         <LinearLayout
-            android:id="@+id/navActivity"
+            android:id="@+id/navAchievements"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -392,19 +393,19 @@
             android:paddingBottom="8dp">
 
             <ImageView
-                android:id="@+id/iconActivity"
+                android:id="@+id/iconAchievements"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:contentDescription="@string/activity_icon"
-                android:src="@drawable/ic_activity"
+                android:contentDescription="@string/achievements_icon"
+                android:src="@drawable/ic_trophy"
                 app:tint="@color/gray_light" />
 
             <TextView
-                android:id="@+id/textActivity"
+                android:id="@+id/textAchievements"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="@string/atividade"
+                android:text="@string/conquistas"
                 android:textColor="@color/gray_light"
                 android:textSize="12sp" />
         </LinearLayout>

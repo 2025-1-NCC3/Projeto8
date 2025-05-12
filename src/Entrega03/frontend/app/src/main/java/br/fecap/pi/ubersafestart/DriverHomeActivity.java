@@ -62,7 +62,7 @@ public class DriverHomeActivity extends AppCompatActivity {
     // Componentes da UI
     private TextView textViewGreeting, textViewDriverName, textViewStatus;
     private Button buttonStart;
-    private LinearLayout navAccount, navHome, navEarnings, navActivity;
+    private LinearLayout navAccount, navHome, navEarnings, navActivity, navAchievements;
 
     // Controle de estado e simulação
     private boolean isOnline = false;
@@ -130,7 +130,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         navAccount = findViewById(R.id.navAccount);
         navHome = findViewById(R.id.navHome);
         navEarnings = findViewById(R.id.navEarnings);
-        navActivity = findViewById(R.id.navActivity);
+        navAchievements = findViewById(R.id.navAchievements);
     }
 
     // Define a saudação com base na hora atual
@@ -158,6 +158,13 @@ public class DriverHomeActivity extends AppCompatActivity {
 
     // Configura os listeners para a barra de navegação inferior
     private void setupNavigationListeners() {
+
+        navAchievements.setOnClickListener(v -> {
+            Intent intent = new Intent(DriverHomeActivity.this, AchievementsActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        });
+
         navAccount.setOnClickListener(v -> {
             Intent intent = new Intent(DriverHomeActivity.this, ProfileActivity.class);
             startActivity(intent);

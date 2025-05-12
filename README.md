@@ -1,8 +1,8 @@
 # FECAP - Fundação de Comércio Álvares Penteado
 
 <p align="center">
-<a href="https://www.fecap.br/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhZPrRa89Kma0ZZogxm0pi-tCn_TLKeHGVxywp-LXAFGR3B1DPouAJYHgKZGV0XTEf4AE&usqp=CAU" alt="FECAP - Fundação de Comércio Álvares Penteado" height="80" border="0"></a>
-<a href="#"><img src="https://raw.githubusercontent.com/2025-1-NCC3/Projeto8/main/src/Entrega03/frontend/app/src/main/res/drawable/uber_safe_start_logo.png" alt="Uber SafeStart Logo" height="80" border="0"></a>
+<a href="https://www.fecap.br/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhZPrRa89Kma0ZZogxm0pi-tCn_TLKeHGVxywp-LXAFGR3B1DPouAJYHgKZGV0XTEf4AE&usqp=CAU" alt="FECAP - Fundação de Comércio Álvares Penteado" height="350" border="0"></a>
+<a href="#"><img src="https://imgur.com/ZUvAPFa.png" alt="Uber SafeStart Logo" height="350" border="0"></a>
 </p>
 
 # Uber SafeStart
@@ -12,7 +12,7 @@
 ## 👨‍🏫 Professores Orientadores: [Katia Milani Lara Bossi](https://www.linkedin.com/in/katia-bossi/), [Marco Aurelio](https://github.com/fecaphub/Portfolio/blob/main), [Victor Rosetti](https://www.linkedin.com/in/victorbarq/) e [Vinicius Heltai](https://www.linkedin.com/in/vheltai/)
 
 ## 📱 Download do Aplicativo
-Faça o download da versão mais recente do aplicativo na seção [Releases (UberSafeStartAPK)](https://github.com/saulojr8/UberSafeStart/releases) do GitHub.
+Faça o download da versão mais recente do aplicativo na seção [Releases (UberSafeStartAPK)](https://github.com/2025-1-NCC3/Projeto8/releases/tag/UberSafeStartAPK) do GitHub.
 
 ## 📖 Descrição
 O Uber SafeStart é uma solução inovadora para aumentar a segurança no transporte por aplicativo, prevenindo riscos antes e durante as viagens. Desenvolvido como um aplicativo Android completo, ele promove o respeito mútuo entre motoristas e passageiros, combatendo situações de assédio e preconceito através de mecanismos inteligentes de prevenção e monitoramento.
@@ -170,13 +170,6 @@ cd UberSafeStart
 O design e planejamento visual do Uber SafeStart foi criado no **Figma**. Acesse:
 - [Layout Completo](https://www.figma.com/design/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=53-14&p=f&t=M4162DS9hsA04657-0)
 - [Protótipo Interativo](https://www.figma.com/proto/fva6dhGFfB9Q0mpmNHT8YH/Uber-SafeStart?node-id=56-44&p=f&t=u702Ditftn5roEbT-0&scaling=min-zoom&content-scaling=fixed&page-id=53%3A14&starting-point-node-id=56%3A44)
-
-## 🔮 Desenvolvimento Futuro
-- Integração com APIs de avaliação de segurança de regiões
-- Sistema de reconhecimento facial para verificação de identidade
-- Expansão para iOS
-- Inteligência artificial para análise de padrões de comportamento
-- Modelo preditivo para identificação de riscos potenciais
 
 ## 📋 Licença
 Este projeto é licenciado sob a licença Creative Commons [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/?ref=chooser-v1).

@@ -195,7 +195,11 @@ app.post("/api/user/safescore/update", auth, (req, res) => {
                 );
               }
 
-              res.json({ newScore });
+              res.json({
+                success: true,
+                message: "SafeScore updated successfully",
+                newScore,
+              });
             }
           );
         }
@@ -215,7 +219,10 @@ app.get("/api/user/safescore", auth, (req, res) => {
         (err, row) => {
           if (err || !row)
             return res.status(500).json({ message: "Score fetch error" });
-          res.json({ score: row.score });
+          res.json({
+            success: true,
+            score: row.score,
+          });
         }
       );
     })
@@ -249,19 +256,29 @@ app.get("/api/user/gender", auth, (req, res) => {
   );
 });
 
-// Get User Achievements
+// Get User Achievements - Versão melhorada para retornar detalhes completos
 app.get("/api/user/achievements", auth, (req, res) => {
   const userId = req.user.user_id;
 
   ensureUserAchievements(userId)
     .then(() => {
-      // Obter todo o progresso de conquistas do usuário
+      // Obter todo o progresso de conquistas do usuário com detalhes completos
       db.all(
-        `SELECT up.achievement_id, up.progress, up.completed, 
-                a.title, a.description, a.points, a.icon_resource, a.type, a.target
+        `SELECT 
+          up.achievement_id, 
+          up.progress, 
+          up.completed, 
+          up.last_updated,
+          a.title, 
+          a.description, 
+          a.points, 
+          a.icon_resource, 
+          a.type, 
+          a.target
          FROM UserAchievementProgress up
          JOIN Achievement a ON up.achievement_id = a.id
-         WHERE up.user_id = ?`,
+         WHERE up.user_id = ?
+         ORDER BY a.type, a.target`,
         [userId],
         (err, rows) => {
           if (err) {
@@ -273,149 +290,60 @@ app.get("/api/user/achievements", auth, (req, res) => {
 
           // Calcular pontos totais e nível do usuário
           let totalPoints = 0;
-          const achievementProgress = [];
+          const achievements = [];
 
           rows.forEach((row) => {
             if (row.completed) {
               totalPoints += row.points;
             }
 
-            achievementProgress.push({
-              achievementId: row.achievement_id,
-              progress: row.progress,
+            // Converter para formato mais amigável para o front-end
+            achievements.push({
+              id: row.achievement_id,
+              title: row.title,
+              description: row.description,
+              points: row.points,
+              iconResource: row.icon_resource,
+              type: row.type,
+              target: row.target,
+              progress: row.progress || 0,
               completed: row.completed === 1,
+              lastUpdated: row.last_updated,
             });
+          });
+
+          // Agrupar conquistas por tipo para exibição organizada
+          const achievementsByType = {};
+          achievements.forEach((achievement) => {
+            if (!achievementsByType[achievement.type]) {
+              achievementsByType[achievement.type] = [];
+            }
+            achievementsByType[achievement.type].push(achievement);
           });
 
           // Calcular nível do usuário (1 nível a cada 100 pontos, começando no nível 1)
           const userLevel = Math.max(1, Math.floor(totalPoints / 100) + 1);
 
+          // Calcular progresso para o próximo nível
+          const nextLevelPoints = userLevel * 100;
+          const currentLevelPoints = (userLevel - 1) * 100;
+          const pointsInCurrentLevel = totalPoints - currentLevelPoints;
+          const progressToNextLevel = Math.floor(
+            (pointsInCurrentLevel / 100) * 100
+          ); // Porcentagem
+
           res.json({
             success: true,
-            achievementProgress,
+            achievements,
+            achievementsByType,
             totalPoints,
             userLevel,
+            nextLevelPoints,
+            pointsToNextLevel: nextLevelPoints - totalPoints,
+            progressToNextLevel,
           });
         }
       );
-    })
-    .catch((error) => {
-      console.error("Erro de inicialização de conquistas:", error);
-      res.status(500).json({ message: "Error initializing achievements" });
-    });
-});
-
-// Update User Achievement Progress
-app.post("/api/user/achievements/update", auth, (req, res) => {
-  const userId = req.user.user_id;
-  const { achievementProgress } = req.body;
-
-  if (!Array.isArray(achievementProgress)) {
-    return res
-      .status(400)
-      .json({ message: "Invalid achievement progress data" });
-  }
-
-  ensureUserAchievements(userId)
-    .then(() => {
-      // Criar uma promise para cada atualização de conquista
-      const updatePromises = achievementProgress.map((progress) => {
-        return new Promise((resolve, reject) => {
-          if (
-            !progress.achievementId ||
-            typeof progress.progress !== "number"
-          ) {
-            return reject(new Error("Invalid achievement data"));
-          }
-
-          db.get(
-            "SELECT target, points FROM Achievement WHERE id = ?",
-            [progress.achievementId],
-            (err, achievement) => {
-              if (err || !achievement) {
-                return reject(new Error("Achievement not found"));
-              }
-
-              const completed = progress.progress >= achievement.target ? 1 : 0;
-
-              db.run(
-                `UPDATE UserAchievementProgress 
-                 SET progress = ?, completed = ?, last_updated = CURRENT_TIMESTAMP
-                 WHERE user_id = ? AND achievement_id = ?`,
-                [progress.progress, completed, userId, progress.achievementId],
-                function (err) {
-                  if (err) {
-                    return reject(err);
-                  }
-                  resolve({
-                    achievementId: progress.achievementId,
-                    progress: progress.progress,
-                    completed: completed === 1,
-                    points: completed === 1 ? achievement.points : 0,
-                  });
-                }
-              );
-            }
-          );
-        });
-      });
-
-      Promise.all(updatePromises)
-        .then((results) => {
-          // Calcular pontos totais e nível do usuário
-          let totalPoints = 0;
-
-          // Primeiro obter pontos de conquistas existentes não sendo atualizadas
-          const placeholders =
-            achievementProgress.length > 0
-              ? achievementProgress.map(() => "?").join(",")
-              : "0";
-
-          db.all(
-            `SELECT a.points 
-             FROM UserAchievementProgress up
-             JOIN Achievement a ON up.achievement_id = a.id
-             WHERE up.user_id = ? AND up.completed = 1 AND up.achievement_id NOT IN (${placeholders})`,
-            [userId, ...achievementProgress.map((p) => p.achievementId)],
-            (err, rows) => {
-              if (err) {
-                return res
-                  .status(500)
-                  .json({ message: "Error calculating points" });
-              }
-
-              // Adicionar pontos de conquistas completas existentes
-              rows.forEach((row) => {
-                totalPoints += row.points;
-              });
-
-              // Adicionar pontos de conquistas recém-atualizadas
-              results.forEach((result) => {
-                if (result.completed) {
-                  totalPoints += result.points;
-                }
-              });
-
-              // Calcular nível do usuário
-              const userLevel = Math.max(1, Math.floor(totalPoints / 100) + 1);
-
-              res.json({
-                success: true,
-                achievementProgress: results.map((r) => ({
-                  achievementId: r.achievementId,
-                  progress: r.progress,
-                  completed: r.completed,
-                })),
-                totalPoints,
-                userLevel,
-              });
-            }
-          );
-        })
-        .catch((error) => {
-          console.error("Erro ao atualizar conquistas:", error);
-          res.status(500).json({ message: "Failed to update achievements" });
-        });
     })
     .catch((error) => {
       console.error("Erro de inicialização de conquistas:", error);
@@ -444,6 +372,131 @@ app.post("/api/user/achievements/track", auth, (req, res) => {
       res.status(500).json({ message: "Failed to track achievement progress" });
     });
 });
+
+// Nova rota para rastrear eventos específicos do aplicativo
+app.post("/api/user/track-event", auth, (req, res) => {
+  const userId = req.user.user_id;
+  const { eventType, count = 1 } = req.body;
+
+  if (!eventType) {
+    return res.status(400).json({ message: "Event type is required" });
+  }
+
+  // Mapear eventos para tipos de conquistas
+  let achievementType;
+  switch (eventType) {
+    case "ride_completed":
+      achievementType = "trip";
+      break;
+    case "checklist_completed":
+      achievementType = "checklist";
+      break;
+    case "route_shared":
+      achievementType = "share";
+      break;
+    case "audio_recording_enabled":
+      achievementType = "audio";
+      break;
+    case "feedback_given":
+      achievementType = "feedback";
+      break;
+    case "safescore_increased":
+      achievementType = "safety";
+      break;
+    default:
+      return res.status(400).json({ message: "Invalid event type" });
+  }
+
+  // Chamar função para atualizar o progresso da conquista
+  updateUserAchievementProgress(userId, achievementType, count)
+    .then((result) => {
+      // Obter detalhes das conquistas recém-completadas
+      if (result.newlyCompleted && result.newlyCompleted.length > 0) {
+        const achievementIds = result.newlyCompleted.map(
+          (a) => a.achievementId
+        );
+        const placeholders = achievementIds.map(() => "?").join(",");
+
+        db.all(
+          `SELECT id, title, description, points, icon_resource, type, target
+           FROM Achievement 
+           WHERE id IN (${placeholders})`,
+          achievementIds,
+          (err, completedAchievements) => {
+            if (err) {
+              console.error(
+                "Erro ao buscar detalhes de conquistas completadas:",
+                err
+              );
+              return res.json({
+                success: true,
+                message:
+                  "Event tracked successfully, but couldn't fetch achievement details",
+                ...result,
+              });
+            }
+
+            res.json({
+              success: true,
+              message: "Event tracked successfully",
+              ...result,
+              completedAchievementDetails: completedAchievements,
+            });
+          }
+        );
+      } else {
+        res.json({
+          success: true,
+          message: "Event tracked successfully",
+          ...result,
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Error tracking event:", error);
+      res.status(500).json({ message: "Failed to track event" });
+    });
+});
+
+// Atualizar SafeScore com pontos de conquistas
+function updateSafeScoreWithAchievementPoints(userId, points) {
+  if (points <= 0) return;
+
+  ensureSafeScoreEntry(userId)
+    .then(() => {
+      db.get(
+        "SELECT score FROM SafeScore WHERE user_id = ?",
+        [userId],
+        (err, row) => {
+          if (!err && row) {
+            const newScore = Math.min(100, row.score + points);
+            db.run(
+              "UPDATE SafeScore SET score = ?, last_updated = CURRENT_TIMESTAMP WHERE user_id = ?",
+              [newScore, userId],
+              (err) => {
+                if (err) {
+                  console.error(
+                    "Erro ao atualizar SafeScore com pontos de conquistas:",
+                    err
+                  );
+                } else {
+                  console.log(
+                    `SafeScore atualizado para ${newScore} após ganhar ${points} pontos de conquistas`
+                  );
+                }
+              }
+            );
+          }
+        }
+      );
+    })
+    .catch((err) => {
+      console.error(
+        "Erro ao inicializar SafeScore para atualização de pontos:",
+        err
+      );
+    });
+}
 
 // Atualizar progresso de conquista por tipo (Função auxiliar)
 function updateUserAchievementProgress(userId, type, increment) {
@@ -551,29 +604,9 @@ function updateUserAchievementProgress(userId, type, increment) {
 
                       if (totalNewPoints > 0) {
                         // Atualizar SafeScore
-                        db.get(
-                          "SELECT score FROM SafeScore WHERE user_id = ?",
-                          [userId],
-                          (err, row) => {
-                            if (!err && row) {
-                              const newScore = Math.min(
-                                100,
-                                row.score + totalNewPoints
-                              );
-                              db.run(
-                                "UPDATE SafeScore SET score = ?, last_updated = CURRENT_TIMESTAMP WHERE user_id = ?",
-                                [newScore, userId],
-                                (err) => {
-                                  if (err) {
-                                    console.error(
-                                      "Erro ao atualizar SafeScore com pontos de conquistas:",
-                                      err
-                                    );
-                                  }
-                                }
-                              );
-                            }
-                          }
+                        updateSafeScoreWithAchievementPoints(
+                          userId,
+                          totalNewPoints
                         );
                       }
                     }

@@ -9,10 +9,16 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -27,40 +33,37 @@ import androidx.core.content.ContextCompat;
 
 import java.util.Locale;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-// Importações necessárias para a lógica de pareamento
-import br.fecap.pi.ubersafestart.model.SimulatedUser; // Importar o modelo de utilizador simulado
-import br.fecap.pi.ubersafestart.utils.StaticUserManager; // Importar o gestor de utilizadores estáticos
+import br.fecap.pi.ubersafestart.model.SimulatedUser;
+import br.fecap.pi.ubersafestart.utils.StaticUserManager;
 
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
 
-    // Constantes para SharedPreferences (DEVEM SER AS MESMAS USADAS EM ProfileActivity)
-    private static final String USER_LOGIN_PREFS = "userPrefs"; // Para dados de login (token, nome, genero do backend)
-    private static final String USER_LOCAL_PREFERENCES = "UserPreferences"; // Para preferências locais (pareamento)
-    private static final String KEY_GENDER = "gender"; // Chave para género do utilizador logado ('male', 'female', 'other')
-    private static final String KEY_SAME_GENDER_PAIRING = "sameGenderPairingEnabled"; // Chave para preferência local (boolean)
+    private static final String USER_LOGIN_PREFS = "userPrefs";
+    private static final String USER_LOCAL_PREFERENCES = "UserPreferences";
+    private static final String KEY_GENDER_PASSENGER = "gender";
+    private static final String KEY_SAME_GENDER_PAIRING_PASSENGER = "sameGenderPairingEnabled";
 
-    // Componentes da UI
-    private TextView textViewLocationName1;
-    private TextView textViewLocationAddress1;
-    private TextView textViewLocationName2;
-    private TextView textViewLocationAddress2;
+    private TextView textViewLocationName1, textViewLocationAddress1;
+    private TextView textViewLocationName2, textViewLocationAddress2;
     private LinearLayout layoutSearchClickable;
+    private TextView textViewSearchHint;
+    private EditText editTextDestinationInput;
+    private ImageButton buttonSubmitDestination;
+    private View searchDivider;
     private LinearLayout layoutSchedule;
-    private LinearLayout navAccount;
-    private LinearLayout navHome;
-    private LinearLayout navServices;
-    private LinearLayout navAchievements;
-    private CardView cardViewRecentLocation1;
-    private CardView cardViewRecentLocation2;
+    private LinearLayout navAccount, navHome, navServices, navAchievements;
+    private CardView cardViewRecentLocation1, cardViewRecentLocation2;
 
-    // IDs dos Ícones e Textos da Barra de Navegação (AJUSTE CONFORME SEU XML activity_home.xml)
-    // Atualizado para usar os novos IDs de iconAchievements e textAchievements
+    private String currentDestinationFormattedAddress = "";
+    private String currentDestinationQuery = "";
+
     private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconAchievements, R.id.iconAccount};
     private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textAchievements, R.id.textAccount};
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,18 +71,23 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         initViews();
-        loadLocationHistoryData(); // Carrega locais recentes (manter se for útil)
+        loadLocationHistoryData();
         setupClickListeners();
-        updateBottomNavigationSelection(R.id.navHome); // Marcar Home como ativa ao iniciar
+        updateBottomNavigationSelection(R.id.navHome);
     }
 
-    // Inicializa as views da Activity
     private void initViews() {
         textViewLocationName1 = findViewById(R.id.textViewLocationName1);
         textViewLocationAddress1 = findViewById(R.id.textViewLocationAddress1);
         textViewLocationName2 = findViewById(R.id.textViewLocationName2);
         textViewLocationAddress2 = findViewById(R.id.textViewLocationAddress2);
+
         layoutSearchClickable = findViewById(R.id.layoutSearchClickable);
+        textViewSearchHint = findViewById(R.id.textViewSearchHint);
+        editTextDestinationInput = findViewById(R.id.editTextDestinationInput);
+        buttonSubmitDestination = findViewById(R.id.buttonSubmitDestination);
+        searchDivider = findViewById(R.id.searchDivider);
+
         layoutSchedule = findViewById(R.id.layoutSchedule);
         navAccount = findViewById(R.id.navAccount);
         navHome = findViewById(R.id.navHome);
@@ -87,70 +95,239 @@ public class HomeActivity extends AppCompatActivity {
         navAchievements = findViewById(R.id.navAchievements);
         cardViewRecentLocation1 = findViewById(R.id.cardViewRecentLocation1);
         cardViewRecentLocation2 = findViewById(R.id.cardViewRecentLocation2);
+
+        if (layoutSearchClickable == null) Log.e(TAG, "layoutSearchClickable não encontrado!");
+        if (textViewSearchHint == null) Log.e(TAG, "textViewSearchHint não encontrado!");
+        if (editTextDestinationInput == null) Log.e(TAG, "editTextDestinationInput não encontrado!");
+        if (buttonSubmitDestination == null) Log.e(TAG, "buttonSubmitDestination não encontrado!");
+        if (searchDivider == null) Log.e(TAG, "searchDivider não encontrado!");
     }
 
-    // Carrega dados de exemplo para locais recentes (pode ser adaptado ou removido)
     private void loadLocationHistoryData() {
-        // Dados de exemplo
         String location1Name = "Avenida Paulista, 1578";
         String location1Address = "Bela Vista, São Paulo - SP";
         String location2Name = "Parque Ibirapuera";
         String location2Address = "Av. Pedro Álvares Cabral";
 
-        // Atualiza a UI
         if (textViewLocationName1 != null) textViewLocationName1.setText(location1Name);
         if (textViewLocationAddress1 != null) textViewLocationAddress1.setText(location1Address);
         if (textViewLocationName2 != null) textViewLocationName2.setText(location2Name);
         if (textViewLocationAddress2 != null) textViewLocationAddress2.setText(location2Address);
-        // Controla visibilidade dos cards
         if (cardViewRecentLocation1 != null) cardViewRecentLocation1.setVisibility(View.VISIBLE);
         if (cardViewRecentLocation2 != null) cardViewRecentLocation2.setVisibility(View.VISIBLE);
     }
 
-    // Configura todos os listeners de clique da tela
     private void setupClickListeners() {
-        setupSearchListener();
+        if (layoutSearchClickable != null) {
+            layoutSearchClickable.setOnClickListener(v -> switchToSearchMode());
+        }
+        if (textViewSearchHint != null) {
+            textViewSearchHint.setOnClickListener(v -> switchToSearchMode());
+        }
+
+        if (buttonSubmitDestination != null) {
+            buttonSubmitDestination.setOnClickListener(v -> {
+                if (editTextDestinationInput != null) {
+                    currentDestinationQuery = editTextDestinationInput.getText().toString().trim();
+                    if (currentDestinationQuery.isEmpty()) {
+                        Toast.makeText(HomeActivity.this, "Por favor, insira um destino.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Log.d(TAG, "Destino submetido: " + currentDestinationQuery);
+                    hideKeyboard();
+                    processDestinationSearch(currentDestinationQuery);
+                }
+            });
+        }
+
+        if (editTextDestinationInput != null) {
+            editTextDestinationInput.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                        actionId == EditorInfo.IME_ACTION_DONE ||
+                        (event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    if (buttonSubmitDestination != null && buttonSubmitDestination.getVisibility() == View.VISIBLE) {
+                        buttonSubmitDestination.performClick();
+                    }
+                    return true;
+                }
+                return false;
+            });
+        }
+
         setupNavigationListeners();
         setupRecentLocationsListeners();
         setupScheduleButtonListener();
     }
 
-    // Listener para o campo de busca (simula início de busca de corrida)
-    private void setupSearchListener() {
-        if (layoutSearchClickable != null) {
-            layoutSearchClickable.setOnClickListener(v -> {
-                Log.d(TAG, "Busca iniciada pelo campo de pesquisa.");
-                // Simula busca para um destino genérico
-                showLoadingDialog("Destino da Busca");
-            });
-        } else {
-            Log.e(TAG, "LinearLayout layoutSearchClickable não encontrado.");
+    private void switchToSearchMode() {
+        if (textViewSearchHint != null) textViewSearchHint.setVisibility(View.GONE);
+        if (editTextDestinationInput != null) {
+            editTextDestinationInput.setVisibility(View.VISIBLE);
+            editTextDestinationInput.requestFocus();
+            showKeyboard(editTextDestinationInput);
+        }
+        if (buttonSubmitDestination != null) buttonSubmitDestination.setVisibility(View.VISIBLE);
+        if (searchDivider != null) searchDivider.setVisibility(View.GONE);
+        if (layoutSchedule != null) layoutSchedule.setVisibility(View.GONE);
+    }
+
+    private void switchToDisplayMode(String searchedText) {
+        if (textViewSearchHint != null) {
+            if (!TextUtils.isEmpty(searchedText)) {
+                textViewSearchHint.setText(searchedText);
+                textViewSearchHint.setTextColor(ContextCompat.getColor(this, R.color.white_fff));
+            } else {
+                textViewSearchHint.setText(R.string.para_onde);
+                textViewSearchHint.setTextColor(ContextCompat.getColor(this, R.color.gray_light));
+            }
+            textViewSearchHint.setVisibility(View.VISIBLE);
+        }
+        if (editTextDestinationInput != null) {
+            editTextDestinationInput.setText("");
+            editTextDestinationInput.setVisibility(View.GONE);
+        }
+        if (buttonSubmitDestination != null) buttonSubmitDestination.setVisibility(View.GONE);
+        if (searchDivider != null) searchDivider.setVisibility(View.VISIBLE);
+        if (layoutSchedule != null) layoutSchedule.setVisibility(View.VISIBLE);
+        hideKeyboard();
+    }
+
+    private void showKeyboard(View view) {
+        if (view.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+            }
         }
     }
 
-    // Listener para o botão de agendamento (atualmente mostra um Toast)
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+    }
+
+    private void processDestinationSearch(String destinationQuery) {
+        String queryLower = destinationQuery.toLowerCase();
+        String numero = "";
+
+        Pattern pattern = Pattern.compile("\\b\\d+\\b");
+        Matcher matcher = pattern.matcher(destinationQuery);
+        if (matcher.find()) {
+            numero = matcher.group(0);
+        }
+
+        // SIMULAÇÃO: Obter endereço formatado.
+        if (queryLower.contains("rua alfredo pujol") && (queryLower.contains("1358") || numero.equals("1358"))) {
+            currentDestinationFormattedAddress = "Rua Alfredo Pujol, 1358 - Santana, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("torres da barra") && (queryLower.contains("75") || numero.equals("75"))) {
+            currentDestinationFormattedAddress = "Rua Torres da Barra, 75 - Barra Funda, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("rua itajobi") && (queryLower.contains("75") || numero.equals("75"))) {
+            currentDestinationFormattedAddress = "R. Itajobi, 75 - Pacaembu, São Paulo - SP, 01246-110, Brasil";
+        } else if (queryLower.contains("avenida paulista") && (queryLower.contains("1912") || numero.equals("1912"))) {
+            currentDestinationFormattedAddress = "Avenida Paulista, 1912 - Bela Vista, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("museu do ipiranga")) {
+            currentDestinationFormattedAddress = "Parque da Independência - Ipiranga, São Paulo - SP, 04263-000, Brasil";
+        } else if (queryLower.contains("paulista") && (queryLower.contains("1578") || numero.equals("1578"))) {
+            currentDestinationFormattedAddress = "Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("paulista")) {
+            currentDestinationFormattedAddress = "Avenida Paulista, Bela Vista, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("ibirapuera")) {
+            currentDestinationFormattedAddress = "Parque Ibirapuera, Av. Pedro Álvares Cabral, Vila Mariana, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("joaquim carlos") && (queryLower.contains("655") || numero.equals("655"))) {
+            currentDestinationFormattedAddress = "R. Joaquim Carlos, 655 - Brás, São Paulo - SP, 03019-000, Brasil";
+        } else {
+            currentDestinationFormattedAddress = destinationQuery;
+            if (!queryLower.matches(".*(s[ãa]o paulo|sp).*")) {
+                currentDestinationFormattedAddress += ", São Paulo - SP";
+            }
+            if (!queryLower.contains("brasil")) {
+                currentDestinationFormattedAddress += ", Brasil";
+            }
+            Log.w(TAG, "Simulação: Endereço não coberto. Usando: " + currentDestinationFormattedAddress);
+        }
+        Log.d(TAG, "Endereço formatado (simulado): " + currentDestinationFormattedAddress);
+
+        switchToDisplayMode(currentDestinationFormattedAddress);
+        showSearchingDriverDialog(currentDestinationFormattedAddress);
+    }
+
+    private void showSearchingDriverDialog(final String destinationFormattedAddress) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this, R.style.AlertDialogTheme);
+        View loadingView = LayoutInflater.from(this).inflate(R.layout.dialog_ride_loading, null);
+        builder.setView(loadingView);
+        builder.setCancelable(false);
+
+        final AlertDialog searchingDialog = builder.create();
+        if (searchingDialog.getWindow() != null) {
+            searchingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        searchingDialog.show();
+
+        ProgressBar progressBar = loadingView.findViewById(R.id.progressBar);
+        TextView statusText = loadingView.findViewById(R.id.textViewStatus);
+        ImageView checkmarkImage = loadingView.findViewById(R.id.imageViewCheckmark);
+
+        if (statusText != null) statusText.setText(getString(R.string.dialog_loading_status_searching));
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        if (checkmarkImage != null) checkmarkImage.setVisibility(View.GONE);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (isFinishing() || isDestroyed() || !searchingDialog.isShowing()) return;
+
+            SharedPreferences loginPrefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
+            String currentUserGender = loginPrefs.getString(KEY_GENDER_PASSENGER, "").toUpperCase(Locale.ROOT);
+            SharedPreferences localPrefs = getSharedPreferences(USER_LOCAL_PREFERENCES, Context.MODE_PRIVATE);
+            boolean preferSameGender = localPrefs.getBoolean(KEY_SAME_GENDER_PAIRING_PASSENGER, false);
+
+            final SimulatedUser driver = StaticUserManager.getRandomDriver(currentUserGender, preferSameGender);
+
+            if (driver != null) {
+                if (statusText != null) statusText.setText(getString(R.string.dialog_loading_status_found));
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                if (checkmarkImage != null) checkmarkImage.setVisibility(View.VISIBLE);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (!isFinishing() && !isDestroyed() && searchingDialog.isShowing()) {
+                        searchingDialog.dismiss();
+                        String ridePrice = generateRandomPrice();
+                        showDriverInfoDialog(driver, ridePrice, destinationFormattedAddress);
+                    }
+                }, 1000);
+            } else {
+                if (statusText != null) statusText.setText(getString(R.string.dialog_loading_status_not_found));
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                Toast.makeText(HomeActivity.this, "Nenhum motorista compatível no momento.", Toast.LENGTH_LONG).show();
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (!isFinishing() && !isDestroyed() && searchingDialog.isShowing()) {
+                        searchingDialog.dismiss();
+                    }
+                    switchToDisplayMode("");
+                }, 2000);
+            }
+        }, 3000);
+    }
+
     private void setupScheduleButtonListener() {
         if (layoutSchedule != null) {
-            layoutSchedule.setOnClickListener(v -> {
-                Toast.makeText(HomeActivity.this, "Funcionalidade de agendamento em desenvolvimento.", Toast.LENGTH_SHORT).show();
-            });
-        } else {
-            Log.e(TAG, "LinearLayout layoutSchedule não encontrado.");
+            layoutSchedule.setOnClickListener(v -> Toast.makeText(HomeActivity.this, "Agendamento em desenvolvimento.", Toast.LENGTH_SHORT).show());
         }
     }
 
-    // Configura listeners para a barra de navegação inferior
     private void setupNavigationListeners() {
         View.OnClickListener listener = v -> {
             int id = v.getId();
-            Log.d(TAG, "Item de navegação clicado: " + getResources().getResourceEntryName(id));
-            updateBottomNavigationSelection(id); // Atualiza a seleção visual
-
             if (id == R.id.navAccount) {
+                updateBottomNavigationSelection(id);
                 openProfileActivity();
             } else if (id == R.id.navHome) {
-                // Já está na Home
+                updateBottomNavigationSelection(id);
             } else if (id == R.id.navServices) {
+                updateBottomNavigationSelection(id);
                 Toast.makeText(HomeActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
             } else if (id == R.id.navAchievements) {
                 Intent intent = new Intent(HomeActivity.this, AchievementsActivity.class);
@@ -158,182 +335,96 @@ public class HomeActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         };
-
-        // Atribui o listener a cada item de navegação
-        if (navHome != null) navHome.setOnClickListener(listener); else Log.e(TAG, "navHome nulo");
-        if (navServices != null) navServices.setOnClickListener(listener); else Log.e(TAG, "navServices nulo");
-        if (navAchievements != null) navAchievements.setOnClickListener(listener); else Log.e(TAG, "navAchievements nulo");
-        if (navAccount != null) navAccount.setOnClickListener(listener); else Log.e(TAG, "navAccount nulo");
+        if (navHome != null) navHome.setOnClickListener(listener);
+        if (navServices != null) navServices.setOnClickListener(listener);
+        if (navAchievements != null) navAchievements.setOnClickListener(listener);
+        if (navAccount != null) navAccount.setOnClickListener(listener);
     }
 
-    // Atualiza a aparência da barra de navegação inferior para destacar o item selecionado
     private void updateBottomNavigationSelection(int selectedItemId) {
         LinearLayout[] navItems = {navHome, navServices, navAchievements, navAccount};
-
-        // Cores para os estados ativo/inativo (ajuste conforme seu tema)
-        int activeColor = ContextCompat.getColor(this, R.color.white);
-        int inactiveColor = ContextCompat.getColor(this, R.color.gray_light); // Use uma cor cinza clara
+        int activeColor = ContextCompat.getColor(this, R.color.white_fff);
+        int inactiveColor = ContextCompat.getColor(this, R.color.gray_light);
 
         for (int i = 0; i < navItems.length; i++) {
             LinearLayout item = navItems[i];
-            if (item == null) {
-                Log.w(TAG, "Item de navegação na posição " + i + " é nulo.");
-                continue;
-            }
-
-            // Encontra o ícone e o texto dentro do LinearLayout do item
+            if (item == null) continue;
             ImageView icon = item.findViewById(navIconIds[i]);
             TextView text = item.findViewById(navTextIds[i]);
-
-            // Verifica se os componentes internos foram encontrados
-            if (icon == null) Log.w(TAG, "Ícone não encontrado para item " + i + " com ID " + getResources().getResourceEntryName(navIconIds[i]));
-            if (text == null) Log.w(TAG, "Texto não encontrado para item " + i + " com ID " + getResources().getResourceEntryName(navTextIds[i]));
-            if (icon == null || text == null) continue; // Pula se não encontrar
-
+            if (icon == null || text == null) continue;
             boolean isActive = (item.getId() == selectedItemId);
-
-            // Define a cor (tint) do ícone e a cor do texto
             icon.setImageTintList(ColorStateList.valueOf(isActive ? activeColor : inactiveColor));
             text.setTextColor(isActive ? activeColor : inactiveColor);
         }
     }
 
-    // Configura listeners para os cards de locais recentes
     private void setupRecentLocationsListeners() {
         View.OnClickListener recentLocationListener = v -> {
-            String destination = "";
+            String destinationName = "";
+            String destinationFullAddress = "";
             int id = v.getId();
-            // Obtém o nome do destino do TextView correspondente ao card clicado
-            if (id == R.id.cardViewRecentLocation1) {
-                if (textViewLocationName1 != null) destination = textViewLocationName1.getText().toString();
-            } else if (id == R.id.cardViewRecentLocation2) {
-                if (textViewLocationName2 != null) destination = textViewLocationName2.getText().toString();
+
+            if (id == R.id.cardViewRecentLocation1 && textViewLocationName1 != null && textViewLocationAddress1 != null) {
+                destinationName = textViewLocationName1.getText().toString();
+                destinationFullAddress = destinationName + ", " + textViewLocationAddress1.getText().toString();
+            } else if (id == R.id.cardViewRecentLocation2 && textViewLocationName2 != null && textViewLocationAddress2 != null) {
+                destinationName = textViewLocationName2.getText().toString();
+                destinationFullAddress = destinationName + ", " + textViewLocationAddress2.getText().toString();
             }
 
-            // Se um destino foi encontrado, inicia a busca
-            if (!destination.isEmpty()) {
-                Log.d(TAG, "Local recente clicado: " + destination);
-                showLoadingDialog(destination);
-            } else {
-                Log.w(TAG, "Nome do local recente está vazio.");
+            if (!destinationName.isEmpty()) {
+                Log.d(TAG, "Local recente clicado: " + destinationName);
+                currentDestinationQuery = destinationName;
+                currentDestinationFormattedAddress = destinationFullAddress;
+                Log.d(TAG, "Endereço formatado do local recente: " + currentDestinationFormattedAddress);
+
+                switchToDisplayMode(currentDestinationFormattedAddress);
+                showSearchingDriverDialog(currentDestinationFormattedAddress);
             }
         };
-
         if (cardViewRecentLocation1 != null) cardViewRecentLocation1.setOnClickListener(recentLocationListener);
         if (cardViewRecentLocation2 != null) cardViewRecentLocation2.setOnClickListener(recentLocationListener);
     }
 
-    // Exibe um diálogo de "carregando" enquanto simula a busca por motorista
-    private void showLoadingDialog(final String destination) {
+    private void showDriverInfoDialog(SimulatedUser driver, String price, String destinationAddress) {
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this, R.style.AlertDialogTheme);
-        View loadingView = LayoutInflater.from(this).inflate(R.layout.dialog_ride_loading, null);
-        builder.setView(loadingView);
-        builder.setCancelable(false); // Impede fechar o diálogo clicando fora
-
-        final AlertDialog loadingDialog = builder.create();
-        if (loadingDialog.getWindow() != null) {
-            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        loadingDialog.show();
-
-        ProgressBar progressBar = loadingView.findViewById(R.id.progressBar);
-        TextView statusText = loadingView.findViewById(R.id.textViewStatus);
-        ImageView checkmarkImage = loadingView.findViewById(R.id.imageViewCheckmark);
-
-        // Configuração inicial do diálogo de loading
-        if(statusText != null) statusText.setText(R.string.dialog_loading_status_searching);
-        if(progressBar != null) progressBar.setVisibility(View.VISIBLE);
-        if(checkmarkImage != null) checkmarkImage.setVisibility(View.GONE);
-
-        // Simula a busca por motorista (com delay)
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // Verifica se a activity ainda existe e o diálogo está visível antes de continuar
-            if (isFinishing() || isDestroyed() || !loadingDialog.isShowing()) {
-                Log.d(TAG, "Loading dialog fechado ou activity destruída antes da conclusão da busca.");
-                return;
-            }
-
-            // --- LÓGICA DE PAREAMENTO ---
-            // 1. Obtém género e preferência do utilizador atual (Passageiro)
-            SharedPreferences loginPrefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
-            // Lê o género ('male', 'female', 'other') e normaliza para MAIÚSCULAS para a lógica
-            String currentUserGender = loginPrefs.getString(KEY_GENDER, "").toUpperCase(Locale.ROOT);
-
-            SharedPreferences localPrefs = getSharedPreferences(USER_LOCAL_PREFERENCES, Context.MODE_PRIVATE);
-            boolean preferSameGender = localPrefs.getBoolean(KEY_SAME_GENDER_PAIRING, false); // Lê a preferência local
-
-            Log.d(TAG, "Buscando motorista. Género do passageiro: '" + currentUserGender + "', Prefere mesmo género: " + preferSameGender);
-
-            // 2. Busca um motorista estático usando o StaticUserManager (que aplica o filtro)
-            SimulatedUser driver = StaticUserManager.getRandomDriver(currentUserGender, preferSameGender);
-            // --------------------------
-
-            if (driver != null) {
-                // Motorista encontrado! Atualiza UI do diálogo de loading
-                Log.d(TAG, "Motorista encontrado: " + driver.getName() + " (" + driver.getGender() + ")");
-                if (statusText != null) statusText.setText("Motorista encontrado!");
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                if (checkmarkImage != null) checkmarkImage.setVisibility(View.VISIBLE);
-
-                // Aguarda um pouco para mostrar a mensagem e então exibe o diálogo do motorista
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    if (!isFinishing() && !isDestroyed() && loadingDialog.isShowing()) {
-                        loadingDialog.dismiss(); // Fecha o diálogo de loading
-                        showDriverInfoDialog(destination, driver); // Abre o diálogo com info do motorista
-                    }
-                }, 1000); // Delay para mostrar o checkmark
-
-            } else {
-                // Nenhum motorista compatível encontrado
-                Log.w(TAG, "Nenhum motorista compatível encontrado com os critérios.");
-                if (statusText != null) statusText.setText("Nenhum motorista compatível.");
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                // Opcional: Mostrar ícone de erro
-                // if(checkmarkImage != null) checkmarkImage.setImageResource(R.drawable.ic_error);
-                // if(checkmarkImage != null) checkmarkImage.setVisibility(View.VISIBLE);
-
-                Toast.makeText(HomeActivity.this, "Nenhum motorista compatível disponível no momento.", Toast.LENGTH_LONG).show();
-
-                // Fecha o diálogo de loading após um tempo
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    if (!isFinishing() && !isDestroyed() && loadingDialog.isShowing()) {
-                        loadingDialog.dismiss();
-                    }
-                }, 2000); // Delay para mostrar a mensagem de erro
-            }
-        }, 3000); // Delay total simulando a busca
-    }
-
-    // Exibe o diálogo com as informações do motorista encontrado
-    private void showDriverInfoDialog(String destination, SimulatedUser driver) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this, R.style.AlertDialogTheme);
-        // Infla o layout dialog_driver_info.xml
         View driverInfoView = LayoutInflater.from(this).inflate(R.layout.dialog_driver_info, null);
         builder.setView(driverInfoView);
-        builder.setCancelable(true); // Permite fechar clicando fora
+        builder.setCancelable(true);
 
-        // Encontra os componentes dentro do layout inflado
         TextView tvDialogTitle = driverInfoView.findViewById(R.id.textViewRideFound);
+        TextView tvDestinationInfo = driverInfoView.findViewById(R.id.textViewDestination);
+        ImageView driverProfileImage = driverInfoView.findViewById(R.id.imageViewDriver);
         TextView tvDriverName = driverInfoView.findViewById(R.id.textViewDriverName);
         TextView tvCarInfo = driverInfoView.findViewById(R.id.textViewCarInfo);
-        TextView tvPrice = driverInfoView.findViewById(R.id.textViewPrice);
-        TextView tvDestinationDialog = driverInfoView.findViewById(R.id.textViewDestination);
         RatingBar ratingBarDriver = driverInfoView.findViewById(R.id.ratingBarDriver);
+        TextView tvSafeScoreLabel = driverInfoView.findViewById(R.id.textViewSafeScore);
         RatingBar ratingBarSafeScore = driverInfoView.findViewById(R.id.ratingBarSafeScore);
-        Button btnConfirmRide = driverInfoView.findViewById(R.id.buttonPayment); // Botão de confirmação
+        TextView tvPrice = driverInfoView.findViewById(R.id.textViewPrice);
+        Button btnConfirmRide = driverInfoView.findViewById(R.id.buttonPayment);
 
-        String ridePrice = generateRandomPriceHome(); // Gera um preço aleatório
+        if (tvDialogTitle != null) tvDialogTitle.setText(getString(R.string.dialog_driver_info_title));
+        if (tvDriverName != null && driver != null) tvDriverName.setText(driver.getName());
+        if (tvCarInfo != null && driver != null) tvCarInfo.setText(driver.getCarModel() + " - " + driver.getLicensePlate());
+        if (tvPrice != null) tvPrice.setText("R$ " + price);
 
-        // Popula os componentes com os dados do motorista simulado (usando getters corretos)
-        if (tvDialogTitle != null) tvDialogTitle.setText("Motorista a caminho!");
-        if (tvDriverName != null) tvDriverName.setText(driver.getName()); // Usa getName()
-        if (tvCarInfo != null) tvCarInfo.setText(driver.getCarModel() + " - " + driver.getLicensePlate()); // Usa getCarModel() e getLicensePlate()
-        if (tvPrice != null) tvPrice.setText(ridePrice);
-        if (tvDestinationDialog != null) tvDestinationDialog.setText("Para: " + destination);
-        if (ratingBarDriver != null) ratingBarDriver.setRating(driver.getDriverRating()); // Usa getDriverRating()
-        // Exibe a nota do motorista como "Safe Score" (adapte se o modelo tiver campo específico)
-        if (ratingBarSafeScore != null) ratingBarSafeScore.setRating(driver.getDriverRating());
-        if (btnConfirmRide != null) btnConfirmRide.setText("Confirmar Motorista");
+        if (tvDestinationInfo != null) {
+            if (destinationAddress != null && !destinationAddress.isEmpty()) {
+                tvDestinationInfo.setText("Para: " + destinationAddress);
+            } else {
+                tvDestinationInfo.setText(getString(R.string.dialog_driver_info_destination_placeholder));
+            }
+        }
+
+        if (ratingBarDriver != null && driver != null) ratingBarDriver.setRating(driver.getDriverRating());
+        if (ratingBarSafeScore != null && driver != null) {
+            ratingBarSafeScore.setRating(driver.getDriverRating());
+        }
+        if (tvSafeScoreLabel != null) tvSafeScoreLabel.setText(getString(R.string.dialog_driver_info_safescore_label));
+        if (driverProfileImage != null) {
+            driverProfileImage.setImageResource(R.drawable.ic_account);
+            driverProfileImage.setColorFilter(ContextCompat.getColor(this, R.color.white_fff));
+        }
 
         final AlertDialog driverDialog = builder.create();
         if (driverDialog.getWindow() != null) {
@@ -341,57 +432,64 @@ public class HomeActivity extends AppCompatActivity {
         }
         driverDialog.show();
 
-        // Ação do botão de confirmação
         if (btnConfirmRide != null) {
             btnConfirmRide.setOnClickListener(v -> {
                 driverDialog.dismiss();
-                Log.d(TAG, "Motorista " + driver.getName() + " confirmado para destino: " + destination);
-                // Navega para a próxima tela (ex: checklist ou tela de corrida em progresso)
-                navigateToSafetyChecklist(destination, driver.getName(), ridePrice); // Passa os dados necessários
-                Toast.makeText(HomeActivity.this, "Viagem com " + driver.getName() + " confirmada!", Toast.LENGTH_SHORT).show();
+                if (driver != null) {
+                    Log.d(TAG, "Motorista " + driver.getName() + " confirmado para: " + destinationAddress);
+                    navigateToSafetyChecklist(destinationAddress, driver.getName(), price, driver);
+                } else {
+                    Log.e(TAG, "Objeto Driver nulo ao confirmar.");
+                    Toast.makeText(HomeActivity.this, "Erro ao confirmar motorista.", Toast.LENGTH_SHORT).show();
+                }
             });
-        } else {
-            Log.e(TAG, "Botão de confirmação (buttonPayment) não encontrado no dialog_driver_info.");
         }
     }
 
-    // Gera um preço aleatório para a corrida
-    private String generateRandomPriceHome() {
-        double price = 10.0 + new Random().nextDouble() * 40.0; // Preço entre R$10 e R$49.99
-        return String.format(new Locale("pt", "BR"), "R$ %.2f", price);
+    private String generateRandomPrice() {
+        double price = 10.0 + new Random().nextDouble() * 40.0;
+        return String.format(new Locale("pt", "BR"), "%.2f", price);
     }
 
-    // Navega para a tela de checklist (ou outra tela após confirmar motorista)
-    private void navigateToSafetyChecklist(String destination, String driverName, String ridePrice) {
-        // **CONFIRME:** MainActivity é a tela correta para o checklist do PASSAGEIRO?
-        // Se for outra, altere aqui.
+    private void navigateToSafetyChecklist(String destination, String driverName, String ridePrice, SimulatedUser driver) {
         Intent intent = new Intent(HomeActivity.this, MainActivity.class);
         intent.putExtra("DESTINATION", destination);
         intent.putExtra("RIDE_PRICE", ridePrice);
         intent.putExtra("DRIVER_NAME", driverName);
-        // Adicione mais dados do motorista se necessário
-        // intent.putExtra("DRIVER_CAR_MODEL", driver.getCarModel());
-        // intent.putExtra("DRIVER_LICENSE_PLATE", driver.getLicensePlate());
+        if (driver != null) {
+            intent.putExtra("DRIVER_CAR_MODEL", driver.getCarModel());
+            intent.putExtra("DRIVER_LICENSE_PLATE", driver.getLicensePlate());
+            intent.putExtra("DRIVER_RATING_FLOAT", driver.getDriverRating());
+        }
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-    // Abre a tela de perfil
     private void openProfileActivity() {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-    // Lida com o botão "Voltar" do Android
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateBottomNavigationSelection(R.id.navHome);
+        switchToDisplayMode("");
+    }
+
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setMessage("Deseja sair do aplicativo?")
-                .setPositiveButton("Sim", (dialog, which) -> {
-                    finishAffinity(); // Fecha todas as activities do app
-                })
-                .setNegativeButton("Não", null) // Simplesmente fecha o diálogo
-                .show();
+        if (editTextDestinationInput != null && editTextDestinationInput.getVisibility() == View.VISIBLE) {
+            switchToDisplayMode("");
+        } else {
+            new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                    .setMessage(getString(R.string.confirm_exit_app))
+                    .setPositiveButton(getString(R.string.yes), (dialog, which) -> {
+                        finishAffinity();
+                    })
+                    .setNegativeButton(getString(R.string.no), null)
+                    .show();
+        }
     }
 }

@@ -6,7 +6,6 @@
     <string name="password">Senha</string>
     <string name="sign_in">Entrar</string>
     <string name="sign_up">Cadastrar-se</string>
-
     <string name="welcome_back">Bem-vindo de volta :)</string>
     <string name="sign_in_subtitle">Entre para continuar sua jornada com mais segurança</string>
     <string name="email_hint">Digite seu email</string>
@@ -14,16 +13,6 @@
     <string name="forgot_password">Esqueceu a senha?</string>
     <string name="dont_have_account">Não tem uma conta?</string>
     <string name="login_button">Entrar</string>
-    <string name="ride_in_progress_title">Viagem em Andamento</string>
-    <string name="ride_in_progress_status">Viagem em andamento...</string>
-    <string name="ride_in_progress_menu_report">Reportar Problema</string>
-    <string name="ride_in_progress_menu_audio">Gravação de Áudio</string>
-    <string name="ride_in_progress_car_animation_desc">Animação de carro em movimento</string>
-
-    <string name="midway_check_subtitle">Está tudo bem com a sua viagem?</string>
-    <string name="midway_check_problem_button">Tenho um problema</string>
-    <string name="midway_check_ok_button">Está tudo bem</string>
-
     <string name="create_account">Criar conta</string>
     <string name="create_account_subtitle">Junte-se ao UberSafeStart para aproveitar viagens mais seguras</string>
     <string name="full_name">Nome completo</string>
@@ -48,9 +37,19 @@
     <string name="error_login">Erro de login</string>
     <string name="error_connection">Conexão falhou</string>
 
-    <string name="viagens">Viagens</string>
     <string name="para_onde">Para onde?</string>
     <string name="mais_tarde">Mais tarde</string>
+    <string name="search_icon">Ícone de busca</string>
+    <string name="clock_icon">Ícone de relógio</string>
+    <string name="recent_location_icon">Ícone de localização recente</string>
+    <string name="arrow_icon">Ícone de seta</string>
+
+    <string name="inicio">Início</string>
+    <string name="opcoes">Opções</string>
+    <string name="atividade">Atividade</string> <string name="conta">Conta</string>
+    <string name="home_icon">Ícone de início</string>
+    <string name="services_icon">Ícone de serviços</string>
+    <string name="activity_icon">Ícone de atividade</string> <string name="account_icon">Ícone de conta</string>
 
     <string name="profile">Perfil</string>
     <string name="edit">Editar</string>
@@ -64,50 +63,38 @@
     <string name="audio_recording_consent">Consentimento de gravação de áudio</string>
     <string name="safety_settings">Configurações de Segurança</string>
     <string name="logout">Sair</string>
-    <string name="dialog_driver_info_title">Corrida encontrada!</string>
+    <string name="delete_account">Deletar Conta</string>
+
+    <string name="dialog_driver_info_title">Motorista a caminho!</string>
     <string name="dialog_driver_info_destination_placeholder">Para: Destino Exemplo</string>
     <string name="dialog_driver_info_photo_desc">Foto do Motorista</string>
     <string name="dialog_driver_info_name_placeholder">Nome do Motorista</string>
     <string name="dialog_driver_info_car_placeholder">Modelo do Carro - Placa</string>
     <string name="dialog_driver_info_safescore_label">SafeScore:</string>
     <string name="dialog_driver_info_price_placeholder">R$ 0,00</string>
-    <string name="dialog_driver_info_accept_button">Confirmar Corrida</string>
-
-    <string name="dialog_passenger_info_title">Passageiro encontrado!</string>
-    <string name="dialog_passenger_info_destination_placeholder">Destino: Local Exemplo</string>
-    <string name="dialog_passenger_info_photo_desc">Foto do Passageiro</string>
-    <string name="dialog_passenger_info_name_placeholder">Nome do Passageiro</string>
-    <string name="dialog_passenger_info_pickup_placeholder">Local de embarque Exemplo</string>
-    <string name="dialog_passenger_info_safescore_label">SafeScore:</string>
-    <string name="dialog_passenger_info_price_placeholder">R$ 0,00</string>
-    <string name="dialog_passenger_info_accept_button">Aceitar Corrida</string>
-
-
-    <!-- Navigation -->
-    <string name="inicio">Início</string>
-    <string name="opcoes">Opções</string>
-    <string name="atividade">Atividade</string>
-    <string name="conta">Conta</string>
-
-    <string name="car_icon">Ícone de carro</string>
-    <string name="search_icon">Ícone de busca</string>
-    <string name="clock_icon">Ícone de relógio</string>
-    <string name="recent_location_icon">Ícone de localização recente</string>
-    <string name="arrow_icon">Ícone de seta</string>
-    <string name="home_icon">Ícone de início</string>
-    <string name="services_icon">Ícone de serviços</string>
-    <string name="activity_icon">Ícone de atividade</string>
-    <string name="account_icon">Ícone de conta</string>
-    <string name="dialog_loading_status_searching">Procurando motoristas próximos...</string>
+    <string name="dialog_driver_info_accept_button">Confirmar Motorista</string> <string name="dialog_loading_status_searching">Procurando motorista...</string> <string name="dialog_loading_status_found">Motorista encontrado!</string>
+    <string name="dialog_loading_status_not_found">Nenhum motorista compatível.</string>
     <string name="dialog_loading_checkmark_desc">Ícone de confirmação</string>
     <string name="profile_image">Imagem de perfil</string>
 
-    <string name="delete_account">Deletar Conta</string>
+    <string name="ride_in_progress_title">Viagem em Andamento</string>
+    <string name="ride_in_progress_status">Viagem em andamento...</string>
+    <string name="ride_in_progress_menu_report">Reportar Problema</string>
+    <string name="ride_in_progress_menu_audio">Gravação de Áudio</string>
+    <string name="ride_in_progress_car_animation_desc">Animação de carro em movimento</string>
+    <string name="midway_check_subtitle">Está tudo bem com a sua viagem?</string>
+    <string name="midway_check_problem_button">Tenho um problema</string>
+    <string name="midway_check_ok_button">Está tudo bem</string>
 
-    <!-- Adicionar novas strings para Conquistas -->
     <string name="conquistas">Conquistas</string>
     <string name="achievements_icon">Ícone de Conquistas</string>
     <string name="suas_conquistas">Suas Conquistas</string>
     <string name="seu_nivel_seguranca">Seu Nível de Segurança</string>
     <string name="proximo_nivel">Próximo Nível</string>
+
+    <string name="confirm_exit_app">Deseja sair do aplicativo?</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
+    <string name="dialog_driver_info_destination_not_specified">Para: Destino não especificado</string>
+
 </resources>

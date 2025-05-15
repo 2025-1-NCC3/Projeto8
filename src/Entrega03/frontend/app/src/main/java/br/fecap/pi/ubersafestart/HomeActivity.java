@@ -43,11 +43,13 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
 
+    // Constantes para SharedPreferences
     private static final String USER_LOGIN_PREFS = "userPrefs";
     private static final String USER_LOCAL_PREFERENCES = "UserPreferences";
     private static final String KEY_GENDER_PASSENGER = "gender";
     private static final String KEY_SAME_GENDER_PAIRING_PASSENGER = "sameGenderPairingEnabled";
 
+    // Componentes da UI
     private TextView textViewLocationName1, textViewLocationAddress1;
     private TextView textViewLocationName2, textViewLocationAddress2;
     private LinearLayout layoutSearchClickable;
@@ -68,7 +70,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_home); // Seu XML activity_home.xml
 
         initViews();
         loadLocationHistoryData();
@@ -211,15 +213,57 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Função para capitalizar nomes de rua (simplificada)
+    private String capitalizeStreetName(String streetQuery) {
+        if (streetQuery == null || streetQuery.isEmpty()) {
+            return streetQuery;
+        }
+        String[] words = streetQuery.toLowerCase().split("\\s+");
+        StringBuilder capitalizedString = new StringBuilder();
+        String[] articlesAndPrepositions = {"de", "da", "do", "dos", "das", "a", "o", "e"}; // Adicione mais se necessário
+
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.length() > 0) {
+                boolean isArticleOrPreposition = false;
+                for (String ap : articlesAndPrepositions) {
+                    if (word.equals(ap) && i > 0) { // Não capitaliza se for a primeira palavra
+                        isArticleOrPreposition = true;
+                        break;
+                    }
+                }
+                if (isArticleOrPreposition) {
+                    capitalizedString.append(word);
+                } else {
+                    capitalizedString.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+                }
+            }
+            if (i < words.length - 1) {
+                capitalizedString.append(" ");
+            }
+        }
+        return capitalizedString.toString();
+    }
+
+
     private void processDestinationSearch(String destinationQuery) {
         String queryLower = destinationQuery.toLowerCase();
         String numero = "";
+        String ruaApenas = destinationQuery; // Para guardar a parte da rua sem o número
 
-        Pattern pattern = Pattern.compile("\\b\\d+\\b");
+        // Tenta extrair um número da query
+        Pattern pattern = Pattern.compile("\\b(\\d+)\\b");
         Matcher matcher = pattern.matcher(destinationQuery);
         if (matcher.find()) {
-            numero = matcher.group(0);
+            numero = matcher.group(1);
+            // Remove o número e vírgulas adjacentes da string da rua para capitalização
+            ruaApenas = destinationQuery.replaceAll(",?\\s*\\b" + numero + "\\b,?", "").trim();
+        } else {
+            // Se não houver número, a rua é a query inteira
+            ruaApenas = destinationQuery.replaceAll(",$", "").trim(); // Remove vírgula no final, se houver
         }
+
+        String ruaCapitalizada = capitalizeStreetName(ruaApenas);
 
         // SIMULAÇÃO: Obter endereço formatado.
         if (queryLower.contains("rua alfredo pujol") && (queryLower.contains("1358") || numero.equals("1358"))) {
@@ -227,34 +271,40 @@ public class HomeActivity extends AppCompatActivity {
         } else if (queryLower.contains("torres da barra") && (queryLower.contains("75") || numero.equals("75"))) {
             currentDestinationFormattedAddress = "Rua Torres da Barra, 75 - Barra Funda, São Paulo - SP, Brasil";
         } else if (queryLower.contains("rua itajobi") && (queryLower.contains("75") || numero.equals("75"))) {
-            currentDestinationFormattedAddress = "R. Itajobi, 75 - Pacaembu, São Paulo - SP, 01246-110, Brasil";
+            currentDestinationFormattedAddress = "Rua Itajobi, 75 - Pacaembu, São Paulo - SP, 01246-110, Brasil";
+        } else if (queryLower.contains("joaquim carlos") && (queryLower.contains("655") || numero.equals("655"))) {
+            currentDestinationFormattedAddress = "Rua Joaquim Carlos, 655 - Brás, São Paulo - SP, 03019-000, Brasil";
         } else if (queryLower.contains("avenida paulista") && (queryLower.contains("1912") || numero.equals("1912"))) {
             currentDestinationFormattedAddress = "Avenida Paulista, 1912 - Bela Vista, São Paulo - SP, Brasil";
         } else if (queryLower.contains("museu do ipiranga")) {
             currentDestinationFormattedAddress = "Parque da Independência - Ipiranga, São Paulo - SP, 04263-000, Brasil";
         } else if (queryLower.contains("paulista") && (queryLower.contains("1578") || numero.equals("1578"))) {
             currentDestinationFormattedAddress = "Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, Brasil";
-        } else if (queryLower.contains("paulista")) {
-            currentDestinationFormattedAddress = "Avenida Paulista, Bela Vista, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("paulista")) { // Regra mais genérica
+            currentDestinationFormattedAddress = capitalizeStreetName(destinationQuery.replaceAll(numero, "").trim()) + (!numero.isEmpty() ? ", " + numero : "") + " - Bela Vista, São Paulo - SP, Brasil";
         } else if (queryLower.contains("ibirapuera")) {
-            currentDestinationFormattedAddress = "Parque Ibirapuera, Av. Pedro Álvares Cabral, Vila Mariana, São Paulo - SP, Brasil";
-        } else if (queryLower.contains("joaquim carlos") && (queryLower.contains("655") || numero.equals("655"))) {
-            currentDestinationFormattedAddress = "R. Joaquim Carlos, 655 - Brás, São Paulo - SP, 03019-000, Brasil";
+            currentDestinationFormattedAddress = "Parque Ibirapuera, Av. Pedro Álvares Cabral - Vila Mariana, São Paulo - SP, Brasil";
         } else {
-            currentDestinationFormattedAddress = destinationQuery;
-            if (!queryLower.matches(".*(s[ãa]o paulo|sp).*")) {
-                currentDestinationFormattedAddress += ", São Paulo - SP";
+            // Fallback: Usa a rua capitalizada, número (se houver) e adiciona cidade/estado/país genéricos
+            currentDestinationFormattedAddress = ruaCapitalizada;
+            if (!numero.isEmpty()) {
+                currentDestinationFormattedAddress += ", " + numero;
             }
-            if (!queryLower.contains("brasil")) {
+            // Adiciona sufixo genérico se não parecer já estar completo
+            String sufixoGenerico = ", São Paulo - SP, Brasil";
+            if (!currentDestinationFormattedAddress.toLowerCase().contains("são paulo")) {
+                currentDestinationFormattedAddress += sufixoGenerico;
+            } else if (!currentDestinationFormattedAddress.toLowerCase().contains("brasil")){
                 currentDestinationFormattedAddress += ", Brasil";
             }
-            Log.w(TAG, "Simulação: Endereço não coberto. Usando: " + currentDestinationFormattedAddress);
+            Log.w(TAG, "Simulação: Endereço não coberto por regra específica. Usando: " + currentDestinationFormattedAddress);
         }
         Log.d(TAG, "Endereço formatado (simulado): " + currentDestinationFormattedAddress);
 
         switchToDisplayMode(currentDestinationFormattedAddress);
         showSearchingDriverDialog(currentDestinationFormattedAddress);
     }
+
 
     private void showSearchingDriverDialog(final String destinationFormattedAddress) {
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this, R.style.AlertDialogTheme);

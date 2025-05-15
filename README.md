@@ -31,6 +31,12 @@ Um sistema de pontuação que incentiva e recompensa práticas seguras:
 - Interface intuitiva para gerenciar preferências
 - Implementação respeitosa que prioriza o conforto e segurança
 
+### 🤳 Verificação Facial Pré-Viagem (Simulada)
+Uma camada adicional de segurança antes do início da interação:
+- **Passageiro:** Realiza uma detecção facial para liberar a busca por motoristas.
+- **Motorista:** Realiza uma detecção facial ao aceitar uma nova solicitação de corrida.
+- Utiliza CameraX e ML Kit Face Detection para análise da presença de um rosto com olhos abertos.
+
 ### 🏆 Sistema de Conquistas
 Gamificação para incentivar boas práticas de segurança:
 - "Viajante Iniciante" - Complete sua primeira viagem
@@ -73,19 +79,21 @@ Verificações específicas para cada perfil:
 
 ### 🚗 Fluxo do Passageiro:
 1. Login/Cadastro com opção de gênero
-2. Tela inicial com busca de destino
-3. Visualização do motorista compatível
-4. Checklist de segurança pré-viagem
-5. Monitoramento durante a viagem
-6. Feedback pós-viagem
+2. Tela inicial com busca de destino 
+3. Verificação facial para liberar a busca 
+4. Visualização do motorista compatível 
+5. Checklist de segurança pré-viagem
+6. Monitoramento durante a viagem 
+7. Feedback pós-viagem 
 
 ### 🚘 Fluxo do Motorista:
 1. Login/Cadastro específico
-2. Modo motorista com status online/offline
-3. Visualização de solicitação de corrida
-4. Checklist de segurança do veículo
-5. Interface de navegação durante a corrida
-6. Feedback e avaliação do passageiro
+2. Modo motorista (DriverHomeActivity) com status online/offline
+3. Visualização de solicitação de corrida 
+4. Verificação facial (simulada) ao aceitar a corrida
+5. Checklist de segurança do veículo 
+6. Interface de navegação durante a corrida 
+7. Feedback e avaliação do passageiro
 
 ## 🔒 Recursos de Segurança Adicionais
 - Criptografia de dados na comunicação cliente-servidor

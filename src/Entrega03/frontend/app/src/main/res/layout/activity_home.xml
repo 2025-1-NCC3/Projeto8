@@ -82,73 +82,83 @@
                     android:id="@+id/textViewSearchHint"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="1"
                     android:text="@string/para_onde"
                     android:textColor="@color/gray_light"
                     android:textSize="16sp"
-                    android:visibility="visible"/> <EditText
-                android:id="@+id/editTextDestinationInput"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:hint="@string/para_onde"
-                android:textColor="@color/white_fff"
-                android:textColorHint="@color/gray_light"
-                android:textSize="16sp"
-                android:background="@android:color/transparent"
-                android:inputType="textCapWords"
-                android:imeOptions="actionSearch"
-                android:maxLines="1"
-                android:visibility="gone"/> </LinearLayout>
+                    android:visibility="visible" />
+
+                <EditText
+                    android:id="@+id/editTextDestinationInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/para_onde"
+                    android:imeOptions="actionSearch"
+                    android:importantForAutofill="no"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    android:textColor="@color/white_fff"
+                    android:textColorHint="@color/gray_light"
+                    android:textSize="16sp"
+                    android:visibility="gone" />
+            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/buttonSubmitDestination"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_arrow_right" app:tint="@color/white_fff"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Buscar Destino"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:visibility="gone"/> <View
-            android:id="@+id/searchDivider"
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@color/gray_dark"
-            android:visibility="visible" /> <LinearLayout
-            android:id="@+id/layoutSchedule"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingStart="12dp"
-            android:paddingEnd="16dp"
-            android:visibility="visible"> <ImageView
-            android:id="@+id/imageViewClock"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="6dp"
-            android:contentDescription="@string/clock_icon"
-            android:src="@drawable/ic_clock"
-            app:tint="@color/white_fff" />
+                android:src="@drawable/ic_arrow_right"
+                app:tint="@color/white_fff"
+                android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/textViewSchedule"
+            <View
+                android:id="@+id/searchDivider"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/gray_dark"
+                android:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/layoutSchedule"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/mais_tarde"
-                android:textColor="@color/white_fff"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:layout_height="match_parent"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="12dp"
+                android:paddingEnd="16dp"
+                android:visibility="visible">
 
+                <ImageView
+                    android:id="@+id/imageViewClock"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="@string/clock_icon"
+                    android:src="@drawable/ic_clock"
+                    app:tint="@color/white_fff" />
+
+                <TextView
+                    android:id="@+id/textViewSchedule"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mais_tarde"
+                    android:textColor="@color/white_fff"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -177,12 +187,10 @@
             app:cardElevation="0dp"
             app:strokeColor="@color/gray_dark"
             app:strokeWidth="1dp">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
-
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardIconBg1"
                     android:layout_width="40dp"
@@ -193,7 +201,6 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
-
                     <ImageView
                         android:id="@+id/imageViewClockIcon1"
                         android:layout_width="20dp"
@@ -203,7 +210,6 @@
                         android:src="@drawable/ic_clock_history"
                         app:tint="@color/white_fff" />
                 </com.google.android.material.card.MaterialCardView>
-
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -215,7 +221,6 @@
                     app:layout_constraintEnd_toStartOf="@+id/imageViewArrow1"
                     app:layout_constraintStart_toEndOf="@+id/cardIconBg1"
                     app:layout_constraintTop_toTopOf="@+id/cardIconBg1">
-
                     <TextView
                         android:id="@+id/textViewLocationName1"
                         android:layout_width="match_parent"
@@ -224,7 +229,6 @@
                         android:text="Avenida Paulista, 1578"
                         android:textColor="@color/white_fff"
                         android:textSize="16sp" />
-
                     <TextView
                         android:id="@+id/textViewLocationAddress1"
                         android:layout_width="match_parent"
@@ -233,9 +237,7 @@
                         android:textColor="@color/gray_light"
                         android:textSize="14sp"
                         android:visibility="visible" />
-
                 </LinearLayout>
-
                 <ImageView
                     android:id="@+id/imageViewArrow1"
                     android:layout_width="24dp"
@@ -261,12 +263,10 @@
             app:cardElevation="0dp"
             app:strokeColor="@color/gray_dark"
             app:strokeWidth="1dp">
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="16dp">
-
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardIconBg2"
                     android:layout_width="40dp"
@@ -277,7 +277,6 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
-
                     <ImageView
                         android:id="@+id/imageViewClockIcon2"
                         android:layout_width="20dp"
@@ -287,7 +286,6 @@
                         android:src="@drawable/ic_clock_history"
                         app:tint="@color/white_fff" />
                 </com.google.android.material.card.MaterialCardView>
-
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -299,7 +297,6 @@
                     app:layout_constraintEnd_toStartOf="@+id/imageViewArrow2"
                     app:layout_constraintStart_toEndOf="@+id/cardIconBg2"
                     app:layout_constraintTop_toTopOf="@+id/cardIconBg2">
-
                     <TextView
                         android:id="@+id/textViewLocationName2"
                         android:layout_width="match_parent"
@@ -308,7 +305,6 @@
                         android:text="Parque Ibirapuera"
                         android:textColor="@color/white_fff"
                         android:textSize="16sp" />
-
                     <TextView
                         android:id="@+id/textViewLocationAddress2"
                         android:layout_width="match_parent"
@@ -317,9 +313,7 @@
                         android:textColor="@color/gray_light"
                         android:textSize="14sp"
                         android:visibility="visible" />
-
                 </LinearLayout>
-
                 <ImageView
                     android:id="@+id/imageViewArrow2"
                     android:layout_width="24dp"
@@ -332,7 +326,6 @@
                     app:tint="@color/gray_light" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
-
     </LinearLayout>
 
     <LinearLayout
@@ -345,7 +338,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
         <LinearLayout
             android:id="@+id/navHome"
             android:layout_width="0dp"
@@ -355,8 +347,9 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:id="@+id/iconHome"
                 android:layout_width="24dp"
@@ -364,7 +357,6 @@
                 android:contentDescription="@string/home_icon"
                 android:src="@drawable/ic_home"
                 app:tint="@color/white_fff" />
-
             <TextView
                 android:id="@+id/textHome"
                 android:layout_width="wrap_content"
@@ -374,7 +366,6 @@
                 android:textColor="@color/white_fff"
                 android:textSize="12sp" />
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/navServices"
             android:layout_width="0dp"
@@ -384,8 +375,9 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:id="@+id/iconServices"
                 android:layout_width="24dp"
@@ -393,7 +385,6 @@
                 android:contentDescription="@string/services_icon"
                 android:src="@drawable/ic_grid"
                 app:tint="@color/gray_light" />
-
             <TextView
                 android:id="@+id/textServices"
                 android:layout_width="wrap_content"
@@ -403,7 +394,6 @@
                 android:textColor="@color/gray_light"
                 android:textSize="12sp" />
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/navAchievements"
             android:layout_width="0dp"
@@ -413,8 +403,9 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:id="@+id/iconAchievements"
                 android:layout_width="24dp"
@@ -422,7 +413,6 @@
                 android:contentDescription="@string/achievements_icon"
                 android:src="@drawable/ic_trophy"
                 app:tint="@color/gray_light" />
-
             <TextView
                 android:id="@+id/textAchievements"
                 android:layout_width="wrap_content"
@@ -432,7 +422,6 @@
                 android:textColor="@color/gray_light"
                 android:textSize="12sp" />
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/navAccount"
             android:layout_width="0dp"
@@ -442,8 +431,9 @@
             android:gravity="center"
             android:orientation="vertical"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
+            android:paddingBottom="8dp"
+            android:clickable="true"
+            android:focusable="true">
             <ImageView
                 android:id="@+id/iconAccount"
                 android:layout_width="24dp"
@@ -451,7 +441,6 @@
                 android:contentDescription="@string/account_icon"
                 android:src="@drawable/ic_account"
                 app:tint="@color/gray_light" />
-
             <TextView
                 android:id="@+id/textAccount"
                 android:layout_width="wrap_content"
@@ -463,4 +452,13 @@
         </LinearLayout>
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewViewFaceVerificationHome"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        android:background="@color/black_background"/> </androidx.constraintlayout.widget.ConstraintLayout>

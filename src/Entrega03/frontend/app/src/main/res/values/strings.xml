@@ -46,10 +46,14 @@
 
     <string name="inicio">Início</string>
     <string name="opcoes">Opções</string>
-    <string name="atividade">Atividade</string> <string name="conta">Conta</string>
+    <string name="atividade">Atividade</string>
+    <string name="conta">Conta</string>
     <string name="home_icon">Ícone de início</string>
     <string name="services_icon">Ícone de serviços</string>
-    <string name="activity_icon">Ícone de atividade</string> <string name="account_icon">Ícone de conta</string>
+    <string name="activity_icon">Ícone de atividade</string>
+    <string name="account_icon">Ícone de conta</string>
+    <string name="conquistas">Conquistas</string>
+    <string name="achievements_icon">Ícone de Conquistas</string>
 
     <string name="profile">Perfil</string>
     <string name="edit">Editar</string>
@@ -64,18 +68,21 @@
     <string name="safety_settings">Configurações de Segurança</string>
     <string name="logout">Sair</string>
     <string name="delete_account">Deletar Conta</string>
+    <string name="profile_image">Imagem de perfil</string>
 
     <string name="dialog_driver_info_title">Motorista a caminho!</string>
     <string name="dialog_driver_info_destination_placeholder">Para: Destino Exemplo</string>
+    <string name="dialog_driver_info_destination_not_specified">Para: Destino não especificado</string>
     <string name="dialog_driver_info_photo_desc">Foto do Motorista</string>
     <string name="dialog_driver_info_name_placeholder">Nome do Motorista</string>
     <string name="dialog_driver_info_car_placeholder">Modelo do Carro - Placa</string>
     <string name="dialog_driver_info_safescore_label">SafeScore:</string>
     <string name="dialog_driver_info_price_placeholder">R$ 0,00</string>
-    <string name="dialog_driver_info_accept_button">Confirmar Motorista</string> <string name="dialog_loading_status_searching">Procurando motorista...</string> <string name="dialog_loading_status_found">Motorista encontrado!</string>
+    <string name="dialog_driver_info_accept_button">Confirmar Motorista</string>
+    <string name="dialog_loading_status_searching">Procurando motorista...</string>
+    <string name="dialog_loading_status_found">Motorista encontrado!</string>
     <string name="dialog_loading_status_not_found">Nenhum motorista compatível.</string>
     <string name="dialog_loading_checkmark_desc">Ícone de confirmação</string>
-    <string name="profile_image">Imagem de perfil</string>
 
     <string name="ride_in_progress_title">Viagem em Andamento</string>
     <string name="ride_in_progress_status">Viagem em andamento...</string>
@@ -86,8 +93,6 @@
     <string name="midway_check_problem_button">Tenho um problema</string>
     <string name="midway_check_ok_button">Está tudo bem</string>
 
-    <string name="conquistas">Conquistas</string>
-    <string name="achievements_icon">Ícone de Conquistas</string>
     <string name="suas_conquistas">Suas Conquistas</string>
     <string name="seu_nivel_seguranca">Seu Nível de Segurança</string>
     <string name="proximo_nivel">Próximo Nível</string>
@@ -95,6 +100,5 @@
     <string name="confirm_exit_app">Deseja sair do aplicativo?</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
-    <string name="dialog_driver_info_destination_not_specified">Para: Destino não especificado</string>
 
 </resources>

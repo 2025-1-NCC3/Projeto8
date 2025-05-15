@@ -28,9 +28,6 @@
     </style>
 
     <style name="RatingBar" parent="Widget.AppCompat.RatingBar.Small">
-        <item name="android:progressTint">@color/uber_blue</item>
-        <item name="android:progressBackgroundTint">@color/gray_medium</item>
-        <item name="android:secondaryProgressTint">@color/uber_blue_dark</item>
-        <item name="colorControlNormal">@color/gray_medium</item> <item name="colorControlActivated">@color/uber_blue</item> </style>
+        <item name="android:progressTint">@color/uber_blue</item> <item name="android:progressBackgroundTint">@color/gray_medium</item> <item name="android:secondaryProgressTint">@color/uber_blue_dark</item> <item name="colorControlNormal">@color/gray_medium</item> <item name="colorControlActivated">@color/uber_blue</item> </style>
 
 </resources>

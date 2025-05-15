@@ -1,8 +1,10 @@
 package br.fecap.pi.ubersafestart;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -11,6 +13,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Size;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,13 +29,31 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.face.Face;
+import com.google.mlkit.vision.face.FaceDetection;
+import com.google.mlkit.vision.face.FaceDetector;
+import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import java.util.Locale;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,14 +63,13 @@ import br.fecap.pi.ubersafestart.utils.StaticUserManager;
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
-
-    // Constantes para SharedPreferences
+    // SharedPreferences Keys
     private static final String USER_LOGIN_PREFS = "userPrefs";
     private static final String USER_LOCAL_PREFERENCES = "UserPreferences";
     private static final String KEY_GENDER_PASSENGER = "gender";
     private static final String KEY_SAME_GENDER_PAIRING_PASSENGER = "sameGenderPairingEnabled";
 
-    // Componentes da UI
+    // UI Components
     private TextView textViewLocationName1, textViewLocationAddress1;
     private TextView textViewLocationName2, textViewLocationAddress2;
     private LinearLayout layoutSearchClickable;
@@ -59,23 +79,42 @@ public class HomeActivity extends AppCompatActivity {
     private View searchDivider;
     private LinearLayout layoutSchedule;
     private LinearLayout navAccount, navHome, navServices, navAchievements;
-    private CardView cardViewRecentLocation1, cardViewRecentLocation2;
+    private CardView cardViewRecentLocation1, cardViewRecentLocation2, cardViewSearch;
+    private LinearLayout layoutRecentLocations;
+
 
     private String currentDestinationFormattedAddress = "";
     private String currentDestinationQuery = "";
 
+    // Navigation Bar IDs (conforme activity_home.xml)
     private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconAchievements, R.id.iconAccount};
     private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textAchievements, R.id.textAccount};
+
+    // --- Variáveis para Detecção Facial Simulada (Verificação) ---
+    private PreviewView previewViewFaceVerificationHome; // ID: @+id/previewViewFaceVerificationHome
+    private ListenableFuture<ProcessCameraProvider> cameraProviderFutureVerification;
+    private ProcessCameraProvider cameraProviderVerification;
+    private FaceDetector faceDetectorVerification;
+    private static final int REQUEST_CAMERA_PERMISSION_HOME = 102; // Request code específico para HomeActivity
+    private boolean isProcessingFaceVerification = false; // Flag para controlar o estado da câmera de verificação
+    private ExecutorService cameraExecutorVerification;
+    private String tempDestinationForVerification; // Guarda o destino enquanto a verificação facial ocorre
+    // --- Fim das Variáveis de Detecção Facial ---
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home); // Seu XML activity_home.xml
+        setContentView(R.layout.activity_home);
 
         initViews();
+        initFaceVerificationViewsHome(); // Inicializa views para detecção facial
+
         loadLocationHistoryData();
         setupClickListeners();
-        updateBottomNavigationSelection(R.id.navHome);
+        updateBottomNavigationSelection(R.id.navHome); // Destaca o item "Início"
+
+        cameraExecutorVerification = Executors.newSingleThreadExecutor();
+        initFaceDetectorSdkForVerification(); // Configura o detector de faces do ML Kit
     }
 
     private void initViews() {
@@ -83,13 +122,11 @@ public class HomeActivity extends AppCompatActivity {
         textViewLocationAddress1 = findViewById(R.id.textViewLocationAddress1);
         textViewLocationName2 = findViewById(R.id.textViewLocationName2);
         textViewLocationAddress2 = findViewById(R.id.textViewLocationAddress2);
-
         layoutSearchClickable = findViewById(R.id.layoutSearchClickable);
         textViewSearchHint = findViewById(R.id.textViewSearchHint);
         editTextDestinationInput = findViewById(R.id.editTextDestinationInput);
         buttonSubmitDestination = findViewById(R.id.buttonSubmitDestination);
         searchDivider = findViewById(R.id.searchDivider);
-
         layoutSchedule = findViewById(R.id.layoutSchedule);
         navAccount = findViewById(R.id.navAccount);
         navHome = findViewById(R.id.navHome);
@@ -97,13 +134,225 @@ public class HomeActivity extends AppCompatActivity {
         navAchievements = findViewById(R.id.navAchievements);
         cardViewRecentLocation1 = findViewById(R.id.cardViewRecentLocation1);
         cardViewRecentLocation2 = findViewById(R.id.cardViewRecentLocation2);
+        cardViewSearch = findViewById(R.id.cardViewSearch);
+        layoutRecentLocations = findViewById(R.id.layoutRecentLocations);
+
 
         if (layoutSearchClickable == null) Log.e(TAG, "layoutSearchClickable não encontrado!");
-        if (textViewSearchHint == null) Log.e(TAG, "textViewSearchHint não encontrado!");
-        if (editTextDestinationInput == null) Log.e(TAG, "editTextDestinationInput não encontrado!");
-        if (buttonSubmitDestination == null) Log.e(TAG, "buttonSubmitDestination não encontrado!");
-        if (searchDivider == null) Log.e(TAG, "searchDivider não encontrado!");
+        // ... outras verificações de views existentes
     }
+
+    // --- Métodos para Detecção Facial Simulada (Verificação) ---
+    private void initFaceVerificationViewsHome() {
+        // Certifique-se que este ID existe no seu activity_home.xml
+        previewViewFaceVerificationHome = findViewById(R.id.previewViewFaceVerificationHome);
+        if (previewViewFaceVerificationHome == null) {
+            Log.e(TAG, "PreviewView (previewViewFaceVerificationHome) não encontrado no layout activity_home.xml.");
+        }
+    }
+
+    private void initFaceDetectorSdkForVerification() {
+        FaceDetectorOptions options =
+                new FaceDetectorOptions.Builder()
+                        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+                        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL) // Para olhos abertos
+                        .setMinFaceSize(0.25f)
+                        .build();
+        faceDetectorVerification = FaceDetection.getClient(options);
+    }
+
+    private void startFaceVerificationFlow(String destinationAddress) {
+        Log.d(TAG, "Iniciando fluxo de verificação facial para destino: " + destinationAddress);
+        this.tempDestinationForVerification = destinationAddress; // Guarda o destino
+
+        SharedPreferences prefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
+        boolean isFaceRegistered = prefs.getBoolean(ProfileActivity.KEY_FACE_REGISTERED_PROTOTYPE, false);
+
+        if (!isFaceRegistered) {
+            Log.w(TAG, "Tentativa de verificação facial, mas nenhum rosto registrado (simulado).");
+            new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                    .setTitle("Configuração Facial Necessária")
+                    .setMessage("Para prosseguir, por favor, configure a verificação facial no seu perfil.")
+                    .setPositiveButton("Ir para Perfil", (dialog, which) -> {
+                        Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                    })
+                    .setNegativeButton("Cancelar", (dialog, which) -> {
+                        switchToDisplayMode(""); // Volta para o modo de exibição inicial
+                    })
+                    .setCancelable(false)
+                    .show();
+            return;
+        }
+
+        if (checkCameraPermission()) {
+            isProcessingFaceVerification = true;
+            startCameraForFaceVerification();
+        } else {
+            requestCameraPermission();
+        }
+    }
+
+    private boolean checkCameraPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION_HOME);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION_HOME) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permissão de câmera concedida para HomeActivity.");
+                if (isProcessingFaceVerification) { // Verifica se a ação ainda é relevante
+                    startCameraForFaceVerification();
+                }
+            } else {
+                Toast.makeText(this, "Permissão de câmera negada. Não é possível verificar o rosto.", Toast.LENGTH_SHORT).show();
+                isProcessingFaceVerification = false; // Reseta a flag
+                switchToDisplayMode(currentDestinationFormattedAddress); // Ou estado anterior
+            }
+        }
+    }
+
+    private void startCameraForFaceVerification() {
+        if (previewViewFaceVerificationHome == null) {
+            Log.e(TAG, "PreviewView (previewViewFaceVerificationHome) é nulo. Não é possível iniciar a câmera para verificação.");
+            Toast.makeText(this, "Erro: Componente da câmera não encontrado.", Toast.LENGTH_SHORT).show();
+            isProcessingFaceVerification = false;
+            return;
+        }
+        Log.d(TAG, "Iniciando câmera para verificação facial...");
+        previewViewFaceVerificationHome.setVisibility(View.VISIBLE);
+        if(cardViewSearch != null) cardViewSearch.setVisibility(View.GONE);
+        if(layoutRecentLocations != null) layoutRecentLocations.setVisibility(View.GONE);
+
+
+        cameraProviderFutureVerification = ProcessCameraProvider.getInstance(this);
+        cameraProviderFutureVerification.addListener(() -> {
+            try {
+                cameraProviderVerification = cameraProviderFutureVerification.get();
+                bindCameraUseCasesForVerification();
+            } catch (ExecutionException | InterruptedException e) {
+                Log.e(TAG, "Falha ao obter ProcessCameraProvider para verificação.", e);
+                runOnUiThread(() -> Toast.makeText(HomeActivity.this, "Erro ao iniciar câmera para verificação.", Toast.LENGTH_SHORT).show());
+                isProcessingFaceVerification = false; // Reseta a flag em caso de erro
+                stopCameraAndHidePreviewVerification(); // Garante que a UI seja restaurada
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
+    @androidx.camera.core.ExperimentalGetImage // Necessário para imageProxy.getImage()
+    private void bindCameraUseCasesForVerification() {
+        if (cameraProviderVerification == null) {
+            Log.e(TAG, "CameraProviderVerification não inicializado ao tentar vincular casos de uso.");
+            isProcessingFaceVerification = false;
+            return;
+        }
+        Preview preview = new Preview.Builder()
+                .setTargetResolution(new Size(previewViewFaceVerificationHome.getWidth() > 0 ? previewViewFaceVerificationHome.getWidth() : 640,
+                        previewViewFaceVerificationHome.getHeight() > 0 ? previewViewFaceVerificationHome.getHeight() : 480))
+                .build();
+        preview.setSurfaceProvider(previewViewFaceVerificationHome.getSurfaceProvider());
+
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .build();
+
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setTargetResolution(new Size(640, 480))
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build();
+
+        imageAnalysis.setAnalyzer(cameraExecutorVerification, imageProxy -> {
+            android.media.Image mediaImage = imageProxy.getImage();
+            if (mediaImage != null && isProcessingFaceVerification) {
+                InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
+                faceDetectorVerification.process(image)
+                        .addOnSuccessListener(faces -> {
+                            if (!faces.isEmpty() && isProcessingFaceVerification) {
+                                Face face = faces.get(0);
+                                boolean eyesOpen = (face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() > 0.3) &&
+                                        (face.getRightEyeOpenProbability() != null && face.getRightEyeOpenProbability() > 0.3);
+                                if (eyesOpen) {
+                                    // Para o processamento imediato de mais frames até o delay terminar
+                                    isProcessingFaceVerification = false;
+                                    imageProxy.close(); // Fecha o proxy atual antes do delay
+
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(HomeActivity.this, "Rosto detectado. Verificando...", Toast.LENGTH_SHORT).show();
+                                    });
+
+                                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                        // Este bloco roda após o delay de 2.5 segundos
+                                        runOnUiThread(() -> {
+                                            Toast.makeText(HomeActivity.this, "Verificação facial (simulada) OK!", Toast.LENGTH_SHORT).show();
+                                            stopCameraAndHidePreviewVerification();
+
+                                            Log.d(TAG, "Verificação facial OK. Procurando motorista para: " + tempDestinationForVerification);
+                                            if (tempDestinationForVerification != null && !tempDestinationForVerification.isEmpty()) {
+                                                currentDestinationFormattedAddress = tempDestinationForVerification;
+                                                switchToDisplayMode(currentDestinationFormattedAddress);
+                                                showSearchingDriverDialog(currentDestinationFormattedAddress);
+                                            } else {
+                                                Log.e(TAG, "Erro: Destino temporário nulo após verificação.");
+                                                switchToDisplayMode("");
+                                            }
+                                        });
+                                        // Não precisa resetar isProcessingFaceVerification aqui, já foi resetado antes do Handler
+                                    }, 2500); // Atraso de 2.5 segundos
+                                    return; // Sai do listener do success para não fechar o proxy de novo
+                                }
+                            }
+                            imageProxy.close(); // Fecha se nenhum rosto com olhos abertos foi encontrado ou se não está processando
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Detecção facial (verificação) falhou.", e);
+                            imageProxy.close();
+                            runOnUiThread(()-> {
+                                Toast.makeText(HomeActivity.this, "Falha na detecção facial.", Toast.LENGTH_SHORT).show();
+                                stopCameraAndHidePreviewVerification();
+                                switchToDisplayMode(currentDestinationFormattedAddress); // Ou estado anterior
+                            });
+                            isProcessingFaceVerification = false;
+                        });
+            } else {
+                if(isProcessingFaceVerification) { // Só fecha se ainda estivermos esperando processar
+                    imageProxy.close();
+                }
+            }
+        });
+
+        try {
+            cameraProviderVerification.unbindAll();
+            cameraProviderVerification.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
+            Log.d(TAG, "Casos de uso da câmera vinculados para HomeActivity (Verificação).");
+        } catch (Exception e) {
+            Log.e(TAG, "Falha ao vincular casos de uso (verificação) em HomeActivity.", e);
+            runOnUiThread(() -> Toast.makeText(HomeActivity.this, "Não foi possível usar a câmera para verificação.", Toast.LENGTH_SHORT).show());
+            stopCameraAndHidePreviewVerification();
+            isProcessingFaceVerification = false;
+        }
+    }
+
+    private void stopCameraAndHidePreviewVerification() {
+        if (cameraProviderVerification != null) {
+            cameraProviderVerification.unbindAll();
+            Log.d(TAG, "Casos de uso da câmera desvinculados em HomeActivity (Verificação).");
+        }
+        if (previewViewFaceVerificationHome != null) {
+            previewViewFaceVerificationHome.setVisibility(View.GONE);
+        }
+        if(cardViewSearch != null) cardViewSearch.setVisibility(View.VISIBLE);
+        if(layoutRecentLocations != null) layoutRecentLocations.setVisibility(View.VISIBLE);
+        isProcessingFaceVerification = false;
+    }
+    // --- Fim dos Métodos para Detecção Facial ---
+
 
     private void loadLocationHistoryData() {
         String location1Name = "Avenida Paulista, 1578";
@@ -118,6 +367,7 @@ public class HomeActivity extends AppCompatActivity {
         if (cardViewRecentLocation1 != null) cardViewRecentLocation1.setVisibility(View.VISIBLE);
         if (cardViewRecentLocation2 != null) cardViewRecentLocation2.setVisibility(View.VISIBLE);
     }
+
 
     private void setupClickListeners() {
         if (layoutSearchClickable != null) {
@@ -155,7 +405,6 @@ public class HomeActivity extends AppCompatActivity {
                 return false;
             });
         }
-
         setupNavigationListeners();
         setupRecentLocationsListeners();
         setupScheduleButtonListener();
@@ -213,21 +462,20 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    // Função para capitalizar nomes de rua (simplificada)
     private String capitalizeStreetName(String streetQuery) {
         if (streetQuery == null || streetQuery.isEmpty()) {
             return streetQuery;
         }
         String[] words = streetQuery.toLowerCase().split("\\s+");
         StringBuilder capitalizedString = new StringBuilder();
-        String[] articlesAndPrepositions = {"de", "da", "do", "dos", "das", "a", "o", "e"}; // Adicione mais se necessário
+        String[] articlesAndPrepositions = {"de", "da", "do", "dos", "das", "a", "o", "e"};
 
         for (int i = 0; i < words.length; i++) {
             String word = words[i];
             if (word.length() > 0) {
                 boolean isArticleOrPreposition = false;
                 for (String ap : articlesAndPrepositions) {
-                    if (word.equals(ap) && i > 0) { // Não capitaliza se for a primeira palavra
+                    if (word.equals(ap) && i > 0) {
                         isArticleOrPreposition = true;
                         break;
                     }
@@ -245,68 +493,59 @@ public class HomeActivity extends AppCompatActivity {
         return capitalizedString.toString();
     }
 
-
     private void processDestinationSearch(String destinationQuery) {
         String queryLower = destinationQuery.toLowerCase();
         String numero = "";
-        String ruaApenas = destinationQuery; // Para guardar a parte da rua sem o número
+        String ruaApenas = destinationQuery;
 
-        // Tenta extrair um número da query
         Pattern pattern = Pattern.compile("\\b(\\d+)\\b");
         Matcher matcher = pattern.matcher(destinationQuery);
         if (matcher.find()) {
             numero = matcher.group(1);
-            // Remove o número e vírgulas adjacentes da string da rua para capitalização
             ruaApenas = destinationQuery.replaceAll(",?\\s*\\b" + numero + "\\b,?", "").trim();
         } else {
-            // Se não houver número, a rua é a query inteira
-            ruaApenas = destinationQuery.replaceAll(",$", "").trim(); // Remove vírgula no final, se houver
+            ruaApenas = destinationQuery.replaceAll(",$", "").trim();
         }
-
         String ruaCapitalizada = capitalizeStreetName(ruaApenas);
+        String formattedAddress;
 
-        // SIMULAÇÃO: Obter endereço formatado.
         if (queryLower.contains("rua alfredo pujol") && (queryLower.contains("1358") || numero.equals("1358"))) {
-            currentDestinationFormattedAddress = "Rua Alfredo Pujol, 1358 - Santana, São Paulo - SP, Brasil";
+            formattedAddress = "Rua Alfredo Pujol, 1358 - Santana, São Paulo - SP, Brasil";
         } else if (queryLower.contains("torres da barra") && (queryLower.contains("75") || numero.equals("75"))) {
-            currentDestinationFormattedAddress = "Rua Torres da Barra, 75 - Barra Funda, São Paulo - SP, Brasil";
+            formattedAddress = "Rua Torres da Barra, 75 - Barra Funda, São Paulo - SP, Brasil";
         } else if (queryLower.contains("rua itajobi") && (queryLower.contains("75") || numero.equals("75"))) {
-            currentDestinationFormattedAddress = "Rua Itajobi, 75 - Pacaembu, São Paulo - SP, 01246-110, Brasil";
+            formattedAddress = "Rua Itajobi, 75 - Pacaembu, São Paulo - SP, 01246-110, Brasil";
         } else if (queryLower.contains("joaquim carlos") && (queryLower.contains("655") || numero.equals("655"))) {
-            currentDestinationFormattedAddress = "Rua Joaquim Carlos, 655 - Brás, São Paulo - SP, 03019-000, Brasil";
+            formattedAddress = "Rua Joaquim Carlos, 655 - Brás, São Paulo - SP, 03019-000, Brasil";
         } else if (queryLower.contains("avenida paulista") && (queryLower.contains("1912") || numero.equals("1912"))) {
-            currentDestinationFormattedAddress = "Avenida Paulista, 1912 - Bela Vista, São Paulo - SP, Brasil";
+            formattedAddress = "Avenida Paulista, 1912 - Bela Vista, São Paulo - SP, Brasil";
         } else if (queryLower.contains("museu do ipiranga")) {
-            currentDestinationFormattedAddress = "Parque da Independência - Ipiranga, São Paulo - SP, 04263-000, Brasil";
+            formattedAddress = "Parque da Independência - Ipiranga, São Paulo - SP, 04263-000, Brasil";
         } else if (queryLower.contains("paulista") && (queryLower.contains("1578") || numero.equals("1578"))) {
-            currentDestinationFormattedAddress = "Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, Brasil";
-        } else if (queryLower.contains("paulista")) { // Regra mais genérica
-            currentDestinationFormattedAddress = capitalizeStreetName(destinationQuery.replaceAll(numero, "").trim()) + (!numero.isEmpty() ? ", " + numero : "") + " - Bela Vista, São Paulo - SP, Brasil";
+            formattedAddress = "Avenida Paulista, 1578 - Bela Vista, São Paulo - SP, Brasil";
+        } else if (queryLower.contains("paulista")) {
+            formattedAddress = capitalizeStreetName(destinationQuery.replaceAll(numero, "").trim()) + (!numero.isEmpty() ? ", " + numero : "") + " - Bela Vista, São Paulo - SP, Brasil";
         } else if (queryLower.contains("ibirapuera")) {
-            currentDestinationFormattedAddress = "Parque Ibirapuera, Av. Pedro Álvares Cabral - Vila Mariana, São Paulo - SP, Brasil";
+            formattedAddress = "Parque Ibirapuera, Av. Pedro Álvares Cabral - Vila Mariana, São Paulo - SP, Brasil";
         } else {
-            // Fallback: Usa a rua capitalizada, número (se houver) e adiciona cidade/estado/país genéricos
-            currentDestinationFormattedAddress = ruaCapitalizada;
+            formattedAddress = ruaCapitalizada;
             if (!numero.isEmpty()) {
-                currentDestinationFormattedAddress += ", " + numero;
+                formattedAddress += ", " + numero;
             }
-            // Adiciona sufixo genérico se não parecer já estar completo
             String sufixoGenerico = ", São Paulo - SP, Brasil";
-            if (!currentDestinationFormattedAddress.toLowerCase().contains("são paulo")) {
-                currentDestinationFormattedAddress += sufixoGenerico;
-            } else if (!currentDestinationFormattedAddress.toLowerCase().contains("brasil")){
-                currentDestinationFormattedAddress += ", Brasil";
+            if (!formattedAddress.toLowerCase().contains("são paulo")) {
+                formattedAddress += sufixoGenerico;
+            } else if (!formattedAddress.toLowerCase().contains("brasil")){
+                formattedAddress += ", Brasil";
             }
-            Log.w(TAG, "Simulação: Endereço não coberto por regra específica. Usando: " + currentDestinationFormattedAddress);
         }
-        Log.d(TAG, "Endereço formatado (simulado): " + currentDestinationFormattedAddress);
+        Log.d(TAG, "Endereço formatado (simulado) antes da verificação: " + formattedAddress);
+        currentDestinationFormattedAddress = formattedAddress;
 
-        switchToDisplayMode(currentDestinationFormattedAddress);
-        showSearchingDriverDialog(currentDestinationFormattedAddress);
+        startFaceVerificationFlow(formattedAddress);
     }
 
-
-    private void showSearchingDriverDialog(final String destinationFormattedAddress) {
+    protected void showSearchingDriverDialog(final String destinationFormattedAddress) {
         AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this, R.style.AlertDialogTheme);
         View loadingView = LayoutInflater.from(this).inflate(R.layout.dialog_ride_loading, null);
         builder.setView(loadingView);
@@ -372,7 +611,6 @@ public class HomeActivity extends AppCompatActivity {
         View.OnClickListener listener = v -> {
             int id = v.getId();
             if (id == R.id.navAccount) {
-                updateBottomNavigationSelection(id);
                 openProfileActivity();
             } else if (id == R.id.navHome) {
                 updateBottomNavigationSelection(id);
@@ -425,11 +663,7 @@ public class HomeActivity extends AppCompatActivity {
             if (!destinationName.isEmpty()) {
                 Log.d(TAG, "Local recente clicado: " + destinationName);
                 currentDestinationQuery = destinationName;
-                currentDestinationFormattedAddress = destinationFullAddress;
-                Log.d(TAG, "Endereço formatado do local recente: " + currentDestinationFormattedAddress);
-
-                switchToDisplayMode(currentDestinationFormattedAddress);
-                showSearchingDriverDialog(currentDestinationFormattedAddress);
+                startFaceVerificationFlow(destinationFullAddress);
             }
         };
         if (cardViewRecentLocation1 != null) cardViewRecentLocation1.setOnClickListener(recentLocationListener);
@@ -462,7 +696,7 @@ public class HomeActivity extends AppCompatActivity {
             if (destinationAddress != null && !destinationAddress.isEmpty()) {
                 tvDestinationInfo.setText("Para: " + destinationAddress);
             } else {
-                tvDestinationInfo.setText(getString(R.string.dialog_driver_info_destination_placeholder));
+                tvDestinationInfo.setText(getString(R.string.dialog_driver_info_destination_not_specified));
             }
         }
 
@@ -471,10 +705,21 @@ public class HomeActivity extends AppCompatActivity {
             ratingBarSafeScore.setRating(driver.getDriverRating());
         }
         if (tvSafeScoreLabel != null) tvSafeScoreLabel.setText(getString(R.string.dialog_driver_info_safescore_label));
-        if (driverProfileImage != null) {
-            driverProfileImage.setImageResource(R.drawable.ic_account);
-            driverProfileImage.setColorFilter(ContextCompat.getColor(this, R.color.white_fff));
+
+        if (driverProfileImage != null && driver != null) {
+            try {
+                if ("FEMALE".equals(driver.getGender().toUpperCase(Locale.ROOT))) {
+                    driverProfileImage.setImageResource(R.drawable.ic_default_profile_female);
+                } else {
+                    driverProfileImage.setImageResource(R.drawable.ic_default_profile_male);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Erro ao definir imagem de perfil do motorista. Verifique se os drawables ic_default_profile_female e ic_default_profile_male existem.", e);
+                // Fallback para um ícone genérico se os específicos não forem encontrados
+                driverProfileImage.setImageResource(R.drawable.ic_account); // Certifique-se que ic_account existe
+            }
         }
+
 
         final AlertDialog driverDialog = builder.create();
         if (driverDialog.getWindow() != null) {
@@ -525,11 +770,26 @@ public class HomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateBottomNavigationSelection(R.id.navHome);
-        switchToDisplayMode("");
+        if (previewViewFaceVerificationHome == null || previewViewFaceVerificationHome.getVisibility() == View.GONE) {
+            switchToDisplayMode(currentDestinationFormattedAddress.isEmpty() ? "" : currentDestinationFormattedAddress);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (previewViewFaceVerificationHome != null && previewViewFaceVerificationHome.getVisibility() == View.VISIBLE) {
+            stopCameraAndHidePreviewVerification();
+        }
     }
 
     @Override
     public void onBackPressed() {
+        if (previewViewFaceVerificationHome != null && previewViewFaceVerificationHome.getVisibility() == View.VISIBLE) {
+            stopCameraAndHidePreviewVerification();
+            switchToDisplayMode(currentDestinationFormattedAddress.isEmpty() ? "" : currentDestinationFormattedAddress);
+            return;
+        }
         if (editTextDestinationInput != null && editTextDestinationInput.getVisibility() == View.VISIBLE) {
             switchToDisplayMode("");
         } else {
@@ -540,6 +800,17 @@ public class HomeActivity extends AppCompatActivity {
                     })
                     .setNegativeButton(getString(R.string.no), null)
                     .show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (faceDetectorVerification != null) {
+            faceDetectorVerification.close();
+        }
+        if (cameraExecutorVerification != null && !cameraExecutorVerification.isShutdown()) {
+            cameraExecutorVerification.shutdown();
         }
     }
 }

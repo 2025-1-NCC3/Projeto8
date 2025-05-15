@@ -1,47 +1,56 @@
 package br.fecap.pi.ubersafestart;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList; // Importar ColorStateList
+import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+// Removido: import android.util.Size;
 import android.view.View;
 import android.widget.Button;
-// import android.widget.CompoundButton; // Removido se não usado diretamente no listener do switch após a mudança
-import android.widget.ImageView; // Importar ImageView
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.LinearLayout;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull; // Mantido se usado em outros lugares
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.content.ContextCompat; // Importar ContextCompat
+// Removido: import androidx.camera.core.* e PreviewView, pois a câmera agora está em FaceEnrollmentActivity
+import androidx.core.content.ContextCompat; // Mantido
 
-// Importações da API e Modelos
+// Removido: import com.google.common.util.concurrent.ListenableFuture;
+// Removido: import com.google.mlkit.vision.*
+// Removido: import java.util.concurrent.ExecutionException;
+// Removido: import java.util.concurrent.ExecutorService;
+// Removido: import java.util.concurrent.Executors;
+import java.util.Locale;
+
+
 import br.fecap.pi.ubersafestart.api.ApiClient;
 import br.fecap.pi.ubersafestart.api.AuthService;
 import br.fecap.pi.ubersafestart.model.ApiResponse;
 import br.fecap.pi.ubersafestart.model.ProfileResponse;
-// import br.fecap.pi.ubersafestart.model.SafeScoreResponse; // Não usado diretamente
-// import br.fecap.pi.ubersafestart.model.GenderUpdateRequest; // Não usado diretamente
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
     private static final String TAG = "ProfileActivity";
-    // Constantes para SharedPreferences
     private static final String USER_LOGIN_PREFS = "userPrefs";
     private static final String USER_LOCAL_PREFERENCES = "UserPreferences";
     private static final String KEY_GENDER = "gender";
     private static final String KEY_SAME_GENDER_PAIRING = "sameGenderPairingEnabled";
+    public static final String KEY_FACE_REGISTERED_PROTOTYPE = "face_registered_prototype";
 
-    // Componentes da UI
     private TextView textViewName, textViewEmail, textViewPhone, textViewAccountType;
     private TextView textViewRating, textViewSafeScore, textViewGender;
     private ProgressBar progressBarSafeScore;
@@ -49,45 +58,50 @@ public class ProfileActivity extends AppCompatActivity {
     private SwitchCompat switchSameGenderPairing;
     private Button buttonLogout, buttonEditProfile, buttonDeleteAccount;
     private LinearLayout navHome, navServices, navAchievements, navAccount;
+    private ImageView iconHome, iconServices, iconAchievementsView, iconAccountView;
+    private TextView textHome, textServices, textAchievementsView, textAccountView;
 
-    // MODIFICAÇÃO: Adicionar referências diretas aos Ícones e Textos da Barra de Navegação
-    private ImageView iconHome, iconServices, iconAchievementsView, iconAccountView; // Renomeado iconAchievements e iconAccount para evitar conflito de nome com LinearLayouts
-    private TextView textHome, textServices, textAchievementsView, textAccountView; // Renomeado textAchievements e textAccount
-
-    // Array de IDs para facilitar a atualização da barra de navegação
-    // Assumindo que os IDs no XML de ProfileActivity são os mesmos de activity_home.xml para a barra de navegação
     private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconAchievements, R.id.iconAccount};
     private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textAchievements, R.id.textAccount};
 
-
-    // Variável de estado
     private String currentUserGenderNormalized = "";
-
-    // Serviços e Preferências
     private AuthService authService;
     private SharedPreferences sharedPreferences;
     private SharedPreferences userLoginPrefs;
+
+    // --- Variáveis para Detecção Facial (agora apenas para lançar a nova activity) ---
+    private Button buttonRegisterFacePrototype;
+    private TextView textViewFaceRegistrationStatusPrototype;
+    // Removido: PreviewView, CameraProvider, FaceDetector, Executor, etc.
+    // --- Fim das variáveis de Detecção Facial ---
+
+    // ActivityResultLauncher para a FaceEnrollmentActivity
+    private ActivityResultLauncher<Intent> faceEnrollmentLauncher;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // IMPORTANT: Certifique-se que R.layout.activity_profile inclui a barra de navegação
-        // com os IDs corretos (iconHome, textHome, etc.)
         setContentView(R.layout.activity_profile);
 
         initViews();
+
         authService = ApiClient.getClient().create(AuthService.class);
         sharedPreferences = getSharedPreferences(USER_LOCAL_PREFERENCES, Context.MODE_PRIVATE);
         userLoginPrefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
 
         setupButtonListeners();
-        setupNavigationListeners(); // Renomeado de setupNavigation para setupNavigationListeners
-        updateBottomNavigationSelection(R.id.navAccount); // DESTAQUE INICIAL para Conta
+        setupFaceEnrollmentLauncher(); // Configura o launcher para a nova activity
+
+        setupNavigationListeners();
+        updateBottomNavigationSelection(R.id.navAccount);
+
         loadProfileData();
+        loadFaceRegistrationStatus();
     }
 
     private void initViews() {
+        // Views existentes
         textViewName = findViewById(R.id.textViewName);
         textViewEmail = findViewById(R.id.textViewEmail);
         textViewPhone = findViewById(R.id.textViewPhone);
@@ -102,47 +116,72 @@ public class ProfileActivity extends AppCompatActivity {
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
 
-        // Bottom navigation LinearLayouts
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
-        navAchievements = findViewById(R.id.navAchievements); // LinearLayout clicável
-        navAccount = findViewById(R.id.navAccount);         // LinearLayout clicável
+        navAchievements = findViewById(R.id.navAchievements);
+        navAccount = findViewById(R.id.navAccount);
 
-        // MODIFICAÇÃO: Inicializar Ícones e Textos da barra de navegação
-        // Certifique-se que estes IDs existem no R.layout.activity_profile (ou no layout incluído)
-        iconHome = findViewById(R.id.iconHome); //ImageView dentro do navHome
-        textHome = findViewById(R.id.textHome); //TextView dentro do navHome
-
+        iconHome = findViewById(R.id.iconHome);
+        textHome = findViewById(R.id.textHome);
         iconServices = findViewById(R.id.iconServices);
         textServices = findViewById(R.id.textServices);
+        iconAchievementsView = findViewById(R.id.iconAchievements);
+        textAchievementsView = findViewById(R.id.textAchievements);
+        iconAccountView = findViewById(R.id.iconAccount);
+        textAccountView = findViewById(R.id.textAccount);
 
-        iconAchievementsView = findViewById(R.id.iconAchievements); //ImageView dentro do navAchievements
-        textAchievementsView = findViewById(R.id.textAchievements); //TextView dentro do navAchievements
+        // Views para detecção facial (botão e status)
+        buttonRegisterFacePrototype = findViewById(R.id.buttonRegisterFacePrototype);
+        textViewFaceRegistrationStatusPrototype = findViewById(R.id.textViewFaceRegistrationStatusPrototype);
 
-        iconAccountView = findViewById(R.id.iconAccount); //ImageView dentro do navAccount
-        textAccountView = findViewById(R.id.textAccount); //TextView dentro do navAccount
-
-        // Verificação para garantir que os componentes da barra de navegação foram encontrados
-        if (iconHome == null || textHome == null || iconServices == null || textServices == null ||
-                iconAchievementsView == null || textAchievementsView == null || iconAccountView == null || textAccountView == null) {
-            Log.e(TAG, "Um ou mais componentes da barra de navegação (ícones/textos) não foram encontrados no layout R.layout.activity_profile. Verifique os IDs.");
-            // Considerar lançar uma exceção ou tratar de outra forma se for crítico
+        if (buttonRegisterFacePrototype == null || textViewFaceRegistrationStatusPrototype == null) {
+            Log.e(TAG, "Botão ou TextView de status para registro facial não encontrados no layout activity_profile.xml.");
         }
-        if (navHome == null || navServices == null || navAchievements == null || navAccount == null) {
-            Log.e(TAG, "Um ou mais LinearLayouts da barra de navegação não foram encontrados. Verifique os IDs em R.layout.activity_profile.");
+    }
+
+    private void setupFaceEnrollmentLauncher() {
+        faceEnrollmentLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        // Registro facial simulado foi bem-sucedido na FaceEnrollmentActivity
+                        // SharedPreferences já foi atualizado pela FaceEnrollmentActivity
+                        Log.d(TAG, "Retorno de FaceEnrollmentActivity: SUCESSO.");
+                        Toast.makeText(this, "Configuração facial concluída!", Toast.LENGTH_SHORT).show();
+                    } else if (result.getResultCode() == RESULT_CANCELED) {
+                        // Usuário cancelou ou houve falha na FaceEnrollmentActivity
+                        Log.d(TAG, "Retorno de FaceEnrollmentActivity: CANCELADO ou FALHA.");
+                        Toast.makeText(this, "Configuração facial não concluída.", Toast.LENGTH_SHORT).show();
+                    }
+                    // Atualiza o status na UI da ProfileActivity em ambos os casos
+                    loadFaceRegistrationStatus();
+                }
+        );
+    }
+
+
+    private void loadFaceRegistrationStatus() {
+        boolean isRegistered = userLoginPrefs.getBoolean(KEY_FACE_REGISTERED_PROTOTYPE, false);
+        if (textViewFaceRegistrationStatusPrototype != null) {
+            if (isRegistered) {
+                textViewFaceRegistrationStatusPrototype.setText("Status: Verificação facial configurada (Simulado)");
+                textViewFaceRegistrationStatusPrototype.setTextColor(ContextCompat.getColor(this, R.color.uber_green));
+            } else {
+                textViewFaceRegistrationStatusPrototype.setText("Status: Verificação facial não configurada");
+                textViewFaceRegistrationStatusPrototype.setTextColor(ContextCompat.getColor(this, R.color.gray_medium));
+            }
         }
     }
 
     private void setupButtonListeners() {
-        buttonLogout.setOnClickListener(v -> logoutUser());
-        buttonEditProfile.setOnClickListener(v -> {
-            Toast.makeText(ProfileActivity.this, "Função de edição em desenvolvimento", Toast.LENGTH_SHORT).show();
-        });
-        buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
+        if (buttonLogout != null) buttonLogout.setOnClickListener(v -> logoutUser());
+        if (buttonEditProfile != null) buttonEditProfile.setOnClickListener(v ->
+                Toast.makeText(ProfileActivity.this, "Função de edição em desenvolvimento", Toast.LENGTH_SHORT).show()
+        );
+        if (buttonDeleteAccount != null) buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
 
         if (switchSameGenderPairing != null) {
             switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Apenas salva e mostra Toast se o switch estiver visível e clicável
                 if (switchSameGenderPairing.getVisibility() == View.VISIBLE && buttonView.isPressed()) {
                     savePairingPreference(isChecked);
                     Toast.makeText(ProfileActivity.this,
@@ -150,20 +189,29 @@ public class ProfileActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT).show();
                 }
             });
-        } else {
-            Log.e(TAG, "SwitchCompat switchSameGenderPairing não encontrado!");
+        }
+
+        // MODIFICADO: Listener do botão de registro facial
+        if (buttonRegisterFacePrototype != null) {
+            buttonRegisterFacePrototype.setOnClickListener(v -> {
+                Log.d(TAG, "Botão 'Configurar Verificação Facial' clicado. Abrindo FaceEnrollmentActivity.");
+                Intent intent = new Intent(ProfileActivity.this, FaceEnrollmentActivity.class);
+                faceEnrollmentLauncher.launch(intent); // Lança a activity esperando um resultado
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            });
         }
     }
 
-    // Renomeado para setupNavigationListeners
+
+    // --- Métodos de câmera e detecção facial foram MOVIDOS para FaceEnrollmentActivity ---
+    // onRequestPermissionsResult também não é mais necessário aqui para a câmera,
+    // pois FaceEnrollmentActivity cuidará disso.
+
     private void setupNavigationListeners() {
         View.OnClickListener listener = v -> {
             int id = v.getId();
-            Log.d(TAG, "Item de navegação clicado: " + getResources().getResourceEntryName(id));
-            // updateBottomNavigationSelection(id); // Atualiza a seleção visual - MOVIDO PARA DENTRO DOS IFs ou OnResume
-
             if (id == R.id.navHome) {
-                navigateToHome(); // Animação será aplicada aqui
+                navigateToHome();
             } else if (id == R.id.navServices) {
                 Toast.makeText(ProfileActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
                 updateBottomNavigationSelection(R.id.navServices);
@@ -171,33 +219,29 @@ public class ProfileActivity extends AppCompatActivity {
                 Intent intent = new Intent(ProfileActivity.this, AchievementsActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                // AchievementsActivity irá gerenciar seu próprio estado de seleção
             } else if (id == R.id.navAccount) {
-                // Já está na tela de Conta
                 Toast.makeText(ProfileActivity.this, "Você já está na tela de Conta", Toast.LENGTH_SHORT).show();
-                updateBottomNavigationSelection(R.id.navAccount); // Reafirma o destaque
+                updateBottomNavigationSelection(R.id.navAccount);
             }
         };
 
-        if (navHome != null) navHome.setOnClickListener(listener); else Log.e(TAG, "navHome nulo em Profile");
-        if (navServices != null) navServices.setOnClickListener(listener); else Log.e(TAG, "navServices nulo em Profile");
-        if (navAchievements != null) navAchievements.setOnClickListener(listener); else Log.e(TAG, "navAchievements nulo em Profile");
-        if (navAccount != null) navAccount.setOnClickListener(listener); else Log.e(TAG, "navAccount nulo em Profile");
+        if (navHome != null) navHome.setOnClickListener(listener);
+        if (navServices != null) navServices.setOnClickListener(listener);
+        if (navAchievements != null) navAchievements.setOnClickListener(listener);
+        if (navAccount != null) navAccount.setOnClickListener(listener);
     }
 
     private void logoutUser() {
         Log.d(TAG, "Iniciando logout...");
-        // Limpa SharedPreferences de login e preferências locais de pareamento
         userLoginPrefs.edit().clear().apply();
-        sharedPreferences.edit().remove(KEY_SAME_GENDER_PAIRING).apply(); // Limpa preferência de pareamento
+        sharedPreferences.edit().clear().apply();
 
         Log.d(TAG, "SharedPreferences limpas.");
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right); // Animação padrão ao deslogar
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
-        Log.d(TAG, "Redirecionado para LoginActivity.");
     }
 
     private void navigateToHome() {
@@ -208,9 +252,8 @@ public class ProfileActivity extends AppCompatActivity {
         } else {
             intent = new Intent(ProfileActivity.this, HomeActivity.class);
         }
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP); // Adicionado CLEAR_TOP
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        // MODIFICAÇÃO: Animação slide_in_left ao ir para Home
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
@@ -228,12 +271,9 @@ public class ProfileActivity extends AppCompatActivity {
         String token = userLoginPrefs.getString("token", null);
         if (token == null || token.isEmpty()) {
             Toast.makeText(this, "Erro: Token de autenticação não encontrado.", Toast.LENGTH_SHORT).show();
-            logoutUser(); // Força logout se não houver token
+            logoutUser();
             return;
         }
-
-        // Limpa preferência de pareamento local antes de tentar deletar a conta
-        sharedPreferences.edit().remove(KEY_SAME_GENDER_PAIRING).apply();
 
         Toast.makeText(this, "Processando solicitação...", Toast.LENGTH_SHORT).show();
         String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token;
@@ -244,13 +284,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (isDestroyed() || isFinishing()) return;
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(ProfileActivity.this, "Conta deletada com sucesso", Toast.LENGTH_SHORT).show();
-                    userLoginPrefs.edit().clear().apply(); // Limpa todos os dados de login
-                    // Navega para SignUpActivity ou LoginActivity
-                    Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                    finish();
+                    logoutUser();
                 } else {
                     String errorMsg = "Falha ao deletar conta";
                     try {
@@ -273,184 +307,113 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void loadProfileData() {
-        Log.d(TAG, "Iniciando loadProfileData...");
-        String token = userLoginPrefs.getString("token", null);
 
+    private void loadProfileData() {
+        String token = userLoginPrefs.getString("token", null);
         if (token == null || token.isEmpty()) {
-            Log.e(TAG, "Token não encontrado. Forçando logout.");
-            Toast.makeText(this, "Sessão inválida. Por favor, faça login novamente.", Toast.LENGTH_LONG).show();
             logoutUser();
             return;
         }
 
-        // Carrega dados locais primeiro como fallback ou para exibição rápida
-        textViewName.setText(userLoginPrefs.getString("username", "Carregando..."));
-        textViewEmail.setText(userLoginPrefs.getString("email", "Carregando..."));
-        textViewPhone.setText(userLoginPrefs.getString("phone", "Carregando..."));
+        if(textViewName!=null) textViewName.setText(userLoginPrefs.getString("username", "Carregando..."));
+        if(textViewEmail!=null) textViewEmail.setText(userLoginPrefs.getString("email", "Carregando..."));
+        if(textViewPhone!=null) textViewPhone.setText(userLoginPrefs.getString("phone", "Carregando..."));
         String accountType = userLoginPrefs.getString("type", "");
-        textViewAccountType.setText("driver".equalsIgnoreCase(accountType) ? "Motorista" : "Passageiro");
-        int initialSafeScore = userLoginPrefs.getInt("safescore", 0); // Usa 'safescore'
-        textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", initialSafeScore));
-        progressBarSafeScore.setProgress(initialSafeScore);
-        textViewRating.setText(userLoginPrefs.getString("rating", "4.8")); // Rating pode vir das prefs ou ser estático
+        if(textViewAccountType!=null) textViewAccountType.setText("driver".equalsIgnoreCase(accountType) ? "Motorista" : "Passageiro");
+        int initialSafeScore = userLoginPrefs.getInt("safescore", 0);
+        if(textViewSafeScore!=null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", initialSafeScore));
+        if(progressBarSafeScore!=null) progressBarSafeScore.setProgress(initialSafeScore);
+        if(textViewRating!=null) textViewRating.setText(userLoginPrefs.getString("rating", "4.8"));
 
         String genderFromPrefs = userLoginPrefs.getString(KEY_GENDER, "");
         currentUserGenderNormalized = genderFromPrefs.toUpperCase(Locale.ROOT);
-        textViewGender.setText(TextUtils.isEmpty(genderFromPrefs) ? "Não informado" : translateGenderToPortuguese(genderFromPrefs));
-        setupPairingPreferenceSwitch(); // Configura o switch com base no gênero das prefs
+        if(textViewGender!=null) textViewGender.setText(TextUtils.isEmpty(genderFromPrefs) ? "Não informado" : translateGenderToPortuguese(genderFromPrefs));
+        setupPairingPreferenceSwitch();
 
-        // Busca dados atualizados do servidor
-        Log.d(TAG, "Iniciando chamada à API getProfile...");
         authService.getProfile("Bearer " + token).enqueue(new Callback<ProfileResponse>() {
             @Override
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
                 if (isDestroyed() || isFinishing()) return;
-                Log.d(TAG, "Resposta da API getProfile recebida. Código: " + response.code());
-
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileResponse profile = response.body();
-                    Log.d(TAG, "Perfil carregado com sucesso do servidor: " + profile.toString());
-
-                    // Atualiza UI
-                    textViewName.setText(profile.getUsername());
-                    textViewEmail.setText(profile.getEmail());
-                    textViewPhone.setText(profile.getPhone());
+                    if(textViewName!=null) textViewName.setText(profile.getUsername());
+                    if(textViewEmail!=null) textViewEmail.setText(profile.getEmail());
+                    if(textViewPhone!=null) textViewPhone.setText(profile.getPhone());
                     String serverAccountType = profile.getType();
-                    textViewAccountType.setText("driver".equalsIgnoreCase(serverAccountType) ? "Motorista" : "Passageiro");
+                    if(textViewAccountType!=null) textViewAccountType.setText("driver".equalsIgnoreCase(serverAccountType) ? "Motorista" : "Passageiro");
 
                     String serverGender = profile.getGender();
-                    Log.d(TAG, "Gênero recebido do servidor (/api/profile): '" + serverGender + "'");
                     currentUserGenderNormalized = (serverGender != null) ? serverGender.toUpperCase(Locale.ROOT) : "";
+                    if(textViewGender!=null) textViewGender.setText(TextUtils.isEmpty(serverGender) ? "Não informado" : translateGenderToPortuguese(serverGender));
 
-                    // Atualiza gênero na UI
-                    textViewGender.setText(TextUtils.isEmpty(serverGender) ? "Não informado" : translateGenderToPortuguese(serverGender));
-
-                    // Atualiza SafeScore
                     int serverSafeScore = profile.getSafescore();
-                    textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", serverSafeScore));
-                    progressBarSafeScore.setProgress(serverSafeScore);
-                    // textViewRating.setText(String.valueOf(profile.getRating())); // Se o rating vier da API
+                    if(textViewSafeScore!=null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", serverSafeScore));
+                    if(progressBarSafeScore!=null) progressBarSafeScore.setProgress(serverSafeScore);
 
-                    // Salva dados atualizados nas SharedPreferences
                     SharedPreferences.Editor editor = userLoginPrefs.edit();
                     editor.putString("username", profile.getUsername());
                     editor.putString("email", profile.getEmail());
                     editor.putString("phone", profile.getPhone());
                     editor.putString("type", profile.getType());
-                    editor.putString(KEY_GENDER, (serverGender != null ? serverGender : "")); // Salva 'male', 'female', 'other' ou ""
-                    editor.putInt("safescore", serverSafeScore); // Usa 'safescore' consistentemente
-                    // editor.putString("rating", String.valueOf(profile.getRating())); // Se aplicável
+                    editor.putString(KEY_GENDER, (serverGender != null ? serverGender : ""));
+                    editor.putInt("safescore", serverSafeScore);
                     editor.apply();
-                    Log.d(TAG, "Dados atualizados salvos nas SharedPreferences (userPrefs). Gênero salvo: '" + (serverGender != null ? serverGender : "") + "'");
-
-                    setupPairingPreferenceSwitch(); // Reconfigura o switch com o gênero atualizado
-
-                } else {
-                    Log.e(TAG, "Erro ao carregar perfil da API. Código: " + response.code() + ". Usando dados locais se disponíveis.");
-                    Toast.makeText(ProfileActivity.this, "Não foi possível atualizar todos os dados (Erro: " + response.code() + ")", Toast.LENGTH_SHORT).show();
-                    // Mantém os dados das prefs já carregados e reconfigura o switch
                     setupPairingPreferenceSwitch();
+                } else {
+                    Log.e(TAG, "Erro ao carregar perfil da API. Código: " + response.code());
                 }
             }
-
             @Override
             public void onFailure(Call<ProfileResponse> call, Throwable t) {
                 if (isDestroyed() || isFinishing()) return;
-                Log.e(TAG, "Falha na chamada API getProfile (rede): ", t);
-                Toast.makeText(ProfileActivity.this, "Erro de rede ao carregar perfil. Verifique sua conexão.", Toast.LENGTH_SHORT).show();
-                // Mantém os dados das prefs já carregados e reconfigura o switch
-                setupPairingPreferenceSwitch();
+                Log.e(TAG, "Falha na chamada API getProfile: ", t);
             }
         });
     }
 
     private String translateGenderToPortuguese(String genderApiValue) {
-        if (genderApiValue == null || genderApiValue.trim().isEmpty()) {
-            return "Não informado";
-        }
+        if (genderApiValue == null || genderApiValue.trim().isEmpty()) return "Não informado";
         switch (genderApiValue.toLowerCase(Locale.ROOT)) {
-            case "female":
-                return "Feminino";
-            case "male":
-                return "Masculino";
-            case "other":
-                return "Outro"; // Singular para "Outro"
-            default:
-                return "Não informado"; // Ou "Prefiro não informar", dependendo da UX
+            case "female": return "Feminino";
+            case "male": return "Masculino";
+            case "other": return "Outro";
+            default: return "Não informado";
         }
     }
 
     private void setupPairingPreferenceSwitch() {
         boolean isPairingEnabledInitially = sharedPreferences.getBoolean(KEY_SAME_GENDER_PAIRING, false);
-        Log.d(TAG, "Configurando Switch. Gênero Normalizado (para lógica): '" + currentUserGenderNormalized + "', Preferência salva: " + isPairingEnabledInitially);
+        if (textViewPairingPreferencesLabel == null || switchSameGenderPairing == null) return;
 
-        if (textViewPairingPreferencesLabel == null || switchSameGenderPairing == null) {
-            Log.e(TAG, "Erro: Label ou Switch de preferência não inicializados!");
-            return;
-        }
-
-        // Lógica de visibilidade baseada no gênero NORMALIZADO (MAIÚSCULAS)
-        // Visível para FEMALE ou OTHER. Oculto para MALE ou não informado/inválido.
         if ("FEMALE".equals(currentUserGenderNormalized) || "OTHER".equals(currentUserGenderNormalized)) {
-            Log.d(TAG, "Gênero é FEMALE ou OTHER. Habilitando switch de pareamento.");
             textViewPairingPreferencesLabel.setVisibility(View.VISIBLE);
             switchSameGenderPairing.setVisibility(View.VISIBLE);
-            // Define o estado do switch sem disparar o listener programaticamente
             switchSameGenderPairing.setChecked(isPairingEnabledInitially);
-        } else { // MALE, vazio, ou inválido
-            Log.d(TAG, "Gênero é MALE, não informado, ou inválido ('" + currentUserGenderNormalized + "'). Desabilitando e ocultando switch de pareamento.");
+        } else {
             textViewPairingPreferencesLabel.setVisibility(View.GONE);
             switchSameGenderPairing.setVisibility(View.GONE);
-            // Se o switch estava ativo para um gênero que não permite, desativa a preferência
-            if (isPairingEnabledInitially) {
-                savePairingPreference(false); // Garante que a preferência seja desativada
-            }
-            switchSameGenderPairing.setChecked(false); // Garante que o switch esteja desmarcado
+            if (isPairingEnabledInitially) savePairingPreference(false);
+            switchSameGenderPairing.setChecked(false);
         }
     }
 
     private void savePairingPreference(boolean isEnabled) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(KEY_SAME_GENDER_PAIRING, isEnabled);
-        editor.apply();
-        Log.d(TAG, "Preferência de pareamento salva localmente (" + USER_LOCAL_PREFERENCES + "): " + isEnabled);
+        sharedPreferences.edit().putBoolean(KEY_SAME_GENDER_PAIRING, isEnabled).apply();
     }
 
-    // MODIFICAÇÃO: Método para atualizar a seleção da barra de navegação (similar ao de HomeActivity)
     private void updateBottomNavigationSelection(int selectedItemId) {
-        // Array dos LinearLayouts da navegação
         LinearLayout[] navItemsLayouts = {navHome, navServices, navAchievements, navAccount};
-        // Array dos ImageViews (ícones) e TextViews (textos) correspondentes
-        // Usando os nomes de variáveis corretos definidos em initViews()
         ImageView[] navIconsViews = {iconHome, iconServices, iconAchievementsView, iconAccountView};
         TextView[] navTextsViews = {textHome, textServices, textAchievementsView, textAccountView};
-
-
-        int activeColor = ContextCompat.getColor(this, R.color.white_fff); // Cor branca para ativo
-        int inactiveColor = ContextCompat.getColor(this, R.color.gray_light); // Cor cinza para inativo
+        int activeColor = ContextCompat.getColor(this, R.color.white_fff);
+        int inactiveColor = ContextCompat.getColor(this, R.color.gray_light);
 
         for (int i = 0; i < navItemsLayouts.length; i++) {
             LinearLayout itemLayout = navItemsLayouts[i];
-            ImageView icon = navIconsViews[i]; // Usa o array de ImageViews
-            TextView text = navTextsViews[i];   // Usa o array de TextViews
-
-            // Verificação crucial: garante que os componentes visuais existam
-            if (itemLayout == null) {
-                Log.w(TAG, "LinearLayout de navegação na posição " + i + " é nulo.");
-                continue;
-            }
-            if (icon == null) {
-                Log.w(TAG, "ImageView (ícone) de navegação na posição " + i + " (ID esperado: " + (navIconIds.length > i ? getResources().getResourceEntryName(navIconIds[i]) : "N/A") + ") é nulo. Verifique o layout `activity_profile.xml`.");
-                continue;
-            }
-            if (text == null) {
-                Log.w(TAG, "TextView (texto) de navegação na posição " + i + " (ID esperado: " + (navTextIds.length > i ? getResources().getResourceEntryName(navTextIds[i]) : "N/A") + ") é nulo. Verifique o layout `activity_profile.xml`.");
-                continue;
-            }
-
+            ImageView icon = navIconsViews[i];
+            TextView text = navTextsViews[i];
+            if (itemLayout == null || icon == null || text == null) continue;
             boolean isActive = (itemLayout.getId() == selectedItemId);
-
             icon.setImageTintList(ColorStateList.valueOf(isActive ? activeColor : inactiveColor));
             text.setTextColor(isActive ? activeColor : inactiveColor);
         }
@@ -458,18 +421,19 @@ public class ProfileActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // MODIFICAÇÃO: Navegar para Home com animação de slide_in_left
-        // Em vez de super.onBackPressed() que usaria a animação padrão de saida (geralmente fade ou slide_out_right)
         navigateToHome();
-        // Não chame super.onBackPressed() se você está gerenciando a transição explicitamente
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Garante que o item "Conta" esteja selecionado ao retornar para esta tela
         updateBottomNavigationSelection(R.id.navAccount);
-        // Recarrega os dados do perfil caso algo possa ter mudado (ex: se vier de uma tela de edição)
-        // loadProfileData(); // Descomente se houver cenários onde os dados do perfil podem mudar enquanto esta tela não está no topo.
+        loadFaceRegistrationStatus(); // Atualiza o status ao voltar para a tela
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Não há mais câmera ou detector para fechar aqui
     }
 }

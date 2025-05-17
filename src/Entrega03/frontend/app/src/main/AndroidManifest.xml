@@ -8,6 +8,15 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera.any" />
 
+    <!-- Permissões para gravação de áudio -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- Para Android 13+ (API 33+) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -19,6 +28,13 @@
         android:theme="@style/Theme.UberSafeStartFecap"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <!-- Nova Activity para gerenciar gravações de áudio -->
+        <activity
+            android:name=".MyRecordingsActivity"
+            android:exported="false"
+            android:label="Minhas Gravações"
+            android:theme="@style/Theme.UberSafeStartFecap" />
 
         <activity
             android:name=".FullScreenStreetViewActivity"

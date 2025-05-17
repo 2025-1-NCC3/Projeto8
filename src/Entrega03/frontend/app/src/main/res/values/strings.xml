@@ -101,4 +101,38 @@
     <string name="yes">Sim</string>
     <string name="no">Não</string>
 
+    <string name="recordings_title">Minhas Gravações</string>
+    <string name="recordings_header">Gravações de Áudio</string>
+    <string name="recordings_subheader">Suas gravações realizadas durante viagens</string>
+    <string name="no_recordings">Nenhuma gravação encontrada</string>
+    <string name="no_recordings_desc">As gravações feitas durante suas viagens aparecerão aqui</string>
+    <string name="send_for_analysis">Enviar para análise</string>
+    <string name="recording_sent">Gravação enviada!</string>
+    <string name="delete_recording">Excluir</string>
+    <string name="play_recording">Reproduzir gravação</string>
+    <string name="now_playing">Reproduzindo agora</string>
+    <string name="stop_playback">Parar reprodução</string>
+    <string name="pause_playback">Pausar reprodução</string>
+    <string name="close_playback">Fechar reprodução</string>
+    <string name="error_playing_recording">Erro ao reproduzir gravação</string>
+    <string name="description_required">Por favor, forneça uma descrição</string>
+    <string name="my_recordings">Minhas Gravações</string>
+    <string name="sending_recording">Enviando gravação...</string>
+    <string name="recording_sent_success">Gravação enviada com sucesso!</string>
+    <string name="recording_sent_title">Enviado!</string>
+    <string name="recording_deleted">Gravação excluída</string>
+    <string name="error_deleting_recording">Erro ao excluir gravação</string>
+    <string name="permissions_required">Permissões necessárias para acessar gravações</string>
+    <string name="delete_recording_title">Excluir gravação</string>
+    <string name="delete_recording_message">Tem certeza que deseja excluir esta gravação?</string>
+    <string name="send_recording_title">Enviar para análise</string>
+    <string name="send_recording_desc">Forneça uma descrição da situação para ajudar na análise</string>
+    <string name="description">Descrição da situação</string>
+    <string name="send">Enviar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="ok">OK</string>
+    <string name="delete">Excluir</string>
+
+
+
 </resources>

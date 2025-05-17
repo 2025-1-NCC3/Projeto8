@@ -1,10 +1,14 @@
 package br.fecap.pi.ubersafestart;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,13 +24,18 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
-import br.fecap.pi.ubersafestart.R;
+import br.fecap.pi.ubersafestart.utils.AudioRecordingManager;
 import br.fecap.pi.ubersafestart.utils.SafeScoreHelper;
 import br.fecap.pi.ubersafestart.utils.AchievementTracker;
 
 public class RideInProgressActivity extends AppCompatActivity {
+
+    private static final String TAG = "RideInProgressActivity";
+    private static final int REQUEST_PERMISSION_CODE = 1000;
 
     private TextView timerTextView;
     private TextView statusTextView;
@@ -44,6 +53,10 @@ public class RideInProgressActivity extends AppCompatActivity {
     private boolean isDriverMode = false;
     private PopupWindow popupWindow;
 
+    // Gravação de áudio
+    private AudioRecordingManager audioRecordingManager;
+    private boolean isRecording = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +66,9 @@ public class RideInProgressActivity extends AppCompatActivity {
         if (extras != null) {
             isDriverMode = extras.getBoolean("IS_DRIVER_MODE", false);
         }
+
+        // Inicializa o gerenciador de gravação de áudio
+        audioRecordingManager = new AudioRecordingManager(this);
 
         timerTextView = findViewById(R.id.timerTextView);
         timerProgressBar = findViewById(R.id.timerProgressBar);
@@ -66,8 +82,18 @@ public class RideInProgressActivity extends AppCompatActivity {
                 .load(R.drawable.car_animated)
                 .into(carImageView);
 
+        // Inicialmente, a gravação de áudio está desativada
         audioStatusIcon.setImageResource(R.drawable.ic_mic_off);
         audioStatusIcon.setColorFilter(Color.parseColor("#777777"));
+
+        // Adiciona listener ao ícone de áudio para ativar/desativar a gravação manualmente
+        audioStatusIcon.setOnClickListener(v -> {
+            if (checkAudioPermission()) {
+                toggleAudioRecording();
+            } else {
+                requestAudioPermission();
+            }
+        });
 
         reportButton.setOnClickListener(v -> showReportDialog());
 
@@ -166,27 +192,57 @@ public class RideInProgressActivity extends AppCompatActivity {
     }
 
     private void activateAudioRecording() {
-        isReportActive = true;
+        // Verifica permissão primeiro
+        if (!checkAudioPermission()) {
+            requestAudioPermission();
+            return;
+        }
 
-        audioStatusIcon.setImageResource(R.drawable.ic_mic);
-        audioStatusIcon.setColorFilter(Color.parseColor("#2979FF"));
+        // Inicia a gravação real
+        boolean success = audioRecordingManager.startRecording();
+        if (success) {
+            isRecording = true;
+            isReportActive = true;
 
-        AchievementTracker.trackAchievement(RideInProgressActivity.this, "audio", 1);
+            // Atualiza a UI
+            audioStatusIcon.setImageResource(R.drawable.ic_mic);
+            audioStatusIcon.setColorFilter(Color.parseColor("#2979FF"));
 
-        Toast.makeText(RideInProgressActivity.this,
-                "Audio recording started",
-                Toast.LENGTH_SHORT).show();
+            // Rastreia a conquista de uso de áudio
+            AchievementTracker.trackAchievement(RideInProgressActivity.this, "audio", 1);
+
+            Toast.makeText(RideInProgressActivity.this,
+                    "Gravação de áudio iniciada",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Falha ao iniciar a gravação de áudio", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void deactivateAudioRecording() {
-        isReportActive = false;
+        if (isRecording) {
+            String recordingPath = audioRecordingManager.stopRecording();
+            if (recordingPath != null) {
+                Log.d(TAG, "Gravação salva em: " + recordingPath);
+                Toast.makeText(this, "Gravação salva", Toast.LENGTH_SHORT).show();
+            }
 
-        audioStatusIcon.setImageResource(R.drawable.ic_mic_off);
-        audioStatusIcon.setColorFilter(Color.parseColor("#777777"));
+            isRecording = false;
+            isReportActive = false;
 
-        Toast.makeText(RideInProgressActivity.this,
-                "Audio recording stopped",
-                Toast.LENGTH_SHORT).show();
+            // Atualiza a UI
+            audioStatusIcon.setImageResource(R.drawable.ic_mic_off);
+            audioStatusIcon.setColorFilter(Color.parseColor("#777777"));
+        }
+    }
+
+    private void toggleAudioRecording() {
+        if (isRecording) {
+            deactivateAudioRecording();
+            Toast.makeText(this, "Gravação de áudio interrompida", Toast.LENGTH_SHORT).show();
+        } else {
+            activateAudioRecording();
+        }
     }
 
     private void showReportDialog() {
@@ -197,32 +253,32 @@ public class RideInProgressActivity extends AppCompatActivity {
             Button btnStartRecording = reportView.findViewById(R.id.btnStartRecording);
 
             builder.setView(reportView);
-            builder.setTitle("Report Problem");
+            builder.setTitle("Reportar Problema");
 
             AlertDialog dialog = builder.create();
 
             btnStartRecording.setOnClickListener(v -> {
                 reportCount++;
 
-                isReportActive = true;
-                btnStartRecording.setText("Recording activated");
-                btnStartRecording.setEnabled(false);
-
+                // Inicia a gravação real de áudio
                 activateAudioRecording();
+
+                btnStartRecording.setText("Gravação ativada");
+                btnStartRecording.setEnabled(false);
 
                 dialog.dismiss();
             });
 
             dialog.show();
         } else {
-            builder.setTitle("Cancel Ride");
-            builder.setMessage("You are about to cancel the ride for safety reasons. Do you want to proceed?");
-            builder.setPositiveButton("Cancel Ride", (dialog, which) -> {
+            builder.setTitle("Cancelar Corrida");
+            builder.setMessage("Você está prestes a cancelar a corrida por motivos de segurança. Deseja prosseguir?");
+            builder.setPositiveButton("Cancelar Corrida", (dialog, which) -> {
                 reportCount++;
                 dialog.dismiss();
                 cancelRideAndReturnToHome();
             });
-            builder.setNegativeButton("Go Back", (dialog, which) -> {
+            builder.setNegativeButton("Voltar", (dialog, which) -> {
                 dialog.dismiss();
             });
 
@@ -232,7 +288,12 @@ public class RideInProgressActivity extends AppCompatActivity {
     }
 
     private void cancelRideAndReturnToHome() {
-        Toast.makeText(this, "Ride cancelled for safety reasons", Toast.LENGTH_SHORT).show();
+        // Certifique-se de parar qualquer gravação em andamento antes de sair
+        if (isRecording) {
+            deactivateAudioRecording();
+        }
+
+        Toast.makeText(this, "Corrida cancelada por motivos de segurança", Toast.LENGTH_SHORT).show();
 
         Intent intent;
         if (isDriverMode) {
@@ -247,7 +308,14 @@ public class RideInProgressActivity extends AppCompatActivity {
     }
 
     private void finishRideAndShowFeedback() {
+        // Certifique-se de parar qualquer gravação em andamento antes de sair
+        if (isRecording) {
+            deactivateAudioRecording();
+        }
+
+        // Registra a conquista de viagem
         AchievementTracker.trackAchievement(RideInProgressActivity.this, "trip", 1);
+
         Intent homeIntent;
         if (isDriverMode) {
             homeIntent = new Intent(RideInProgressActivity.this, DriverHomeActivity.class);
@@ -278,17 +346,64 @@ public class RideInProgressActivity extends AppCompatActivity {
         if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
         }
+        // Certifique-se de parar a gravação de áudio
+        if (isRecording) {
+            deactivateAudioRecording();
+        }
+    }
+
+    // Métodos para gestão de permissões
+    private boolean checkAudioPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int result = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+            int storageResult = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            return result == PackageManager.PERMISSION_GRANTED &&
+                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+                            storageResult == PackageManager.PERMISSION_GRANTED);
+        }
+        return true;
+    }
+
+    private void requestAudioPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        REQUEST_PERMISSION_CODE);
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSION_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permissão concedida, ativa a gravação
+                toggleAudioRecording();
+            } else {
+                Toast.makeText(this, "Permissão de gravação negada", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Cancel Ride")
-                .setMessage("Do you really want to cancel this ride?")
-                .setPositiveButton("Yes", (dialog, which) -> {
+                .setTitle("Cancelar Corrida")
+                .setMessage("Você realmente deseja cancelar esta corrida?")
+                .setPositiveButton("Sim", (dialog, which) -> {
+                    // Para qualquer gravação em andamento
+                    if (isRecording) {
+                        deactivateAudioRecording();
+                    }
                     cancelRideAndReturnToHome();
                 })
-                .setNegativeButton("No", null)
+                .setNegativeButton("Não", null)
                 .show();
     }
 }

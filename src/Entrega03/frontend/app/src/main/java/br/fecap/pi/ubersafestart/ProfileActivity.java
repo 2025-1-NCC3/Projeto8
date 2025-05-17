@@ -9,7 +9,6 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-// Removido: import android.util.Size;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,20 +19,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull; // Mantido se usado em outros lugares
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-// Removido: import androidx.camera.core.* e PreviewView, pois a câmera agora está em FaceEnrollmentActivity
-import androidx.core.content.ContextCompat; // Mantido
+import androidx.core.content.ContextCompat;
 
-// Removido: import com.google.common.util.concurrent.ListenableFuture;
-// Removido: import com.google.mlkit.vision.*
-// Removido: import java.util.concurrent.ExecutionException;
-// Removido: import java.util.concurrent.ExecutorService;
-// Removido: import java.util.concurrent.Executors;
 import java.util.Locale;
-
 
 import br.fecap.pi.ubersafestart.api.ApiClient;
 import br.fecap.pi.ubersafestart.api.AuthService;
@@ -45,12 +37,14 @@ import retrofit2.Response;
 
 public class ProfileActivity extends AppCompatActivity {
     private static final String TAG = "ProfileActivity";
+    // Constantes para SharedPreferences
     private static final String USER_LOGIN_PREFS = "userPrefs";
     private static final String USER_LOCAL_PREFERENCES = "UserPreferences";
-    private static final String KEY_GENDER = "gender";
+    private static final String KEY_GENDER = "gender"; // Chave consistente com o campo/JSON
     private static final String KEY_SAME_GENDER_PAIRING = "sameGenderPairingEnabled";
     public static final String KEY_FACE_REGISTERED_PROTOTYPE = "face_registered_prototype";
 
+    // Componentes da UI
     private TextView textViewName, textViewEmail, textViewPhone, textViewAccountType;
     private TextView textViewRating, textViewSafeScore, textViewGender;
     private ProgressBar progressBarSafeScore;
@@ -61,22 +55,24 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView iconHome, iconServices, iconAchievementsView, iconAccountView;
     private TextView textHome, textServices, textAchievementsView, textAccountView;
 
+    // NOVO: Botão para acessar gravações
+    private Button buttonMyRecordings;
+
+    // Componentes de verificação facial
+    private Button buttonRegisterFacePrototype;
+    private TextView textViewFaceRegistrationStatusPrototype;
+    private ActivityResultLauncher<Intent> faceEnrollmentLauncher;
+
     private final int[] navIconIds = {R.id.iconHome, R.id.iconServices, R.id.iconAchievements, R.id.iconAccount};
     private final int[] navTextIds = {R.id.textHome, R.id.textServices, R.id.textAchievements, R.id.textAccount};
 
-    private String currentUserGenderNormalized = "";
+    // Variável de estado
+    private String currentUserGenderNormalized = ""; // Armazena gênero NORMALIZADO (MAIÚSCULAS) para lógica interna
+
+    // Serviços e Preferências
     private AuthService authService;
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences userLoginPrefs;
-
-    // --- Variáveis para Detecção Facial (agora apenas para lançar a nova activity) ---
-    private Button buttonRegisterFacePrototype;
-    private TextView textViewFaceRegistrationStatusPrototype;
-    // Removido: PreviewView, CameraProvider, FaceDetector, Executor, etc.
-    // --- Fim das variáveis de Detecção Facial ---
-
-    // ActivityResultLauncher para a FaceEnrollmentActivity
-    private ActivityResultLauncher<Intent> faceEnrollmentLauncher;
+    private SharedPreferences sharedPreferences; // Para preferência local
+    private SharedPreferences userLoginPrefs; // Para dados de login
 
 
     @Override
@@ -85,14 +81,12 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         initViews();
-
         authService = ApiClient.getClient().create(AuthService.class);
         sharedPreferences = getSharedPreferences(USER_LOCAL_PREFERENCES, Context.MODE_PRIVATE);
         userLoginPrefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
 
         setupButtonListeners();
         setupFaceEnrollmentLauncher(); // Configura o launcher para a nova activity
-
         setupNavigationListeners();
         updateBottomNavigationSelection(R.id.navAccount);
 
@@ -101,7 +95,6 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        // Views existentes
         textViewName = findViewById(R.id.textViewName);
         textViewEmail = findViewById(R.id.textViewEmail);
         textViewPhone = findViewById(R.id.textViewPhone);
@@ -116,6 +109,18 @@ public class ProfileActivity extends AppCompatActivity {
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
 
+        // NOVO: Encontra o botão de Minhas Gravações
+        buttonMyRecordings = findViewById(R.id.buttonMyRecordings);
+
+        // Componentes de verificação facial
+        buttonRegisterFacePrototype = findViewById(R.id.buttonRegisterFacePrototype);
+        textViewFaceRegistrationStatusPrototype = findViewById(R.id.textViewFaceRegistrationStatusPrototype);
+
+        if (buttonRegisterFacePrototype == null || textViewFaceRegistrationStatusPrototype == null) {
+            Log.e(TAG, "Botão ou TextView de status para registro facial não encontrados no layout activity_profile.xml.");
+        }
+
+        // Componentes da Navegação Inferior
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
         navAchievements = findViewById(R.id.navAchievements);
@@ -129,14 +134,6 @@ public class ProfileActivity extends AppCompatActivity {
         textAchievementsView = findViewById(R.id.textAchievements);
         iconAccountView = findViewById(R.id.iconAccount);
         textAccountView = findViewById(R.id.textAccount);
-
-        // Views para detecção facial (botão e status)
-        buttonRegisterFacePrototype = findViewById(R.id.buttonRegisterFacePrototype);
-        textViewFaceRegistrationStatusPrototype = findViewById(R.id.textViewFaceRegistrationStatusPrototype);
-
-        if (buttonRegisterFacePrototype == null || textViewFaceRegistrationStatusPrototype == null) {
-            Log.e(TAG, "Botão ou TextView de status para registro facial não encontrados no layout activity_profile.xml.");
-        }
     }
 
     private void setupFaceEnrollmentLauncher() {
@@ -159,7 +156,6 @@ public class ProfileActivity extends AppCompatActivity {
         );
     }
 
-
     private void loadFaceRegistrationStatus() {
         boolean isRegistered = userLoginPrefs.getBoolean(KEY_FACE_REGISTERED_PROTOTYPE, false);
         if (textViewFaceRegistrationStatusPrototype != null) {
@@ -174,24 +170,37 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void setupButtonListeners() {
-        if (buttonLogout != null) buttonLogout.setOnClickListener(v -> logoutUser());
-        if (buttonEditProfile != null) buttonEditProfile.setOnClickListener(v ->
-                Toast.makeText(ProfileActivity.this, "Função de edição em desenvolvimento", Toast.LENGTH_SHORT).show()
-        );
-        if (buttonDeleteAccount != null) buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
+        buttonLogout.setOnClickListener(v -> logoutUser());
+        buttonEditProfile.setOnClickListener(v -> {
+            Toast.makeText(ProfileActivity.this, "Função de edição em desenvolvimento", Toast.LENGTH_SHORT).show();
+            // Futuro: Permitir editar gênero chamando openGenderSelectionDialog();
+        });
+        buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
 
         if (switchSameGenderPairing != null) {
             switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (switchSameGenderPairing.getVisibility() == View.VISIBLE && buttonView.isPressed()) {
+                if (buttonView.getVisibility() == View.VISIBLE && buttonView.isPressed()) {
                     savePairingPreference(isChecked);
                     Toast.makeText(ProfileActivity.this,
                             isChecked ? "Preferência de parear com mesmo gênero ATIVADA" : "Preferência de parear com mesmo gênero DESATIVADA",
                             Toast.LENGTH_SHORT).show();
                 }
             });
+        } else {
+            Log.e(TAG, "SwitchCompat switchSameGenderPairing não encontrado!");
         }
 
-        // MODIFICADO: Listener do botão de registro facial
+        if (buttonMyRecordings != null) {
+            buttonMyRecordings.setOnClickListener(v -> {
+                Intent intent = new Intent(ProfileActivity.this, MyRecordingsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            });
+        } else {
+            Log.e(TAG, "Button buttonMyRecordings não encontrado!");
+        }
+
+        // NOVO: Listener do botão de registro facial
         if (buttonRegisterFacePrototype != null) {
             buttonRegisterFacePrototype.setOnClickListener(v -> {
                 Log.d(TAG, "Botão 'Configurar Verificação Facial' clicado. Abrindo FaceEnrollmentActivity.");
@@ -201,11 +210,6 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
     }
-
-
-    // --- Métodos de câmera e detecção facial foram MOVIDOS para FaceEnrollmentActivity ---
-    // onRequestPermissionsResult também não é mais necessário aqui para a câmera,
-    // pois FaceEnrollmentActivity cuidará disso.
 
     private void setupNavigationListeners() {
         View.OnClickListener listener = v -> {
@@ -235,13 +239,13 @@ public class ProfileActivity extends AppCompatActivity {
         Log.d(TAG, "Iniciando logout...");
         userLoginPrefs.edit().clear().apply();
         sharedPreferences.edit().clear().apply();
-
         Log.d(TAG, "SharedPreferences limpas.");
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
+        Log.d(TAG, "Redirecionado para LoginActivity.");
     }
 
     private void navigateToHome() {
@@ -258,13 +262,13 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showDeleteAccountConfirmation() {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Deletar Conta")
-                .setMessage("Você tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.")
-                .setPositiveButton("Sim", (dialog, which) -> deleteUserAccount())
-                .setNegativeButton("Não", (dialog, which) -> dialog.dismiss())
-                .create()
-                .show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        builder.setTitle("Deletar Conta");
+        builder.setMessage("Você tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.");
+        builder.setPositiveButton("Sim", (dialog, which) -> deleteUserAccount());
+        builder.setNegativeButton("Não", (dialog, which) -> dialog.dismiss());
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void deleteUserAccount() {
@@ -274,7 +278,7 @@ public class ProfileActivity extends AppCompatActivity {
             logoutUser();
             return;
         }
-
+        sharedPreferences.edit().clear().apply();
         Toast.makeText(this, "Processando solicitação...", Toast.LENGTH_SHORT).show();
         String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token;
 
@@ -284,7 +288,12 @@ public class ProfileActivity extends AppCompatActivity {
                 if (isDestroyed() || isFinishing()) return;
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(ProfileActivity.this, "Conta deletada com sucesso", Toast.LENGTH_SHORT).show();
-                    logoutUser();
+                    userLoginPrefs.edit().clear().apply();
+                    Intent intent = new Intent(ProfileActivity.this, SignUpActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                    finish();
                 } else {
                     String errorMsg = "Falha ao deletar conta";
                     try {
@@ -307,98 +316,187 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-
     private void loadProfileData() {
+        Log.d(TAG, "Iniciando loadProfileData...");
         String token = userLoginPrefs.getString("token", null);
+
         if (token == null || token.isEmpty()) {
+            Log.e(TAG, "Token não encontrado. Forçando logout.");
+            Toast.makeText(this, "Sessão inválida.", Toast.LENGTH_LONG).show();
             logoutUser();
             return;
         }
 
-        if(textViewName!=null) textViewName.setText(userLoginPrefs.getString("username", "Carregando..."));
-        if(textViewEmail!=null) textViewEmail.setText(userLoginPrefs.getString("email", "Carregando..."));
-        if(textViewPhone!=null) textViewPhone.setText(userLoginPrefs.getString("phone", "Carregando..."));
+        // Carrega dados locais primeiro
+        Log.d(TAG, "Carregando dados iniciais das SharedPreferences (userPrefs)...");
+        textViewName.setText(userLoginPrefs.getString("username", "Carregando..."));
+        textViewEmail.setText(userLoginPrefs.getString("email", "Carregando..."));
+        textViewPhone.setText(userLoginPrefs.getString("phone", "Carregando..."));
         String accountType = userLoginPrefs.getString("type", "");
-        if(textViewAccountType!=null) textViewAccountType.setText("driver".equalsIgnoreCase(accountType) ? "Motorista" : "Passageiro");
+        textViewAccountType.setText("driver".equalsIgnoreCase(accountType) ? "Motorista" : "Passageiro");
         int initialSafeScore = userLoginPrefs.getInt("safescore", 0);
-        if(textViewSafeScore!=null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", initialSafeScore));
-        if(progressBarSafeScore!=null) progressBarSafeScore.setProgress(initialSafeScore);
-        if(textViewRating!=null) textViewRating.setText(userLoginPrefs.getString("rating", "4.8"));
+        textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", initialSafeScore));
+        progressBarSafeScore.setProgress(initialSafeScore);
+        textViewRating.setText(userLoginPrefs.getString("rating", "4.8"));
 
+        // Carrega e normaliza o gênero das SharedPreferences
         String genderFromPrefs = userLoginPrefs.getString(KEY_GENDER, "");
+        Log.d(TAG, "Gênero lido das SharedPreferences (userPrefs) ANTES da chamada API: '" + genderFromPrefs + "'");
         currentUserGenderNormalized = genderFromPrefs.toUpperCase(Locale.ROOT);
-        if(textViewGender!=null) textViewGender.setText(TextUtils.isEmpty(genderFromPrefs) ? "Não informado" : translateGenderToPortuguese(genderFromPrefs));
+        Log.d(TAG, "Gênero Normalizado (MAIÚSCULAS) das prefs: '" + currentUserGenderNormalized + "'");
+
+        // Exibe o gênero traduzido (ou 'Carregando...')
+        if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
+            textViewGender.setText(translateGenderToPortuguese(genderFromPrefs)); // Usa tradução
+        } else {
+            textViewGender.setText("Carregando...");
+        }
+
         setupPairingPreferenceSwitch();
 
+        // Busca dados atualizados do servidor
+        Log.d(TAG, "Iniciando chamada à API getProfile...");
         authService.getProfile("Bearer " + token).enqueue(new Callback<ProfileResponse>() {
             @Override
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
                 if (isDestroyed() || isFinishing()) return;
+                Log.d(TAG, "Resposta da API getProfile recebida. Código: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileResponse profile = response.body();
-                    if(textViewName!=null) textViewName.setText(profile.getUsername());
-                    if(textViewEmail!=null) textViewEmail.setText(profile.getEmail());
-                    if(textViewPhone!=null) textViewPhone.setText(profile.getPhone());
+                    Log.d(TAG, "Perfil carregado com sucesso do servidor.");
+
+                    textViewName.setText(profile.getUsername());
+                    textViewEmail.setText(profile.getEmail());
+                    textViewPhone.setText(profile.getPhone());
                     String serverAccountType = profile.getType();
-                    if(textViewAccountType!=null) textViewAccountType.setText("driver".equalsIgnoreCase(serverAccountType) ? "Motorista" : "Passageiro");
+                    textViewAccountType.setText("driver".equalsIgnoreCase(serverAccountType) ? "Motorista" : "Passageiro");
 
-                    String serverGender = profile.getGender();
+                    // Obtém e NORMALIZA o gênero do servidor
+                    String serverGender = profile.getGender(); // Usa o getter correto
+                    Log.d(TAG, "Gênero recebido do servidor (/api/profile): '" + serverGender + "'");
                     currentUserGenderNormalized = (serverGender != null) ? serverGender.toUpperCase(Locale.ROOT) : "";
-                    if(textViewGender!=null) textViewGender.setText(TextUtils.isEmpty(serverGender) ? "Não informado" : translateGenderToPortuguese(serverGender));
+                    Log.d(TAG, "Gênero Normalizado (MAIÚSCULAS) após API: '" + currentUserGenderNormalized + "'");
 
-                    int serverSafeScore = profile.getSafescore();
-                    if(textViewSafeScore!=null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", serverSafeScore));
-                    if(progressBarSafeScore!=null) progressBarSafeScore.setProgress(serverSafeScore);
-
+                    // Salva dados atualizados nas SharedPreferences
                     SharedPreferences.Editor editor = userLoginPrefs.edit();
                     editor.putString("username", profile.getUsername());
                     editor.putString("email", profile.getEmail());
                     editor.putString("phone", profile.getPhone());
                     editor.putString("type", profile.getType());
-                    editor.putString(KEY_GENDER, (serverGender != null ? serverGender : ""));
-                    editor.putInt("safescore", serverSafeScore);
+                    editor.putString(KEY_GENDER, (serverGender != null ? serverGender : "")); // Salva o valor correto ('male', 'female', 'other' ou "")
+                    editor.putInt("safescore", profile.getSafescore());
                     editor.apply();
+                    Log.d(TAG, "Dados atualizados salvos nas SharedPreferences (userPrefs). Gênero salvo: '" + (serverGender != null ? serverGender : "") + "'");
+
+                    // Atualiza a UI do gênero (exibe traduzido)
+                    if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
+                        textViewGender.setText(translateGenderToPortuguese(serverGender));
+                        Log.d(TAG, "Definindo texto do gênero (do servidor, traduzido): " + translateGenderToPortuguese(serverGender));
+                    } else {
+                        textViewGender.setText("Não informado");
+                        Log.d(TAG, "Definindo texto do gênero como 'Não informado'");
+                    }
+
+                    textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", profile.getSafescore()));
+                    progressBarSafeScore.setProgress(profile.getSafescore());
+
                     setupPairingPreferenceSwitch();
+
                 } else {
                     Log.e(TAG, "Erro ao carregar perfil da API. Código: " + response.code());
+                    Toast.makeText(ProfileActivity.this, "Não foi possível atualizar dados do perfil (Erro: " + response.code() + ")", Toast.LENGTH_SHORT).show();
+                    // Fallback para dados das prefs
+                    String genderFromPrefsFallback = userLoginPrefs.getString(KEY_GENDER, "");
+                    currentUserGenderNormalized = genderFromPrefsFallback.toUpperCase(Locale.ROOT);
+                    Log.d(TAG, "Fallback: Usando gênero das SharedPreferences: '" + currentUserGenderNormalized + "'");
+                    if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
+                        textViewGender.setText(translateGenderToPortuguese(genderFromPrefsFallback));
+                    } else {
+                        textViewGender.setText("Não informado");
+                    }
+                    setupPairingPreferenceSwitch();
                 }
             }
+
             @Override
             public void onFailure(Call<ProfileResponse> call, Throwable t) {
                 if (isDestroyed() || isFinishing()) return;
-                Log.e(TAG, "Falha na chamada API getProfile: ", t);
+                Log.e(TAG, "Falha na chamada API getProfile (rede): ", t);
+                Toast.makeText(ProfileActivity.this, "Erro de rede ao carregar perfil.", Toast.LENGTH_SHORT).show();
+                // Fallback para dados das prefs
+                String genderFromPrefsFallback = userLoginPrefs.getString(KEY_GENDER, "");
+                currentUserGenderNormalized = genderFromPrefsFallback.toUpperCase(Locale.ROOT);
+                Log.d(TAG, "Fallback (onFailure): Usando gênero das SharedPreferences: '" + currentUserGenderNormalized + "'");
+                if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
+                    textViewGender.setText(translateGenderToPortuguese(genderFromPrefsFallback));
+                } else {
+                    textViewGender.setText("Não informado");
+                }
+                setupPairingPreferenceSwitch();
             }
         });
     }
 
     private String translateGenderToPortuguese(String genderApiValue) {
-        if (genderApiValue == null || genderApiValue.trim().isEmpty()) return "Não informado";
-        switch (genderApiValue.toLowerCase(Locale.ROOT)) {
-            case "female": return "Feminino";
-            case "male": return "Masculino";
-            case "other": return "Outro";
-            default: return "Não informado";
+        if (genderApiValue == null) {
+            return "Não informado";
+        }
+        switch (genderApiValue.toLowerCase(Locale.ROOT)) { // Compara em minúsculas
+            case "female":
+                return "Feminino";
+            case "male":
+                return "Masculino";
+            case "other":
+                return "Outros";
+            default:
+                return "Não informado"; // Caso o valor seja inesperado ou vazio
         }
     }
 
+    // Configura o switch de preferência de pareamento
     private void setupPairingPreferenceSwitch() {
-        boolean isPairingEnabledInitially = sharedPreferences.getBoolean(KEY_SAME_GENDER_PAIRING, false);
-        if (textViewPairingPreferencesLabel == null || switchSameGenderPairing == null) return;
+        boolean isPairingEnabled = sharedPreferences.getBoolean(KEY_SAME_GENDER_PAIRING, false);
+        Log.d(TAG, "Configurando Switch. Gênero Normalizado (para lógica): '" + currentUserGenderNormalized + "', Preferência salva: " + isPairingEnabled);
 
+        if (textViewPairingPreferencesLabel == null || switchSameGenderPairing == null) {
+            Log.e(TAG, "Erro: Label ou Switch de preferência não inicializados!");
+            return;
+        }
+
+        // Lógica de visibilidade baseada no gênero NORMALIZADO (MAIÚSCULAS)
         if ("FEMALE".equals(currentUserGenderNormalized) || "OTHER".equals(currentUserGenderNormalized)) {
+            Log.d(TAG, "Gênero é FEMALE ou OTHER. Habilitando switch.");
             textViewPairingPreferencesLabel.setVisibility(View.VISIBLE);
             switchSameGenderPairing.setVisibility(View.VISIBLE);
-            switchSameGenderPairing.setChecked(isPairingEnabledInitially);
-        } else {
+            switchSameGenderPairing.setOnCheckedChangeListener(null);
+            switchSameGenderPairing.setChecked(isPairingEnabled);
+            switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                savePairingPreference(isChecked);
+                Toast.makeText(ProfileActivity.this,
+                        isChecked ? "Preferência de parear com mesmo gênero ATIVADA" : "Preferência de parear com mesmo gênero DESATIVADA",
+                        Toast.LENGTH_SHORT).show();
+            });
+        } else { // MALE ou vazio/inválido
+            Log.d(TAG, "Gênero é MALE ou inválido/vazio. Desabilitando switch.");
             textViewPairingPreferencesLabel.setVisibility(View.GONE);
             switchSameGenderPairing.setVisibility(View.GONE);
-            if (isPairingEnabledInitially) savePairingPreference(false);
+            if (isPairingEnabled) {
+                savePairingPreference(false);
+            }
+            switchSameGenderPairing.setOnCheckedChangeListener(null);
             switchSameGenderPairing.setChecked(false);
+            switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                savePairingPreference(isChecked);
+            });
         }
     }
 
+    // Salva a preferência localmente
     private void savePairingPreference(boolean isEnabled) {
-        sharedPreferences.edit().putBoolean(KEY_SAME_GENDER_PAIRING, isEnabled).apply();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_SAME_GENDER_PAIRING, isEnabled);
+        editor.apply();
+        Log.d(TAG, "Preferência de pareamento salva localmente (" + USER_LOCAL_PREFERENCES + "): " + isEnabled);
     }
 
     private void updateBottomNavigationSelection(int selectedItemId) {
@@ -434,6 +532,5 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Não há mais câmera ou detector para fechar aqui
     }
 }

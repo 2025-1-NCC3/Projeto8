@@ -73,6 +73,10 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     String token = response.body().getToken();
 
+                    // IMPORTANTE: Limpar conquistas locais ao fazer login com nova conta
+                    SharedPreferences completedPrefs = getSharedPreferences("CompletedAchievements", MODE_PRIVATE);
+                    completedPrefs.edit().clear().apply();
+
                     SharedPreferences prefs = getSharedPreferences("userPrefs", MODE_PRIVATE);
                     prefs.edit().putString("token", token).apply();
 

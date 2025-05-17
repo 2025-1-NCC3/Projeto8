@@ -31,6 +31,7 @@ import br.fecap.pi.ubersafestart.api.ApiClient;
 import br.fecap.pi.ubersafestart.api.AuthService;
 import br.fecap.pi.ubersafestart.model.ApiResponse;
 import br.fecap.pi.ubersafestart.model.ProfileResponse;
+import br.fecap.pi.ubersafestart.model.SafeScoreResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -238,9 +239,16 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void logoutUser() {
         Log.d(TAG, "Iniciando logout...");
+
+        SharedPreferences completedPrefs = getSharedPreferences("CompletedAchievements", MODE_PRIVATE);
+        completedPrefs.edit().clear().apply();
+
+        getSharedPreferences("CompletedAchievements", MODE_PRIVATE).edit().clear().apply();
+
         userLoginPrefs.edit().clear().apply();
         sharedPreferences.edit().clear().apply();
         Log.d(TAG, "SharedPreferences limpas.");
+
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -317,6 +325,78 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Este método busca o SafeScore do servidor e atualiza a UI.
+     * A principal alteração está aqui para usar getBestAvailableScore().
+     */
+    public void fetchSafeScore(String token) {
+        if (token == null || token.isEmpty()) {
+            Log.e(TAG, "Token não encontrado. Não é possível buscar SafeScore.");
+            // Opcionalmente, atualize a UI para refletir pontuação ausente ou estado de erro
+            // if (textViewSafeScore != null) textViewSafeScore.setText("N/A");
+            // if (progressBarSafeScore != null) progressBarSafeScore.setProgress(0);
+            return;
+        }
+
+        String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token; // Garante o prefixo "Bearer "
+        authService.getSafeScore(bearerToken).enqueue(new Callback<SafeScoreResponse>() {
+            @Override
+            public void onResponse(Call<SafeScoreResponse> call, Response<SafeScoreResponse> response) {
+                if (isDestroyed() || isFinishing()) return;
+
+                if (response.isSuccessful() && response.body() != null) {
+                    // ***** INÍCIO DA MODIFICAÇÃO *****
+                    // Usar getBestAvailableScore() para maior robustez na obtenção do valor.
+                    int safeScore = response.body().getBestAvailableScore();
+                    // ***** FIM DA MODIFICAÇÃO *****
+
+                    Log.d(TAG, "SafeScore (melhor disponível) carregado com sucesso do servidor: " + safeScore);
+
+                    // Atualizar a UI
+                    if (textViewSafeScore != null) {
+                        textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", safeScore));
+                    }
+                    if (progressBarSafeScore != null) {
+                        // Garante que o progresso esteja entre 0-100 (ou o máximo da barra)
+                        progressBarSafeScore.setProgress(Math.max(0, Math.min(safeScore, 100)));
+                    }
+
+                    // Salvar no SharedPreferences
+                    userLoginPrefs.edit().putInt("safescore", safeScore).apply();
+                    Log.d(TAG, "SafeScore salvo nas SharedPreferences: " + safeScore);
+
+                } else {
+                    // Log detalhado do erro
+                    String errorDetails = "Erro ao carregar SafeScore da API. Código: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            errorDetails += ", Corpo do Erro: " + response.errorBody().string();
+                        } catch (java.io.IOException e) {
+                            errorDetails += ", Falha ao ler corpo do erro.";
+                        }
+                    } else if (response.body() == null && response.isSuccessful()){
+                        errorDetails += ", Corpo da resposta é nulo apesar de sucesso.";
+                    }
+                    Log.e(TAG, errorDetails);
+                    // Opcionalmente, atualize a UI para mostrar erro ou pontuação anterior
+                    // int lastKnownScore = userLoginPrefs.getInt("safescore", 0);
+                    // if (textViewSafeScore != null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100 (Erro ao atualizar)", lastKnownScore));
+                    // if (progressBarSafeScore != null) progressBarSafeScore.setProgress(Math.max(0, Math.min(lastKnownScore, 100)));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SafeScoreResponse> call, Throwable t) {
+                if (isDestroyed() || isFinishing()) return;
+                Log.e(TAG, "Falha na chamada API getSafeScore (rede): ", t);
+                // Opcionalmente, trate a falha de rede na UI
+                // int lastKnownScore = userLoginPrefs.getInt("safescore", 0);
+                // if (textViewSafeScore != null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100 (Falha de rede)", lastKnownScore));
+                // if (progressBarSafeScore != null) progressBarSafeScore.setProgress(Math.max(0, Math.min(lastKnownScore, 100)));
+            }
+        });
+    }
+
     private void loadProfileData() {
         Log.d(TAG, "Iniciando loadProfileData...");
         String token = userLoginPrefs.getString("token", null);
@@ -335,85 +415,57 @@ public class ProfileActivity extends AppCompatActivity {
         textViewPhone.setText(userLoginPrefs.getString("phone", "Carregando..."));
         String accountType = userLoginPrefs.getString("type", "");
         textViewAccountType.setText("driver".equalsIgnoreCase(accountType) ? "Motorista" : "Passageiro");
+
         int initialSafeScore = userLoginPrefs.getInt("safescore", 0);
         textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", initialSafeScore));
-        progressBarSafeScore.setProgress(initialSafeScore);
-        textViewRating.setText(userLoginPrefs.getString("rating", "4.8"));
-
-        // Carrega e normaliza o gênero das SharedPreferences
-        String genderFromPrefs = userLoginPrefs.getString(KEY_GENDER, "");
-        Log.d(TAG, "Gênero lido das SharedPreferences (userPrefs) ANTES da chamada API: '" + genderFromPrefs + "'");
-        currentUserGenderNormalized = genderFromPrefs.toUpperCase(Locale.ROOT);
-        Log.d(TAG, "Gênero Normalizado (MAIÚSCULAS) das prefs: '" + currentUserGenderNormalized + "'");
-
-        // Exibe o gênero traduzido (ou 'Carregando...')
-        if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
-            textViewGender.setText(translateGenderToPortuguese(genderFromPrefs)); // Usa tradução
-        } else {
-            textViewGender.setText("Carregando...");
+        if (progressBarSafeScore != null) { // Adicionada verificação de nulidade para segurança
+            progressBarSafeScore.setProgress(Math.max(0, Math.min(initialSafeScore, 100)));
         }
+        textViewRating.setText(userLoginPrefs.getString("rating", "4.8")); // Rating pode vir de outra fonte/lógica
 
-        setupPairingPreferenceSwitch();
+        // Busca o SafeScore mais recente da API
+        fetchSafeScore(token);
 
-        // Busca dados atualizados do servidor
-        Log.d(TAG, "Iniciando chamada à API getProfile...");
-        authService.getProfile("Bearer " + token).enqueue(new Callback<ProfileResponse>() {
+        // Lógica para buscar outros dados do perfil (ex: gênero) via /api/profile
+        String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token;
+        authService.getProfile(bearerToken).enqueue(new Callback<ProfileResponse>() {
             @Override
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
                 if (isDestroyed() || isFinishing()) return;
-                Log.d(TAG, "Resposta da API getProfile recebida. Código: " + response.code());
+
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileResponse profile = response.body();
-                    Log.d(TAG, "Perfil carregado com sucesso do servidor.");
+                    Log.d(TAG, "Dados do perfil (/api/profile) carregados: " + profile.toString());
 
-                    textViewName.setText(profile.getUsername());
-                    textViewEmail.setText(profile.getEmail());
-                    textViewPhone.setText(profile.getPhone());
-                    String serverAccountType = profile.getType();
-                    textViewAccountType.setText("driver".equalsIgnoreCase(serverAccountType) ? "Motorista" : "Passageiro");
+                    // Atualiza nome, email, telefone, tipo de conta se necessário (pode já estar ok das prefs)
+                    if (profile.getUsername() != null) textViewName.setText(profile.getUsername());
+                    if (profile.getEmail() != null) textViewEmail.setText(profile.getEmail());
+                    if (profile.getPhone() != null) textViewPhone.setText(profile.getPhone());
+                    if (profile.getType() != null) textViewAccountType.setText("driver".equalsIgnoreCase(profile.getType()) ? "Motorista" : "Passageiro");
 
-                    // Obtém e NORMALIZA o gênero do servidor
-                    String serverGender = profile.getGender(); // Usa o getter correto
-                    Log.d(TAG, "Gênero recebido do servidor (/api/profile): '" + serverGender + "'");
-                    currentUserGenderNormalized = (serverGender != null) ? serverGender.toUpperCase(Locale.ROOT) : "";
-                    Log.d(TAG, "Gênero Normalizado (MAIÚSCULAS) após API: '" + currentUserGenderNormalized + "'");
-
-                    // Salva dados atualizados nas SharedPreferences
-                    SharedPreferences.Editor editor = userLoginPrefs.edit();
-                    editor.putString("username", profile.getUsername());
-                    editor.putString("email", profile.getEmail());
-                    editor.putString("phone", profile.getPhone());
-                    editor.putString("type", profile.getType());
-                    editor.putString(KEY_GENDER, (serverGender != null ? serverGender : "")); // Salva o valor correto ('male', 'female', 'other' ou "")
-                    editor.putInt("safescore", profile.getSafescore());
-                    editor.apply();
-                    Log.d(TAG, "Dados atualizados salvos nas SharedPreferences (userPrefs). Gênero salvo: '" + (serverGender != null ? serverGender : "") + "'");
-
-                    // Atualiza a UI do gênero (exibe traduzido)
-                    if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
-                        textViewGender.setText(translateGenderToPortuguese(serverGender));
-                        Log.d(TAG, "Definindo texto do gênero (do servidor, traduzido): " + translateGenderToPortuguese(serverGender));
-                    } else {
-                        textViewGender.setText("Não informado");
-                        Log.d(TAG, "Definindo texto do gênero como 'Não informado'");
+                    // Gênero e preferências de pareamento
+                    currentUserGenderNormalized = (profile.getGender() != null) ? profile.getGender().toUpperCase(Locale.ROOT) : "";
+                    if (textViewGender != null) {
+                        textViewGender.setText(translateGenderToPortuguese(profile.getGender()));
                     }
-
-                    textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", profile.getSafescore()));
-                    progressBarSafeScore.setProgress(profile.getSafescore());
-
                     setupPairingPreferenceSwitch();
 
+                    // Salvar os dados atualizados do perfil nas SharedPreferences (userPrefs)
+                    SharedPreferences.Editor editor = userLoginPrefs.edit();
+                    if (profile.getUsername() != null) editor.putString("username", profile.getUsername());
+                    if (profile.getEmail() != null) editor.putString("email", profile.getEmail());
+                    if (profile.getPhone() != null) editor.putString("phone", profile.getPhone());
+                    if (profile.getType() != null) editor.putString("type", profile.getType());
+                    if (profile.getGender() != null) editor.putString(KEY_GENDER, profile.getGender());
+                    // Não salvar SafeScore daqui, pois fetchSafeScore já cuida disso de forma mais direta.
+                    editor.apply();
+
                 } else {
-                    Log.e(TAG, "Erro ao carregar perfil da API. Código: " + response.code());
-                    Toast.makeText(ProfileActivity.this, "Não foi possível atualizar dados do perfil (Erro: " + response.code() + ")", Toast.LENGTH_SHORT).show();
-                    // Fallback para dados das prefs
-                    String genderFromPrefsFallback = userLoginPrefs.getString(KEY_GENDER, "");
-                    currentUserGenderNormalized = genderFromPrefsFallback.toUpperCase(Locale.ROOT);
-                    Log.d(TAG, "Fallback: Usando gênero das SharedPreferences: '" + currentUserGenderNormalized + "'");
-                    if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
-                        textViewGender.setText(translateGenderToPortuguese(genderFromPrefsFallback));
-                    } else {
-                        textViewGender.setText("Não informado");
+                    Log.e(TAG, "Erro ao carregar dados do perfil (/api/profile). Código: " + response.code());
+                    // Poderia tentar carregar gênero das SharedPreferences como fallback se necessário
+                    currentUserGenderNormalized = userLoginPrefs.getString(KEY_GENDER, "").toUpperCase(Locale.ROOT);
+                    if (textViewGender != null) {
+                        textViewGender.setText(translateGenderToPortuguese(userLoginPrefs.getString(KEY_GENDER, null)));
                     }
                     setupPairingPreferenceSwitch();
                 }
@@ -423,20 +475,17 @@ public class ProfileActivity extends AppCompatActivity {
             public void onFailure(Call<ProfileResponse> call, Throwable t) {
                 if (isDestroyed() || isFinishing()) return;
                 Log.e(TAG, "Falha na chamada API getProfile (rede): ", t);
-                Toast.makeText(ProfileActivity.this, "Erro de rede ao carregar perfil.", Toast.LENGTH_SHORT).show();
-                // Fallback para dados das prefs
-                String genderFromPrefsFallback = userLoginPrefs.getString(KEY_GENDER, "");
-                currentUserGenderNormalized = genderFromPrefsFallback.toUpperCase(Locale.ROOT);
-                Log.d(TAG, "Fallback (onFailure): Usando gênero das SharedPreferences: '" + currentUserGenderNormalized + "'");
-                if (!TextUtils.isEmpty(currentUserGenderNormalized)) {
-                    textViewGender.setText(translateGenderToPortuguese(genderFromPrefsFallback));
-                } else {
-                    textViewGender.setText("Não informado");
+                Toast.makeText(ProfileActivity.this, "Erro de conexão ao carregar perfil.", Toast.LENGTH_SHORT).show();
+                // Carregar dados de fallback das SharedPreferences
+                currentUserGenderNormalized = userLoginPrefs.getString(KEY_GENDER, "").toUpperCase(Locale.ROOT);
+                if (textViewGender != null) {
+                    textViewGender.setText(translateGenderToPortuguese(userLoginPrefs.getString(KEY_GENDER, null)));
                 }
                 setupPairingPreferenceSwitch();
             }
         });
     }
+
 
     private String translateGenderToPortuguese(String genderApiValue) {
         if (genderApiValue == null) {
@@ -469,25 +518,28 @@ public class ProfileActivity extends AppCompatActivity {
             Log.d(TAG, "Gênero é FEMALE ou OTHER. Habilitando switch.");
             textViewPairingPreferencesLabel.setVisibility(View.VISIBLE);
             switchSameGenderPairing.setVisibility(View.VISIBLE);
-            switchSameGenderPairing.setOnCheckedChangeListener(null);
+            switchSameGenderPairing.setOnCheckedChangeListener(null); // Evitar trigger ao setar
             switchSameGenderPairing.setChecked(isPairingEnabled);
             switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                savePairingPreference(isChecked);
-                Toast.makeText(ProfileActivity.this,
-                        isChecked ? "Preferência de parear com mesmo gênero ATIVADA" : "Preferência de parear com mesmo gênero DESATIVADA",
-                        Toast.LENGTH_SHORT).show();
+                if (buttonView.isPressed()) { // Apenas se a mudança for por interação do usuário
+                    savePairingPreference(isChecked);
+                    Toast.makeText(ProfileActivity.this,
+                            isChecked ? "Preferência de parear com mesmo gênero ATIVADA" : "Preferência de parear com mesmo gênero DESATIVADA",
+                            Toast.LENGTH_SHORT).show();
+                }
             });
         } else { // MALE ou vazio/inválido
             Log.d(TAG, "Gênero é MALE ou inválido/vazio. Desabilitando switch.");
             textViewPairingPreferencesLabel.setVisibility(View.GONE);
             switchSameGenderPairing.setVisibility(View.GONE);
-            if (isPairingEnabled) {
+            if (isPairingEnabled) { // Se estava ativo para um gênero que não permite, desativa
                 savePairingPreference(false);
             }
-            switchSameGenderPairing.setOnCheckedChangeListener(null);
+            switchSameGenderPairing.setOnCheckedChangeListener(null); // Evitar trigger
             switchSameGenderPairing.setChecked(false);
+            // Reatribui listener caso seja necessário no futuro, embora invisível
             switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                savePairingPreference(isChecked);
+                if (buttonView.isPressed()) savePairingPreference(isChecked);
             });
         }
     }
@@ -528,10 +580,19 @@ public class ProfileActivity extends AppCompatActivity {
         super.onResume();
         updateBottomNavigationSelection(R.id.navAccount);
         loadFaceRegistrationStatus(); // Atualiza o status ao voltar para a tela
+
+        String token = userLoginPrefs.getString("token", "");
+        if (!TextUtils.isEmpty(token)) { // Verificação mais robusta para token
+            fetchSafeScore(token);
+        } else {
+            Log.w(TAG, "onResume: Token é nulo ou vazio, não buscando SafeScore.");
+            // Pode ser necessário tratar logout se o token estiver consistentemente ausente
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Limpeza de listeners ou outros recursos, se necessário
     }
 }

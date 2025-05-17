@@ -1,6 +1,6 @@
 package br.fecap.pi.ubersafestart.model;
 
-// Não precisa de import do GSON se o nome do campo Java for igual à chave JSON
+import com.google.gson.annotations.SerializedName;
 
 /**
  * Modelo de dados para a resposta da API /api/profile.
@@ -11,11 +11,10 @@ public class ProfileResponse {
     private String email;
     private String phone;
     private String type;
+
+    @SerializedName(value = "safescore", alternate = {"safeScore", "safe_score"})
     private int safescore;
 
-    // --- CAMPO DE GÊNERO CORRIGIDO ---
-    // O nome do campo Java ('gender') agora corresponde exatamente
-    // à chave JSON ('gender') enviada pelo backend.
     private String gender;
 
     // --- Getters ---
@@ -36,8 +35,10 @@ public class ProfileResponse {
         return type;
     }
 
+    // CORREÇÃO: Se o valor for zero, retorna um valor padrão (50)
     public int getSafescore() {
-        return safescore;
+        // Retorna o valor do servidor, ou 50 se o valor for zero ou negativo
+        return (safescore > 0) ? safescore : 50;
     }
 
     /**
@@ -49,5 +50,15 @@ public class ProfileResponse {
         return gender;
     }
 
-    // O campo 'genero' e o getter getGenero() foram removidos para evitar ambiguidade.
+    @Override
+    public String toString() {
+        return "ProfileResponse{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", type='" + type + '\'' +
+                ", safescore=" + safescore +
+                ", gender='" + gender + '\'' +
+                '}';
+    }
 }

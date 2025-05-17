@@ -17,7 +17,6 @@ import java.util.List;
 
 import br.fecap.pi.ubersafestart.R;
 import br.fecap.pi.ubersafestart.model.Achievement;
-import br.fecap.pi.ubersafestart.utils.AchievementTracker;
 
 public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapter.ViewHolder> {
 
@@ -45,21 +44,7 @@ public class AchievementsAdapter extends RecyclerView.Adapter<AchievementsAdapte
         holder.description.setText(achievement.getDescription());
         holder.points.setText("+" + achievement.getPoints());
 
-        // Verificar progresso local para exibição
-        boolean isLocallyCompleted = AchievementTracker.isAchievementCompleted(context, achievement.getId());
-        int localProgress = AchievementTracker.getAchievementProgress(context, achievement.getId());
-
-        // Se a conquista estiver concluída localmente, sobrescrever o status do objeto
-        if (isLocallyCompleted && !achievement.isCompleted()) {
-            achievement.setCompleted(true);
-            // Definir progresso como alvo
-            achievement.setProgress(achievement.getTarget());
-        } else if (localProgress > achievement.getProgress()) {
-            // Usar o maior progresso
-            achievement.setProgress(localProgress);
-        }
-
-        // Configurar progresso
+        // Usar APENAS os dados recebidos diretamente da API
         int progressPercentage = achievement.getProgressPercentage();
         holder.progressBar.setProgress(progressPercentage);
         holder.progressText.setText(achievement.getProgress() + "/" + achievement.getTarget());

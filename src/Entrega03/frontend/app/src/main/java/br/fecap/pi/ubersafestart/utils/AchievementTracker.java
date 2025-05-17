@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -137,8 +139,14 @@ public class AchievementTracker {
         String token = context.getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
                 .getString("token", "");
 
+        // NOVO: Log do token (apenas se existe ou não)
+        Log.d(TAG, "Token para trackAchievement: " + (token.isEmpty() ? "VAZIO!" : "OK (não vazio)"));
+
         if (token.isEmpty()) {
             Log.e(TAG, "Não foi possível rastrear conquista: usuário não está logado");
+
+            // NOVO: Continuar com o rastreamento local mesmo sem token
+            trackAchievementLocally(context, type, increment);
             return;
         }
 
@@ -156,6 +164,78 @@ public class AchievementTracker {
         final AtomicBoolean achievementCompletedAtomic = new AtomicBoolean(false);
 
         // Rastrear localmente
+        trackAchievementLocally(context, type, increment);
+        if (achievementCompletedAtomic.get()) {
+            // Se uma conquista foi completada localmente, não precisamos mostrar outra notificação do servidor
+            Log.d(TAG, "Uma conquista já foi completada localmente, ignorando qualquer notificação do servidor.");
+        }
+
+        // Independentemente do progresso local, chamar a API para registrar no servidor
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("type", type);
+        requestBody.put("increment", increment);
+
+        // Chamar a API
+        AuthService authService = ApiClient.getClient().create(AuthService.class);
+        authService.trackAchievement("Bearer " + token, requestBody).enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    Log.d(TAG, "Conquista rastreada com sucesso no servidor: " + type + " +" + increment);
+
+                    // Mostrar um Toast de confirmação se não houver nenhuma conquista concluída neste momento
+                    if (!achievementCompletedAtomic.get() && !isDialogShowing()) {
+                        String typeTitle = ACHIEVEMENT_TYPE_TITLES.containsKey(type) ?
+                                ACHIEVEMENT_TYPE_TITLES.get(type) : type;
+                        Toast.makeText(context,
+                                "Progresso em " + typeTitle + " atualizado!",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            Log.e(TAG, "Falha ao rastrear conquista no servidor: " + errorBody);
+
+                            try {
+                                // Tentar formatar como JSON para melhor legibilidade no log
+                                JSONObject errorJson = new JSONObject(errorBody);
+                                Log.e(TAG, "Erro detalhado: " + errorJson.toString(2));
+                            } catch (Exception jsonEx) {
+                                // Não é JSON válido, usar texto bruto
+                                Log.e(TAG, "Erro bruto: " + errorBody);
+                            }
+                        } else {
+                            Log.e(TAG, "Falha ao rastrear conquista. Código: " + response.code());
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao ler resposta de erro", e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Log.e(TAG, "Erro de rede ao rastrear conquista: " + t.getMessage(), t);
+            }
+        });
+    }
+
+    // NOVO: Método para processar conquistas localmente
+    private static boolean trackAchievementLocally(Context context, String type, int increment) {
+        boolean anyAchievementCompleted = false;
+
+        // Verificar quais conquistas já foram completadas
+        SharedPreferences completedPrefs = context.getSharedPreferences(COMPLETED_ACHIEVEMENTS_PREFS, Context.MODE_PRIVATE);
+
+        // Verificar se há conquistas deste tipo
+        Integer[] achievementIds = ACHIEVEMENT_TYPE_IDS.get(type);
+        if (achievementIds == null || achievementIds.length == 0) {
+            Log.e(TAG, "Tipo de conquista não encontrado no processamento local: " + type);
+            return false;
+        }
+
+        // Rastrear localmente
         for (Integer achievementId : achievementIds) {
             // Verificar se a conquista já foi concluída
             boolean isCompleted = completedPrefs.getBoolean("achievement_" + achievementId, false);
@@ -169,6 +249,8 @@ public class AchievementTracker {
             int currentProgress = completedPrefs.getInt(progressKey, 0);
             int target = ACHIEVEMENT_TARGETS.containsKey(achievementId) ?
                     ACHIEVEMENT_TARGETS.get(achievementId) : 1;
+
+            Log.d(TAG, "Progresso atual para conquista " + achievementId + ": " + currentProgress + "/" + target);
 
             // Incrementar o progresso
             int newProgress = currentProgress + increment;
@@ -199,51 +281,17 @@ public class AchievementTracker {
                 SafeScoreHelper.updateSafeScore(context, points);
 
                 // Sinalizar que uma conquista foi completada
-                achievementCompletedAtomic.set(true);
+                anyAchievementCompleted = true;
 
                 // Interromper o loop após mostrar uma notificação para não sobrecarregar o usuário
                 break;
             } else {
+                Log.d(TAG, "Progresso atualizado para conquista " + achievementId + ": " + newProgress + "/" + target);
                 editor.apply();
             }
         }
 
-        // Independentemente do progresso local, chamar a API para registrar no servidor
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("type", type);
-        requestBody.put("increment", increment);
-
-        // Chamar a API
-        AuthService authService = ApiClient.getClient().create(AuthService.class);
-        authService.trackAchievement("Bearer " + token, requestBody).enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
-                    Log.d(TAG, "Conquista rastreada com sucesso no servidor: " + type + " +" + increment);
-
-                    // Mostrar um Toast de confirmação se não houver nenhuma conquista concluída neste momento
-                    if (!achievementCompletedAtomic.get() && !isDialogShowing()) {
-                        String typeTitle = ACHIEVEMENT_TYPE_TITLES.containsKey(type) ?
-                                ACHIEVEMENT_TYPE_TITLES.get(type) : type;
-                        Toast.makeText(context,
-                                "Progresso em " + typeTitle + " atualizado!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    try {
-                        Log.e(TAG, "Falha ao rastrear conquista no servidor: " +
-                                (response.errorBody() != null ? response.errorBody().string() : "Erro desconhecido"));
-                    } catch (Exception e) {
-                        Log.e(TAG, "Erro ao ler resposta de erro", e);
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Log.e(TAG, "Erro de rede ao rastrear conquista: " + t.getMessage());
-            }
-        });
+        return anyAchievementCompleted;
     }
 
     /**
@@ -289,21 +337,25 @@ public class AchievementTracker {
         builder.setView(achievementView);
         builder.setCancelable(true);
 
-        currentDialog = builder.create();
-        if (currentDialog.getWindow() != null) {
-            currentDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        try {
+            currentDialog = builder.create();
+            if (currentDialog.getWindow() != null) {
+                currentDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-            // Posicionar o diálogo na parte superior da tela como uma notificação
-            currentDialog.getWindow().setGravity(Gravity.TOP);
-        }
-        currentDialog.show();
-
-        // Fechar automaticamente após 3 segundos
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (currentDialog != null && currentDialog.isShowing()) {
-                currentDialog.dismiss();
+                // Posicionar o diálogo na parte superior da tela como uma notificação
+                currentDialog.getWindow().setGravity(Gravity.TOP);
             }
-        }, 3000);
+            currentDialog.show();
+
+            // Fechar automaticamente após 3 segundos
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (currentDialog != null && currentDialog.isShowing()) {
+                    currentDialog.dismiss();
+                }
+            }, 3000);
+        } catch (Exception e) {
+            Log.e(TAG, "Erro ao exibir diálogo de conquista", e);
+        }
     }
 
     /**

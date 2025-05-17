@@ -116,7 +116,6 @@
     <string name="close_playback">Fechar reprodução</string>
     <string name="error_playing_recording">Erro ao reproduzir gravação</string>
     <string name="description_required">Por favor, forneça uma descrição</string>
-    <string name="my_recordings">Minhas Gravações</string>
     <string name="sending_recording">Enviando gravação...</string>
     <string name="recording_sent_success">Gravação enviada com sucesso!</string>
     <string name="recording_sent_title">Enviado!</string>
@@ -133,6 +132,8 @@
     <string name="ok">OK</string>
     <string name="delete">Excluir</string>
 
-
-
+    <string name="safety_tips">Dicas de Segurança</string>
+    <string name="tips">Dicas</string>
+    <string name="for_your_safety">Para sua segurança</string>
+    <string name="my_recordings">Minhas Gravações</string>
 </resources>

@@ -120,8 +120,9 @@ public class AchievementsActivity extends AppCompatActivity {
             if (id == R.id.navHome) {
                 navigateToHome(); // Animação será aplicada aqui
             } else if (id == R.id.navServices) {
-                Toast.makeText(AchievementsActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
-                updateBottomNavigationSelection(R.id.navServices); // Manter destaque se navegar para cá
+                Intent intent = new Intent(AchievementsActivity.this, TipsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             } else if (id == R.id.navAchievements) {
                 // Já está na tela de Conquistas
                 Toast.makeText(AchievementsActivity.this, "Você já está na tela de Conquistas", Toast.LENGTH_SHORT).show();

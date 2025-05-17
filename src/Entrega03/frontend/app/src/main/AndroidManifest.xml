@@ -106,6 +106,12 @@
             android:label="Avaliação da Corrida"
             android:theme="@style/Theme.UberSafeStartFecap" />
 
+        <activity
+            android:name=".TipsActivity"
+            android:exported="false"
+            android:label="Dicas de Segurança"
+            android:theme="@style/Theme.UberSafeStartFecap" />
+
     </application>
 
 </manifest>

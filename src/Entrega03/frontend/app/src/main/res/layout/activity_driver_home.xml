@@ -158,6 +158,7 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- In activity_driver_home.xml, update the navEarnings section to be navTips -->
         <LinearLayout
             android:id="@+id/navEarnings"
             android:layout_width="0dp"
@@ -175,8 +176,7 @@
                 android:id="@+id/iconEarnings"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:contentDescription="Earnings icon"
-                android:src="@drawable/ic_dollar"
+                android:src="@drawable/ic_info"
                 app:tint="@color/gray_medium" />
 
             <TextView
@@ -184,7 +184,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Ganhos"
+                android:text="@string/tips"
                 android:textColor="@color/gray_medium"
                 android:textSize="12sp" />
         </LinearLayout>

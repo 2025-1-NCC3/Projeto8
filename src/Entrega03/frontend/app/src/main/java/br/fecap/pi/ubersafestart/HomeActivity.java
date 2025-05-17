@@ -607,6 +607,10 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // In HomeActivity.java, update the setupNavigationListeners method
+
+// In HomeActivity.java, update the setupNavigationListeners method
+
     private void setupNavigationListeners() {
         View.OnClickListener listener = v -> {
             int id = v.getId();
@@ -615,14 +619,16 @@ public class HomeActivity extends AppCompatActivity {
             } else if (id == R.id.navHome) {
                 updateBottomNavigationSelection(id);
             } else if (id == R.id.navServices) {
-                updateBottomNavigationSelection(id);
-                Toast.makeText(HomeActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(HomeActivity.this, TipsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             } else if (id == R.id.navAchievements) {
                 Intent intent = new Intent(HomeActivity.this, AchievementsActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             }
         };
+
         if (navHome != null) navHome.setOnClickListener(listener);
         if (navServices != null) navServices.setOnClickListener(listener);
         if (navAchievements != null) navAchievements.setOnClickListener(listener);

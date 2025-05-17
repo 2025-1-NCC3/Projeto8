@@ -217,8 +217,9 @@ public class ProfileActivity extends AppCompatActivity {
             if (id == R.id.navHome) {
                 navigateToHome();
             } else if (id == R.id.navServices) {
-                Toast.makeText(ProfileActivity.this, "Opções em desenvolvimento", Toast.LENGTH_SHORT).show();
-                updateBottomNavigationSelection(R.id.navServices);
+                Intent intent = new Intent(ProfileActivity.this, TipsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             } else if (id == R.id.navAchievements) {
                 Intent intent = new Intent(ProfileActivity.this, AchievementsActivity.class);
                 startActivity(intent);

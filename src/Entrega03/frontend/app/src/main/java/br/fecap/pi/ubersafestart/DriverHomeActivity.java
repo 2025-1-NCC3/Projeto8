@@ -405,6 +405,8 @@ public class DriverHomeActivity extends AppCompatActivity {
         if(textViewDriverName != null) textViewDriverName.setText(firstName);
     }
 
+    // In DriverHomeActivity.java, update the setupNavigationListeners method
+
     private void setupNavigationListeners() {
         // Usando as variáveis de membro corretas para os LinearLayouts da navegação
         if (navAchievementsDriverLayout != null) {
@@ -423,10 +425,15 @@ public class DriverHomeActivity extends AppCompatActivity {
             });
         }
         if (navHomeDriverLayout != null) { // navHomeDriverLayout refere-se ao LinearLayout com ID "navHome"
-            navHomeDriverLayout.setOnClickListener(v -> Toast.makeText(DriverHomeActivity.this, "Você já está na página inicial", Toast.LENGTH_SHORT).show());
+            navHomeDriverLayout.setOnClickListener(v ->
+                    Toast.makeText(DriverHomeActivity.this, "Você já está na página inicial", Toast.LENGTH_SHORT).show());
         }
         if (navEarningsLayout != null) {
-            navEarningsLayout.setOnClickListener(v -> Toast.makeText(DriverHomeActivity.this, "Ganhos em desenvolvimento", Toast.LENGTH_SHORT).show());
+            navEarningsLayout.setOnClickListener(v -> {
+                Intent intent = new Intent(DriverHomeActivity.this, TipsActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+            });
         }
     }
 

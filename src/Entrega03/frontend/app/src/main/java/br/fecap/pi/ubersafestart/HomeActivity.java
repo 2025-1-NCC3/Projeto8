@@ -169,7 +169,7 @@ public class HomeActivity extends AppCompatActivity {
         boolean isFaceRegistered = prefs.getBoolean(ProfileActivity.KEY_FACE_REGISTERED_PROTOTYPE, false);
 
         if (!isFaceRegistered) {
-            Log.w(TAG, "Tentativa de verificação facial, mas nenhum rosto registrado (simulado).");
+            Log.w(TAG, "Tentativa de verificação facial, mas nenhum rosto registrado.");
             new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                     .setTitle("Configuração Facial Necessária")
                     .setMessage("Para prosseguir, por favor, configure a verificação facial no seu perfil.")
@@ -279,18 +279,17 @@ public class HomeActivity extends AppCompatActivity {
                                 boolean eyesOpen = (face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() > 0.3) &&
                                         (face.getRightEyeOpenProbability() != null && face.getRightEyeOpenProbability() > 0.3);
                                 if (eyesOpen) {
-                                    // Para o processamento imediato de mais frames até o delay terminar
                                     isProcessingFaceVerification = false;
-                                    imageProxy.close(); // Fecha o proxy atual antes do delay
+                                    imageProxy.close();
 
                                     runOnUiThread(() -> {
                                         Toast.makeText(HomeActivity.this, "Rosto detectado. Verificando...", Toast.LENGTH_SHORT).show();
                                     });
 
                                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                        // Este bloco roda após o delay de 2.5 segundos
                                         runOnUiThread(() -> {
-                                            Toast.makeText(HomeActivity.this, "Verificação facial (simulada) OK!", Toast.LENGTH_SHORT).show();
+                                            // TEXTO DO TOAST ALTERADO AQUI
+                                            Toast.makeText(HomeActivity.this, "Verificação facial OK!", Toast.LENGTH_SHORT).show();
                                             stopCameraAndHidePreviewVerification();
 
                                             Log.d(TAG, "Verificação facial OK. Procurando motorista para: " + tempDestinationForVerification);
@@ -303,12 +302,11 @@ public class HomeActivity extends AppCompatActivity {
                                                 switchToDisplayMode("");
                                             }
                                         });
-                                        // Não precisa resetar isProcessingFaceVerification aqui, já foi resetado antes do Handler
-                                    }, 2500); // Atraso de 2.5 segundos
-                                    return; // Sai do listener do success para não fechar o proxy de novo
+                                    }, 2500);
+                                    return;
                                 }
                             }
-                            imageProxy.close(); // Fecha se nenhum rosto com olhos abertos foi encontrado ou se não está processando
+                            imageProxy.close();
                         })
                         .addOnFailureListener(e -> {
                             Log.e(TAG, "Detecção facial (verificação) falhou.", e);
@@ -316,12 +314,12 @@ public class HomeActivity extends AppCompatActivity {
                             runOnUiThread(()-> {
                                 Toast.makeText(HomeActivity.this, "Falha na detecção facial.", Toast.LENGTH_SHORT).show();
                                 stopCameraAndHidePreviewVerification();
-                                switchToDisplayMode(currentDestinationFormattedAddress); // Ou estado anterior
+                                switchToDisplayMode(currentDestinationFormattedAddress);
                             });
                             isProcessingFaceVerification = false;
                         });
             } else {
-                if(isProcessingFaceVerification) { // Só fecha se ainda estivermos esperando processar
+                if(isProcessingFaceVerification) {
                     imageProxy.close();
                 }
             }
@@ -539,7 +537,7 @@ public class HomeActivity extends AppCompatActivity {
                 formattedAddress += ", Brasil";
             }
         }
-        Log.d(TAG, "Endereço formatado (simulado) antes da verificação: " + formattedAddress);
+        Log.d(TAG, "Endereço formatado antes da verificação: " + formattedAddress);
         currentDestinationFormattedAddress = formattedAddress;
 
         startFaceVerificationFlow(formattedAddress);
@@ -606,10 +604,6 @@ public class HomeActivity extends AppCompatActivity {
             layoutSchedule.setOnClickListener(v -> Toast.makeText(HomeActivity.this, "Agendamento em desenvolvimento.", Toast.LENGTH_SHORT).show());
         }
     }
-
-    // In HomeActivity.java, update the setupNavigationListeners method
-
-// In HomeActivity.java, update the setupNavigationListeners method
 
     private void setupNavigationListeners() {
         View.OnClickListener listener = v -> {
@@ -721,8 +715,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Erro ao definir imagem de perfil do motorista. Verifique se os drawables ic_default_profile_female e ic_default_profile_male existem.", e);
-                // Fallback para um ícone genérico se os específicos não forem encontrados
-                driverProfileImage.setImageResource(R.drawable.ic_account); // Certifique-se que ic_account existe
+                driverProfileImage.setImageResource(R.drawable.ic_account);
             }
         }
 

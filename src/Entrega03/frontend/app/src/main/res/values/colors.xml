@@ -6,7 +6,7 @@
 
     <color name="uber_blue">#2979FF</color>
     <color name="uber_blue_dark">#2962FF</color>
-    <color name="primary_button_bg_dark">#000000</color>
+    <color name="uber_blue_dark_alpha">#662962FF</color> <color name="primary_button_bg_dark">#000000</color>
     <color name="primary_button_text_dark">#FFFFFF</color>
     <color name="primary_button_bg_light">#FFFFFF</color>
     <color name="primary_button_text_light">#000000</color>
@@ -25,6 +25,8 @@
     <color name="gray_dark">#333333</color>
     <color name="gray_light">#AAAAAA</color>
     <color name="gray_very_dark">#262626</color>
+    <color name="gray_dark_selector_pressed">#424242</color>
+
 
     <color name="transparent">#00000000</color>
 

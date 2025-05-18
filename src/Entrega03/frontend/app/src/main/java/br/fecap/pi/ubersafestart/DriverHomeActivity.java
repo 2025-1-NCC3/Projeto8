@@ -72,7 +72,7 @@ public class DriverHomeActivity extends AppCompatActivity {
     // Componentes da UI existentes
     private TextView textViewGreeting, textViewDriverName, textViewStatus;
     private Button buttonStart;
-    private LinearLayout navAccount, navHomeDriverLayout, navEarningsLayout, navAchievementsDriverLayout; // Renomeado para clareza
+    private LinearLayout navAccount, navHomeDriverLayout, navEarningsLayout, navAchievementsDriverLayout;
 
     private boolean isOnline = false;
     private AlertDialog currentPassengerDialog = null;
@@ -92,14 +92,13 @@ public class DriverHomeActivity extends AppCompatActivity {
     private Random random = new Random();
 
     // --- Novas variáveis para Detecção Facial Simulada (Verificação) ---
-    private PreviewView previewViewFaceVerificationDriver; // ID: @+id/previewViewFaceVerificationDriverHome
+    private PreviewView previewViewFaceVerificationDriver;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFutureVerificationDriver;
     private ProcessCameraProvider cameraProviderVerificationDriver;
     private FaceDetector faceDetectorVerificationDriver;
-    private static final int REQUEST_CAMERA_PERMISSION_DRIVER_HOME = 103; // Request code específico
+    private static final int REQUEST_CAMERA_PERMISSION_DRIVER_HOME = 103;
     private boolean isProcessingFaceVerificationDriver = false;
     private ExecutorService cameraExecutorVerificationDriver;
-    // Para guardar dados da corrida durante a verificação facial
     private SimulatedUser tempPassengerForVerification;
     private String tempPickupAddressForVerification;
     private String tempDestinationAddressForVerification;
@@ -152,9 +151,8 @@ public class DriverHomeActivity extends AppCompatActivity {
         textViewDriverName = findViewById(R.id.textViewDriverName);
         textViewStatus = findViewById(R.id.textViewStatus);
         buttonStart = findViewById(R.id.buttonStart);
-        // IDs para LinearLayouts da navegação conforme activity_driver_home.xml
-        navAccount = findViewById(R.id.navAccount); // O ID é navAccount
-        navHomeDriverLayout = findViewById(R.id.navHome); // O ID é navHome
+        navAccount = findViewById(R.id.navAccount);
+        navHomeDriverLayout = findViewById(R.id.navHome);
         navEarningsLayout = findViewById(R.id.navEarnings);
         navAchievementsDriverLayout = findViewById(R.id.navAchievements);
     }
@@ -187,7 +185,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         boolean isFaceRegistered = prefs.getBoolean(ProfileActivity.KEY_FACE_REGISTERED_PROTOTYPE, false);
 
         if (!isFaceRegistered) {
-            Log.w(TAG, "Tentativa de verificação facial (motorista), mas nenhum rosto registrado (simulado).");
+            Log.w(TAG, "Tentativa de verificação facial (motorista), mas nenhum rosto registrado.");
             new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                     .setTitle("Configuração Facial Necessária")
                     .setMessage("Para sua segurança e do passageiro, configure a verificação facial no seu perfil antes de aceitar corridas.")
@@ -196,9 +194,8 @@ public class DriverHomeActivity extends AppCompatActivity {
                         startActivity(intent);
                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     })
-                    .setNegativeButton("Cancelar Viagem", (dialog, which) -> { // Mudado para Cancelar Viagem
+                    .setNegativeButton("Cancelar Viagem", (dialog, which) -> {
                         Toast.makeText(DriverHomeActivity.this, "Registro facial necessário. Corrida não iniciada.", Toast.LENGTH_LONG).show();
-                        // Reverter estado online, se aplicável
                         isOnline = false;
                         if(textViewStatus!=null) textViewStatus.setText("Você está offline");
                         if(buttonStart!=null) {
@@ -257,6 +254,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         }
         Log.d(TAG, "Iniciando câmera para verificação facial do motorista...");
         previewViewFaceVerificationDriver.setVisibility(View.VISIBLE);
+        // CORREÇÃO: Usar R.id.centerContent
         View centerContent = findViewById(R.id.centerContent);
         if (centerContent != null) centerContent.setVisibility(View.GONE);
 
@@ -275,7 +273,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
-    @androidx.camera.core.ExperimentalGetImage // Necessário para imageProxy.getImage()
+    @androidx.camera.core.ExperimentalGetImage
     private void bindCameraUseCasesForVerificationDriver() {
         if (cameraProviderVerificationDriver == null) {
             Log.e(TAG, "CameraProviderVerificationDriver não inicializado.");
@@ -308,17 +306,16 @@ public class DriverHomeActivity extends AppCompatActivity {
                                 boolean eyesOpen = (face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() > 0.3) &&
                                         (face.getRightEyeOpenProbability() != null && face.getRightEyeOpenProbability() > 0.3);
                                 if (eyesOpen) {
-                                    isProcessingFaceVerificationDriver = false; // Para o processamento imediato
-                                    imageProxy.close(); // Fecha o proxy atual antes do delay
+                                    isProcessingFaceVerificationDriver = false;
+                                    imageProxy.close();
 
                                     runOnUiThread(() -> {
                                         Toast.makeText(DriverHomeActivity.this, "Rosto detectado. Verificando...", Toast.LENGTH_SHORT).show();
                                     });
 
                                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                        // Este bloco roda após o delay
                                         runOnUiThread(() -> {
-                                            Toast.makeText(DriverHomeActivity.this, "Verificação facial (motorista - simulada) OK!", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(DriverHomeActivity.this, "Verificação facial OK!", Toast.LENGTH_SHORT).show();
                                             stopCameraAndHidePreviewVerificationDriver();
 
                                             Log.d(TAG, "Verificação facial do motorista OK. Navegando para checklist.");
@@ -331,15 +328,13 @@ public class DriverHomeActivity extends AppCompatActivity {
                                                 );
                                             } else {
                                                 Log.e(TAG, "Erro: Dados temporários da corrida nulos (motorista).");
-                                                // Tratar erro, talvez voltar ao estado offline
                                                 isOnline = false;
                                                 if(textViewStatus!=null) textViewStatus.setText("Você está offline");
                                                 if(buttonStart!=null) buttonStart.setText("INICIAR");
                                             }
                                         });
-                                        // Não precisa resetar isProcessingFaceVerificationDriver aqui, já foi resetado
-                                    }, 2500); // Atraso de 2.5 segundos
-                                    return; // Sai do listener do success
+                                    }, 2500);
+                                    return;
                                 }
                             }
                             imageProxy.close();
@@ -378,6 +373,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         if (previewViewFaceVerificationDriver != null) {
             previewViewFaceVerificationDriver.setVisibility(View.GONE);
         }
+        // CORREÇÃO: Usar R.id.centerContent
         View centerContent = findViewById(R.id.centerContent);
         if (centerContent != null) centerContent.setVisibility(View.VISIBLE);
         isProcessingFaceVerificationDriver = false;
@@ -405,10 +401,8 @@ public class DriverHomeActivity extends AppCompatActivity {
         if(textViewDriverName != null) textViewDriverName.setText(firstName);
     }
 
-    // In DriverHomeActivity.java, update the setupNavigationListeners method
 
     private void setupNavigationListeners() {
-        // Usando as variáveis de membro corretas para os LinearLayouts da navegação
         if (navAchievementsDriverLayout != null) {
             navAchievementsDriverLayout.setOnClickListener(v -> {
                 Intent intent = new Intent(DriverHomeActivity.this, AchievementsActivity.class);
@@ -417,14 +411,14 @@ public class DriverHomeActivity extends AppCompatActivity {
             });
         }
 
-        if (navAccount != null) { // navAccount é o ID do LinearLayout para "Conta"
+        if (navAccount != null) {
             navAccount.setOnClickListener(v -> {
                 Intent intent = new Intent(DriverHomeActivity.this, ProfileActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             });
         }
-        if (navHomeDriverLayout != null) { // navHomeDriverLayout refere-se ao LinearLayout com ID "navHome"
+        if (navHomeDriverLayout != null) {
             navHomeDriverLayout.setOnClickListener(v ->
                     Toast.makeText(DriverHomeActivity.this, "Você já está na página inicial", Toast.LENGTH_SHORT).show());
         }
@@ -490,7 +484,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         isLoadingDialogActive = true;
 
         ProgressBar progressBar = loadingView.findViewById(R.id.progressBar);
-        TextView statusTextDialog = loadingView.findViewById(R.id.textViewStatus); // Renomeado para evitar conflito
+        TextView statusTextDialog = loadingView.findViewById(R.id.textViewStatus);
         ImageView checkmarkImage = loadingView.findViewById(R.id.imageViewCheckmark);
 
         if (statusTextDialog != null) statusTextDialog.setText("Procurando passageiros próximos...");
@@ -716,6 +710,7 @@ public class DriverHomeActivity extends AppCompatActivity {
         super.onResume();
         Log.d(TAG, "Activity onResume");
         if (previewViewFaceVerificationDriver != null && previewViewFaceVerificationDriver.getVisibility() == View.GONE && !isProcessingFaceVerificationDriver) {
+            // CORREÇÃO: Usar R.id.centerContent
             View centerContent = findViewById(R.id.centerContent);
             if(centerContent != null) centerContent.setVisibility(View.VISIBLE);
         }
@@ -779,13 +774,10 @@ public class DriverHomeActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (previewViewFaceVerificationDriver != null && previewViewFaceVerificationDriver.getVisibility() == View.VISIBLE) {
             stopCameraAndHidePreviewVerificationDriver();
-            // Reverter para o estado anterior (ex: mostrar diálogo de passageiro se aplicável ou ficar offline)
             if (currentPassengerDialog != null && !currentPassengerDialog.isShowing() && tempPassengerForVerification != null) {
                 showPassengerInfoDialog(tempPassengerForVerification, tempPickupAddressForVerification, tempDestinationAddressForVerification, tempRidePriceForVerification);
             } else if (isOnline) {
-                // Se estava online, mas a verificação foi cancelada, pode voltar ao estado de busca
-                // ou simplesmente ficar online sem diálogo. Para simplificar, vamos apenas ficar online.
-                if(textViewStatus!=null) textViewStatus.setText("Procurando passageiros..."); // Ou estado anterior
+                if(textViewStatus!=null) textViewStatus.setText("Procurando passageiros...");
             } else {
                 if(textViewStatus!=null) textViewStatus.setText("Você está offline");
             }

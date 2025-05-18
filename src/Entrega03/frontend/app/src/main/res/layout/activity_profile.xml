@@ -19,6 +19,7 @@
             android:layout_height="?attr/actionBarSize">
 
             <TextView
+                android:id="@+id/toolbar_title_profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/profile"
@@ -31,21 +32,25 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollViewProfileContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
-
+            android:paddingBottom="72dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="16dp"
                 android:paddingBottom="24dp">
 
                 <androidx.cardview.widget.CardView
@@ -108,23 +113,24 @@
 
                 <Button
                     android:id="@+id/buttonEditProfile"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/Profile.Button.EditHeader"
                     android:text="@string/edit"
-                    android:textColor="@color/white"
-                    app:strokeColor="@color/white" />
+                    app:icon="@drawable/ic_edit" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:background="#333333" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/personal_info"
                 android:textColor="@color/white"
@@ -134,35 +140,32 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_email"
                     app:tint="#AAAAAA"
                     android:contentDescription="Ícone de Email" />
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:orientation="vertical">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/email"
                         android:textColor="#AAAAAA"
                         android:textSize="14sp" />
-
                     <TextView
                         android:id="@+id/textViewEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
                         tools:text="usuario@example.com"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
@@ -172,35 +175,32 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_phone"
                     app:tint="#AAAAAA"
                     android:contentDescription="Ícone de Telefone" />
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:orientation="vertical">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/phone"
                         android:textColor="#AAAAAA"
                         android:textSize="14sp" />
-
                     <TextView
                         android:id="@+id/textViewPhone"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
                         tools:text="(11) 99999-9999"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
@@ -210,35 +210,32 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_account"
                     app:tint="#AAAAAA"
                     android:contentDescription="Ícone de Tipo de Conta" />
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:orientation="vertical">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/account_type"
                         android:textColor="#AAAAAA"
                         android:textSize="14sp" />
-
                     <TextView
                         android:id="@+id/textViewAccountType"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
                         tools:text="Passageiro"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
@@ -249,36 +246,33 @@
                 android:id="@+id/layoutGenderInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:contentDescription="Ícone de Gênero"
                     android:src="@drawable/ic_person"
                     app:tint="#AAAAAA" />
-
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Gênero"
                         android:textColor="#AAAAAA"
                         android:textSize="14sp" />
-
                     <TextView
                         android:id="@+id/textViewGender"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
                         tools:text="Feminino"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
@@ -290,11 +284,15 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:background="#333333" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="16dp"
                 android:text="@string/safety"
                 android:textColor="@color/white"
@@ -302,13 +300,18 @@
                 android:textStyle="bold" />
 
             <LinearLayout
+                android:id="@+id/layoutSafeScoreContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="12dp"
-                android:background="#222222"
+                android:background="@drawable/bg_rounded_dark_gray_8dp"
                 android:orientation="vertical"
                 android:padding="16dp"
-                app:cornerRadius="8dp">
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -317,8 +320,8 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:src="@drawable/ic_safety"
                         app:tint="@color/uber_blue"
                         android:contentDescription="Ícone de SafeScore" />
@@ -326,20 +329,19 @@
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="@string/safe_score"
                         android:textColor="@color/white"
-                        android:textSize="16sp" />
+                        android:textSize="18sp"/>
 
                     <TextView
                         android:id="@+id/textViewSafeScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
                         tools:text="85/100"
                         android:textColor="@color/uber_blue"
-                        android:textSize="18sp"
+                        android:textSize="28sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -347,43 +349,37 @@
                     android:id="@+id/progressBarSafeScore"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="12dp"
                     android:max="100"
                     android:progress="0"
                     tools:progress="85"
-                    android:progressBackgroundTint="#333333"
-                    android:progressTint="@color/uber_blue" />
+                    android:progressDrawable="@drawable/custom_progress_bar_rounded_uber_blue" />
             </LinearLayout>
-
-            <!-- NOVO Botão para acessar gravações -->
             <Button
                 android:id="@+id/buttonMyRecordings"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
+                style="@style/Profile.ButtonAsActionItem.Accent"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="@string/my_recordings"
-                android:textColor="@color/uber_blue"
-                app:strokeColor="@color/uber_blue"
-                app:icon="@drawable/ic_mic"
-                app:iconTint="@color/uber_blue"
-                app:iconGravity="start" />
+                app:icon="@drawable/ic_mic" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:background="#333333" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="8dp"
-                android:text="Verificação Facial (Simulado)"
-                android:textColor="@color/white"
+                android:text="Verificação Facial" android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -391,25 +387,27 @@
                 android:id="@+id/textViewFaceRegistrationStatusPrototype"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="8dp"
-                tools:text="Status: Verificação facial configurada (Simulado)"
-                android:textColor="@color/gray_medium"
+                tools:text="@string/face_verification_status_not_configured" android:textColor="@color/gray_medium"
                 android:textSize="16sp"/>
 
             <Button
                 android:id="@+id/buttonRegisterFacePrototype"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                style="@style/Profile.ButtonAsActionItem"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="Configurar Verificação Facial"
-                android:textColor="@color/white_fff"
-                app:strokeColor="@color/white_fff" />
+                app:icon="@drawable/ic_face_recognition" />
 
             <androidx.camera.view.PreviewView
                 android:id="@+id/previewViewFacePrototype"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
                 android:background="#2C2C2C"
                 android:visibility="gone"/>
@@ -418,6 +416,8 @@
                 android:id="@+id/textViewPairingPreferencesLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:text="Preferências de Pareamento"
@@ -431,6 +431,8 @@
                 android:id="@+id/switchSameGenderPairing"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="12dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
@@ -440,35 +442,33 @@
                 android:visibility="gone"
                 tools:visibility="visible"
                 app:thumbTint="@color/uber_blue"
-                app:trackTint="@color/uber_blue" />
+                app:trackTint="@color/uber_blue_dark_alpha" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:background="#333333" />
 
             <Button
                 android:id="@+id/buttonLogout"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
+                style="@style/Profile.ButtonAsActionItem"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:text="@string/logout"
-                android:textColor="@color/white"
-                app:strokeColor="@color/white" />
+                app:icon="@drawable/ic_logout"/>
 
             <Button
                 android:id="@+id/buttonDeleteAccount"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
+                style="@style/Profile.ButtonAsActionItem.Destructive"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="0dp"
                 android:text="@string/delete_account"
-                android:textColor="@color/uber_blue"
-                app:strokeColor="@color/uber_blue" />
+                app:icon="@drawable/ic_delete_account"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -479,7 +479,6 @@
         android:layout_gravity="bottom"
         android:background="#111111"
         android:orientation="horizontal">
-
         <LinearLayout
             android:id="@+id/navHome"
             android:layout_width="0dp"

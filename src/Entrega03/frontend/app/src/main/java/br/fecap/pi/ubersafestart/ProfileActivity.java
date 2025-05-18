@@ -87,7 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
         userLoginPrefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
 
         setupButtonListeners();
-        setupFaceEnrollmentLauncher(); // Configura o launcher para a nova activity
+        setupFaceEnrollmentLauncher();
         setupNavigationListeners();
         updateBottomNavigationSelection(R.id.navAccount);
 
@@ -110,10 +110,8 @@ public class ProfileActivity extends AppCompatActivity {
         buttonEditProfile = findViewById(R.id.buttonEditProfile);
         buttonDeleteAccount = findViewById(R.id.buttonDeleteAccount);
 
-        // NOVO: Encontra o botão de Minhas Gravações
         buttonMyRecordings = findViewById(R.id.buttonMyRecordings);
 
-        // Componentes de verificação facial
         buttonRegisterFacePrototype = findViewById(R.id.buttonRegisterFacePrototype);
         textViewFaceRegistrationStatusPrototype = findViewById(R.id.textViewFaceRegistrationStatusPrototype);
 
@@ -121,7 +119,6 @@ public class ProfileActivity extends AppCompatActivity {
             Log.e(TAG, "Botão ou TextView de status para registro facial não encontrados no layout activity_profile.xml.");
         }
 
-        // Componentes da Navegação Inferior
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
         navAchievements = findViewById(R.id.navAchievements);
@@ -142,16 +139,14 @@ public class ProfileActivity extends AppCompatActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        // Registro facial simulado foi bem-sucedido na FaceEnrollmentActivity
-                        // SharedPreferences já foi atualizado pela FaceEnrollmentActivity
                         Log.d(TAG, "Retorno de FaceEnrollmentActivity: SUCESSO.");
-                        Toast.makeText(this, "Configuração facial concluída!", Toast.LENGTH_SHORT).show();
+                        // Texto do Toast alterado
+                        Toast.makeText(this, "Verificação facial configurada!", Toast.LENGTH_SHORT).show();
                     } else if (result.getResultCode() == RESULT_CANCELED) {
-                        // Usuário cancelou ou houve falha na FaceEnrollmentActivity
                         Log.d(TAG, "Retorno de FaceEnrollmentActivity: CANCELADO ou FALHA.");
-                        Toast.makeText(this, "Configuração facial não concluída.", Toast.LENGTH_SHORT).show();
+                        // Texto do Toast alterado
+                        Toast.makeText(this, "Configuração da verificação facial não concluída.", Toast.LENGTH_SHORT).show();
                     }
-                    // Atualiza o status na UI da ProfileActivity em ambos os casos
                     loadFaceRegistrationStatus();
                 }
         );
@@ -161,11 +156,18 @@ public class ProfileActivity extends AppCompatActivity {
         boolean isRegistered = userLoginPrefs.getBoolean(KEY_FACE_REGISTERED_PROTOTYPE, false);
         if (textViewFaceRegistrationStatusPrototype != null) {
             if (isRegistered) {
-                textViewFaceRegistrationStatusPrototype.setText("Status: Verificação facial configurada (Simulado)");
-                textViewFaceRegistrationStatusPrototype.setTextColor(ContextCompat.getColor(this, R.color.uber_green));
+                textViewFaceRegistrationStatusPrototype.setText(getString(R.string.face_verification_status_configured));
+                // Cor do texto alterada para branco (ou outra cor de sua preferência, como uber_blue)
+                textViewFaceRegistrationStatusPrototype.setTextColor(ContextCompat.getColor(this, R.color.white_fff));
+                if (buttonRegisterFacePrototype != null) {
+                    buttonRegisterFacePrototype.setVisibility(View.GONE);
+                }
             } else {
-                textViewFaceRegistrationStatusPrototype.setText("Status: Verificação facial não configurada");
+                textViewFaceRegistrationStatusPrototype.setText(getString(R.string.face_verification_status_not_configured));
                 textViewFaceRegistrationStatusPrototype.setTextColor(ContextCompat.getColor(this, R.color.gray_medium));
+                if (buttonRegisterFacePrototype != null) {
+                    buttonRegisterFacePrototype.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
@@ -174,7 +176,6 @@ public class ProfileActivity extends AppCompatActivity {
         buttonLogout.setOnClickListener(v -> logoutUser());
         buttonEditProfile.setOnClickListener(v -> {
             Toast.makeText(ProfileActivity.this, "Função de edição em desenvolvimento", Toast.LENGTH_SHORT).show();
-            // Futuro: Permitir editar gênero chamando openGenderSelectionDialog();
         });
         buttonDeleteAccount.setOnClickListener(v -> showDeleteAccountConfirmation());
 
@@ -201,12 +202,11 @@ public class ProfileActivity extends AppCompatActivity {
             Log.e(TAG, "Button buttonMyRecordings não encontrado!");
         }
 
-        // NOVO: Listener do botão de registro facial
         if (buttonRegisterFacePrototype != null) {
             buttonRegisterFacePrototype.setOnClickListener(v -> {
                 Log.d(TAG, "Botão 'Configurar Verificação Facial' clicado. Abrindo FaceEnrollmentActivity.");
                 Intent intent = new Intent(ProfileActivity.this, FaceEnrollmentActivity.class);
-                faceEnrollmentLauncher.launch(intent); // Lança a activity esperando um resultado
+                faceEnrollmentLauncher.launch(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             });
         }
@@ -239,16 +239,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void logoutUser() {
         Log.d(TAG, "Iniciando logout...");
-
         SharedPreferences completedPrefs = getSharedPreferences("CompletedAchievements", MODE_PRIVATE);
         completedPrefs.edit().clear().apply();
-
-        getSharedPreferences("CompletedAchievements", MODE_PRIVATE).edit().clear().apply();
-
-        userLoginPrefs.edit().clear().apply();
         sharedPreferences.edit().clear().apply();
-        Log.d(TAG, "SharedPreferences limpas.");
-
+        userLoginPrefs.edit().clear().apply();
+        Log.d(TAG, "Todas as SharedPreferences relevantes foram limpas.");
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -256,6 +251,7 @@ public class ProfileActivity extends AppCompatActivity {
         finish();
         Log.d(TAG, "Redirecionado para LoginActivity.");
     }
+
 
     private void navigateToHome() {
         String userType = userLoginPrefs.getString("type", "");
@@ -270,15 +266,17 @@ public class ProfileActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
+
     private void showDeleteAccountConfirmation() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
-        builder.setTitle("Deletar Conta");
+        builder.setTitle(getString(R.string.delete_account));
         builder.setMessage("Você tem certeza que deseja deletar sua conta? Esta ação não pode ser desfeita.");
-        builder.setPositiveButton("Sim", (dialog, which) -> deleteUserAccount());
-        builder.setNegativeButton("Não", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton(getString(R.string.yes), (dialog, which) -> deleteUserAccount());
+        builder.setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss());
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
 
     private void deleteUserAccount() {
         String token = userLoginPrefs.getString("token", null);
@@ -293,8 +291,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         authService.deleteUser(bearerToken).enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
                 if (isDestroyed() || isFinishing()) return;
+
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Toast.makeText(ProfileActivity.this, "Conta deletada com sucesso", Toast.LENGTH_SHORT).show();
                     userLoginPrefs.edit().clear().apply();
@@ -313,60 +312,48 @@ public class ProfileActivity extends AppCompatActivity {
                         } else {
                             errorMsg += " (Código: " + response.code() + ")";
                         }
-                    } catch (Exception e) { /* ignore */ }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Erro ao parsear corpo do erro: ", e);
+                    }
                     Toast.makeText(ProfileActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 }
             }
+
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
                 if (isDestroyed() || isFinishing()) return;
+                Log.e(TAG, "Erro de conexão ao tentar deletar conta: ", t);
                 Toast.makeText(ProfileActivity.this, "Erro de conexão ao tentar deletar conta: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    /**
-     * Este método busca o SafeScore do servidor e atualiza a UI.
-     * A principal alteração está aqui para usar getBestAvailableScore().
-     */
     public void fetchSafeScore(String token) {
         if (token == null || token.isEmpty()) {
             Log.e(TAG, "Token não encontrado. Não é possível buscar SafeScore.");
-            // Opcionalmente, atualize a UI para refletir pontuação ausente ou estado de erro
-            // if (textViewSafeScore != null) textViewSafeScore.setText("N/A");
-            // if (progressBarSafeScore != null) progressBarSafeScore.setProgress(0);
             return;
         }
 
-        String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token; // Garante o prefixo "Bearer "
+        String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token;
         authService.getSafeScore(bearerToken).enqueue(new Callback<SafeScoreResponse>() {
             @Override
-            public void onResponse(Call<SafeScoreResponse> call, Response<SafeScoreResponse> response) {
+            public void onResponse(@NonNull Call<SafeScoreResponse> call, @NonNull Response<SafeScoreResponse> response) {
                 if (isDestroyed() || isFinishing()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
-                    // ***** INÍCIO DA MODIFICAÇÃO *****
-                    // Usar getBestAvailableScore() para maior robustez na obtenção do valor.
                     int safeScore = response.body().getBestAvailableScore();
-                    // ***** FIM DA MODIFICAÇÃO *****
-
                     Log.d(TAG, "SafeScore (melhor disponível) carregado com sucesso do servidor: " + safeScore);
 
-                    // Atualizar a UI
                     if (textViewSafeScore != null) {
                         textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", safeScore));
                     }
                     if (progressBarSafeScore != null) {
-                        // Garante que o progresso esteja entre 0-100 (ou o máximo da barra)
                         progressBarSafeScore.setProgress(Math.max(0, Math.min(safeScore, 100)));
                     }
-
-                    // Salvar no SharedPreferences
                     userLoginPrefs.edit().putInt("safescore", safeScore).apply();
                     Log.d(TAG, "SafeScore salvo nas SharedPreferences: " + safeScore);
 
                 } else {
-                    // Log detalhado do erro
                     String errorDetails = "Erro ao carregar SafeScore da API. Código: " + response.code();
                     if (response.errorBody() != null) {
                         try {
@@ -378,21 +365,13 @@ public class ProfileActivity extends AppCompatActivity {
                         errorDetails += ", Corpo da resposta é nulo apesar de sucesso.";
                     }
                     Log.e(TAG, errorDetails);
-                    // Opcionalmente, atualize a UI para mostrar erro ou pontuação anterior
-                    // int lastKnownScore = userLoginPrefs.getInt("safescore", 0);
-                    // if (textViewSafeScore != null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100 (Erro ao atualizar)", lastKnownScore));
-                    // if (progressBarSafeScore != null) progressBarSafeScore.setProgress(Math.max(0, Math.min(lastKnownScore, 100)));
                 }
             }
 
             @Override
-            public void onFailure(Call<SafeScoreResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<SafeScoreResponse> call, @NonNull Throwable t) {
                 if (isDestroyed() || isFinishing()) return;
                 Log.e(TAG, "Falha na chamada API getSafeScore (rede): ", t);
-                // Opcionalmente, trate a falha de rede na UI
-                // int lastKnownScore = userLoginPrefs.getInt("safescore", 0);
-                // if (textViewSafeScore != null) textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100 (Falha de rede)", lastKnownScore));
-                // if (progressBarSafeScore != null) progressBarSafeScore.setProgress(Math.max(0, Math.min(lastKnownScore, 100)));
             }
         });
     }
@@ -408,7 +387,6 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // Carrega dados locais primeiro
         Log.d(TAG, "Carregando dados iniciais das SharedPreferences (userPrefs)...");
         textViewName.setText(userLoginPrefs.getString("username", "Carregando..."));
         textViewEmail.setText(userLoginPrefs.getString("email", "Carregando..."));
@@ -418,51 +396,44 @@ public class ProfileActivity extends AppCompatActivity {
 
         int initialSafeScore = userLoginPrefs.getInt("safescore", 0);
         textViewSafeScore.setText(String.format(Locale.getDefault(), "%d/100", initialSafeScore));
-        if (progressBarSafeScore != null) { // Adicionada verificação de nulidade para segurança
+        if (progressBarSafeScore != null) {
             progressBarSafeScore.setProgress(Math.max(0, Math.min(initialSafeScore, 100)));
         }
-        textViewRating.setText(userLoginPrefs.getString("rating", "4.8")); // Rating pode vir de outra fonte/lógica
+        textViewRating.setText(userLoginPrefs.getString("rating", "4.8"));
 
-        // Busca o SafeScore mais recente da API
         fetchSafeScore(token);
 
-        // Lógica para buscar outros dados do perfil (ex: gênero) via /api/profile
         String bearerToken = token.startsWith("Bearer ") ? token : "Bearer " + token;
         authService.getProfile(bearerToken).enqueue(new Callback<ProfileResponse>() {
             @Override
-            public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
+            public void onResponse(@NonNull Call<ProfileResponse> call, @NonNull Response<ProfileResponse> response) {
                 if (isDestroyed() || isFinishing()) return;
 
                 if (response.isSuccessful() && response.body() != null) {
                     ProfileResponse profile = response.body();
                     Log.d(TAG, "Dados do perfil (/api/profile) carregados: " + profile.toString());
 
-                    // Atualiza nome, email, telefone, tipo de conta se necessário (pode já estar ok das prefs)
                     if (profile.getUsername() != null) textViewName.setText(profile.getUsername());
                     if (profile.getEmail() != null) textViewEmail.setText(profile.getEmail());
                     if (profile.getPhone() != null) textViewPhone.setText(profile.getPhone());
                     if (profile.getType() != null) textViewAccountType.setText("driver".equalsIgnoreCase(profile.getType()) ? "Motorista" : "Passageiro");
 
-                    // Gênero e preferências de pareamento
                     currentUserGenderNormalized = (profile.getGender() != null) ? profile.getGender().toUpperCase(Locale.ROOT) : "";
                     if (textViewGender != null) {
                         textViewGender.setText(translateGenderToPortuguese(profile.getGender()));
                     }
                     setupPairingPreferenceSwitch();
 
-                    // Salvar os dados atualizados do perfil nas SharedPreferences (userPrefs)
                     SharedPreferences.Editor editor = userLoginPrefs.edit();
                     if (profile.getUsername() != null) editor.putString("username", profile.getUsername());
                     if (profile.getEmail() != null) editor.putString("email", profile.getEmail());
                     if (profile.getPhone() != null) editor.putString("phone", profile.getPhone());
                     if (profile.getType() != null) editor.putString("type", profile.getType());
                     if (profile.getGender() != null) editor.putString(KEY_GENDER, profile.getGender());
-                    // Não salvar SafeScore daqui, pois fetchSafeScore já cuida disso de forma mais direta.
                     editor.apply();
 
                 } else {
                     Log.e(TAG, "Erro ao carregar dados do perfil (/api/profile). Código: " + response.code());
-                    // Poderia tentar carregar gênero das SharedPreferences como fallback se necessário
                     currentUserGenderNormalized = userLoginPrefs.getString(KEY_GENDER, "").toUpperCase(Locale.ROOT);
                     if (textViewGender != null) {
                         textViewGender.setText(translateGenderToPortuguese(userLoginPrefs.getString(KEY_GENDER, null)));
@@ -472,11 +443,10 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<ProfileResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ProfileResponse> call, @NonNull Throwable t) {
                 if (isDestroyed() || isFinishing()) return;
                 Log.e(TAG, "Falha na chamada API getProfile (rede): ", t);
                 Toast.makeText(ProfileActivity.this, "Erro de conexão ao carregar perfil.", Toast.LENGTH_SHORT).show();
-                // Carregar dados de fallback das SharedPreferences
                 currentUserGenderNormalized = userLoginPrefs.getString(KEY_GENDER, "").toUpperCase(Locale.ROOT);
                 if (textViewGender != null) {
                     textViewGender.setText(translateGenderToPortuguese(userLoginPrefs.getString(KEY_GENDER, null)));
@@ -491,7 +461,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (genderApiValue == null) {
             return "Não informado";
         }
-        switch (genderApiValue.toLowerCase(Locale.ROOT)) { // Compara em minúsculas
+        switch (genderApiValue.toLowerCase(Locale.ROOT)) {
             case "female":
                 return "Feminino";
             case "male":
@@ -499,11 +469,10 @@ public class ProfileActivity extends AppCompatActivity {
             case "other":
                 return "Outros";
             default:
-                return "Não informado"; // Caso o valor seja inesperado ou vazio
+                return "Não informado";
         }
     }
 
-    // Configura o switch de preferência de pareamento
     private void setupPairingPreferenceSwitch() {
         boolean isPairingEnabled = sharedPreferences.getBoolean(KEY_SAME_GENDER_PAIRING, false);
         Log.d(TAG, "Configurando Switch. Gênero Normalizado (para lógica): '" + currentUserGenderNormalized + "', Preferência salva: " + isPairingEnabled);
@@ -513,38 +482,35 @@ public class ProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // Lógica de visibilidade baseada no gênero NORMALIZADO (MAIÚSCULAS)
         if ("FEMALE".equals(currentUserGenderNormalized) || "OTHER".equals(currentUserGenderNormalized)) {
             Log.d(TAG, "Gênero é FEMALE ou OTHER. Habilitando switch.");
             textViewPairingPreferencesLabel.setVisibility(View.VISIBLE);
             switchSameGenderPairing.setVisibility(View.VISIBLE);
-            switchSameGenderPairing.setOnCheckedChangeListener(null); // Evitar trigger ao setar
+            switchSameGenderPairing.setOnCheckedChangeListener(null);
             switchSameGenderPairing.setChecked(isPairingEnabled);
             switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (buttonView.isPressed()) { // Apenas se a mudança for por interação do usuário
+                if (buttonView.isPressed()) {
                     savePairingPreference(isChecked);
                     Toast.makeText(ProfileActivity.this,
                             isChecked ? "Preferência de parear com mesmo gênero ATIVADA" : "Preferência de parear com mesmo gênero DESATIVADA",
                             Toast.LENGTH_SHORT).show();
                 }
             });
-        } else { // MALE ou vazio/inválido
+        } else {
             Log.d(TAG, "Gênero é MALE ou inválido/vazio. Desabilitando switch.");
             textViewPairingPreferencesLabel.setVisibility(View.GONE);
             switchSameGenderPairing.setVisibility(View.GONE);
-            if (isPairingEnabled) { // Se estava ativo para um gênero que não permite, desativa
+            if (isPairingEnabled) {
                 savePairingPreference(false);
             }
-            switchSameGenderPairing.setOnCheckedChangeListener(null); // Evitar trigger
+            switchSameGenderPairing.setOnCheckedChangeListener(null);
             switchSameGenderPairing.setChecked(false);
-            // Reatribui listener caso seja necessário no futuro, embora invisível
             switchSameGenderPairing.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 if (buttonView.isPressed()) savePairingPreference(isChecked);
             });
         }
     }
 
-    // Salva a preferência localmente
     private void savePairingPreference(boolean isEnabled) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_SAME_GENDER_PAIRING, isEnabled);
@@ -579,20 +545,18 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateBottomNavigationSelection(R.id.navAccount);
-        loadFaceRegistrationStatus(); // Atualiza o status ao voltar para a tela
+        loadFaceRegistrationStatus();
 
         String token = userLoginPrefs.getString("token", "");
-        if (!TextUtils.isEmpty(token)) { // Verificação mais robusta para token
+        if (!TextUtils.isEmpty(token)) {
             fetchSafeScore(token);
         } else {
             Log.w(TAG, "onResume: Token é nulo ou vazio, não buscando SafeScore.");
-            // Pode ser necessário tratar logout se o token estiver consistentemente ausente
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Limpeza de listeners ou outros recursos, se necessário
     }
 }

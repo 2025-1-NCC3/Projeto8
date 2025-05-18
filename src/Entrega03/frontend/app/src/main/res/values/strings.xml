@@ -136,4 +136,8 @@
     <string name="tips">Dicas</string>
     <string name="for_your_safety">Para sua segurança</string>
     <string name="my_recordings">Minhas Gravações</string>
+
+    <string name="face_verification_status_configured">Verificação facial configurada</string>
+    <string name="face_verification_status_not_configured">Verificação facial não configurada</string>
+
 </resources>

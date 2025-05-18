@@ -135,47 +135,35 @@ public class AchievementTracker {
     public static void trackAchievement(Context context, String type, int increment) {
         if (context == null) return;
 
-        // Obter o token de autenticação
         String token = context.getSharedPreferences("userPrefs", Context.MODE_PRIVATE)
                 .getString("token", "");
 
-        // NOVO: Log do token (apenas se existe ou não)
         Log.d(TAG, "Token para trackAchievement: " + (token.isEmpty() ? "VAZIO!" : "OK (não vazio)"));
 
         if (token.isEmpty()) {
             Log.e(TAG, "Não foi possível rastrear conquista: usuário não está logado");
-
-            // NOVO: Continuar com o rastreamento local mesmo sem token
             trackAchievementLocally(context, type, increment);
             return;
         }
 
-        // Verificar se há conquistas deste tipo
         Integer[] achievementIds = ACHIEVEMENT_TYPE_IDS.get(type);
         if (achievementIds == null || achievementIds.length == 0) {
             Log.e(TAG, "Tipo de conquista não encontrado: " + type);
             return;
         }
 
-        // Verificar quais conquistas já foram completadas
-        SharedPreferences completedPrefs = context.getSharedPreferences(COMPLETED_ACHIEVEMENTS_PREFS, Context.MODE_PRIVATE);
-
-        // Usar AtomicBoolean para contornar o problema de "effectively final"
         final AtomicBoolean achievementCompletedAtomic = new AtomicBoolean(false);
 
-        // Rastrear localmente
-        trackAchievementLocally(context, type, increment);
-        if (achievementCompletedAtomic.get()) {
-            // Se uma conquista foi completada localmente, não precisamos mostrar outra notificação do servidor
-            Log.d(TAG, "Uma conquista já foi completada localmente, ignorando qualquer notificação do servidor.");
+        // Rastrear localmente e verificar se alguma conquista foi completada
+        if (trackAchievementLocally(context, type, increment)) {
+            achievementCompletedAtomic.set(true); // Marca que uma conquista foi completada localmente
         }
 
-        // Independentemente do progresso local, chamar a API para registrar no servidor
+
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("type", type);
         requestBody.put("increment", increment);
 
-        // Chamar a API
         AuthService authService = ApiClient.getClient().create(AuthService.class);
         authService.trackAchievement("Bearer " + token, requestBody).enqueue(new Callback<ApiResponse>() {
             @Override
@@ -183,10 +171,8 @@ public class AchievementTracker {
                 if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                     Log.d(TAG, "Conquista rastreada com sucesso no servidor: " + type + " +" + increment);
 
-                    // Mostrar um Toast de confirmação se não houver nenhuma conquista concluída neste momento
                     if (!achievementCompletedAtomic.get() && !isDialogShowing()) {
-                        String typeTitle = ACHIEVEMENT_TYPE_TITLES.containsKey(type) ?
-                                ACHIEVEMENT_TYPE_TITLES.get(type) : type;
+                        String typeTitle = ACHIEVEMENT_TYPE_TITLES.getOrDefault(type, type);
                         Toast.makeText(context,
                                 "Progresso em " + typeTitle + " atualizado!",
                                 Toast.LENGTH_SHORT).show();
@@ -196,13 +182,10 @@ public class AchievementTracker {
                         if (response.errorBody() != null) {
                             String errorBody = response.errorBody().string();
                             Log.e(TAG, "Falha ao rastrear conquista no servidor: " + errorBody);
-
                             try {
-                                // Tentar formatar como JSON para melhor legibilidade no log
                                 JSONObject errorJson = new JSONObject(errorBody);
                                 Log.e(TAG, "Erro detalhado: " + errorJson.toString(2));
                             } catch (Exception jsonEx) {
-                                // Não é JSON válido, usar texto bruto
                                 Log.e(TAG, "Erro bruto: " + errorBody);
                             }
                         } else {
@@ -221,76 +204,57 @@ public class AchievementTracker {
         });
     }
 
-    // NOVO: Método para processar conquistas localmente
+    /**
+     * Processa conquistas localmente e retorna true se alguma conquista foi completada.
+     * @param context Contexto da aplicação.
+     * @param type Tipo da conquista.
+     * @param increment Incremento no progresso.
+     * @return true se uma conquista foi desbloqueada, false caso contrário.
+     */
     private static boolean trackAchievementLocally(Context context, String type, int increment) {
         boolean anyAchievementCompleted = false;
-
-        // Verificar quais conquistas já foram completadas
         SharedPreferences completedPrefs = context.getSharedPreferences(COMPLETED_ACHIEVEMENTS_PREFS, Context.MODE_PRIVATE);
-
-        // Verificar se há conquistas deste tipo
         Integer[] achievementIds = ACHIEVEMENT_TYPE_IDS.get(type);
+
         if (achievementIds == null || achievementIds.length == 0) {
             Log.e(TAG, "Tipo de conquista não encontrado no processamento local: " + type);
             return false;
         }
 
-        // Rastrear localmente
         for (Integer achievementId : achievementIds) {
-            // Verificar se a conquista já foi concluída
             boolean isCompleted = completedPrefs.getBoolean("achievement_" + achievementId, false);
             if (isCompleted) {
                 Log.d(TAG, "Conquista " + achievementId + " já foi concluída. Pulando.");
                 continue;
             }
 
-            // Obter o progresso atual
             String progressKey = "progress_" + achievementId;
             int currentProgress = completedPrefs.getInt(progressKey, 0);
-            int target = ACHIEVEMENT_TARGETS.containsKey(achievementId) ?
-                    ACHIEVEMENT_TARGETS.get(achievementId) : 1;
+            int target = ACHIEVEMENT_TARGETS.getOrDefault(achievementId, 1);
 
             Log.d(TAG, "Progresso atual para conquista " + achievementId + ": " + currentProgress + "/" + target);
-
-            // Incrementar o progresso
             int newProgress = currentProgress + increment;
-
-            // Verificar se a conquista foi concluída
             boolean newlyCompleted = newProgress >= target;
 
-            // Salvar o novo progresso
             SharedPreferences.Editor editor = completedPrefs.edit();
             editor.putInt(progressKey, newProgress);
 
-            // Se foi concluída, marcar como concluída e mostrar notificação
             if (newlyCompleted) {
                 editor.putBoolean("achievement_" + achievementId, true);
-                editor.apply();
+                editor.apply(); // Aplicar imediatamente para garantir que a notificação seja baseada no estado mais recente
 
-                // Pegar detalhes da conquista
-                String title = ACHIEVEMENT_TITLES.containsKey(achievementId) ?
-                        ACHIEVEMENT_TITLES.get(achievementId) :
-                        "Conquista Desbloqueada!";
-                int points = ACHIEVEMENT_POINTS.containsKey(achievementId) ?
-                        ACHIEVEMENT_POINTS.get(achievementId) : 10;
+                String title = ACHIEVEMENT_TITLES.getOrDefault(achievementId, "Conquista Desbloqueada!");
+                int points = ACHIEVEMENT_POINTS.getOrDefault(achievementId, 10);
 
-                // Mostrar notificação
                 showAchievementUnlockedDialog(context, title, points, type);
-
-                // Atualizar o SafeScore
                 SafeScoreHelper.updateSafeScore(context, points);
-
-                // Sinalizar que uma conquista foi completada
                 anyAchievementCompleted = true;
-
-                // Interromper o loop após mostrar uma notificação para não sobrecarregar o usuário
                 break;
             } else {
                 Log.d(TAG, "Progresso atualizado para conquista " + achievementId + ": " + newProgress + "/" + target);
                 editor.apply();
             }
         }
-
         return anyAchievementCompleted;
     }
 
@@ -305,58 +269,88 @@ public class AchievementTracker {
      * Exibe um diálogo informando que uma conquista foi desbloqueada.
      */
     private static void showAchievementUnlockedDialog(Context context, String title, int points, String type) {
-        if (context == null || !(context instanceof Activity)) return;
+        if (context == null || !(context instanceof Activity)) {
+            Log.w(TAG, "Contexto inválido ou não é uma Activity para mostrar diálogo de conquista.");
+            return;
+        }
         Activity activity = (Activity) context;
 
-        if (activity.isFinishing() || activity.isDestroyed()) return;
-
-        // Fechar diálogo anterior se estiver aberto
-        if (currentDialog != null && currentDialog.isShowing()) {
-            currentDialog.dismiss();
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            Log.w(TAG, "Activity está finalizando ou destruída. Não mostrando diálogo de conquista.");
+            return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
-        View achievementView = LayoutInflater.from(activity).inflate(R.layout.dialog_achievement_unlocked, null);
-
-        TextView titleTextView = achievementView.findViewById(R.id.textViewAchievementTitle);
-        TextView pointsTextView = achievementView.findViewById(R.id.textViewAchievementPoints);
-        TextView descriptionTextView = achievementView.findViewById(R.id.textViewAchievementDescription);
-        ImageView iconImageView = achievementView.findViewById(R.id.imageViewAchievementIcon);
-
-        // Configurar detalhes no diálogo
-        titleTextView.setText(title);
-        pointsTextView.setText("+" + points);
-        descriptionTextView.setText("Conquista desbloqueada!");
-
-        // Definir o ícone com base no tipo
-        Integer iconResId = ACHIEVEMENT_TYPE_ICONS.get(type);
-        if (iconResId != null) {
-            iconImageView.setImageResource(iconResId);
-        }
-
-        builder.setView(achievementView);
-        builder.setCancelable(true);
-
-        try {
-            currentDialog = builder.create();
-            if (currentDialog.getWindow() != null) {
-                currentDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-                // Posicionar o diálogo na parte superior da tela como uma notificação
-                currentDialog.getWindow().setGravity(Gravity.TOP);
-            }
-            currentDialog.show();
-
-            // Fechar automaticamente após 3 segundos
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                if (currentDialog != null && currentDialog.isShowing()) {
+        // Garante que será executado na thread UI
+        activity.runOnUiThread(() -> {
+            // Fechar diálogo anterior se estiver aberto
+            if (currentDialog != null && currentDialog.isShowing()) {
+                try {
                     currentDialog.dismiss();
+                } catch (Exception e) {
+                    Log.e(TAG, "Erro ao dispensar diálogo anterior: ", e);
                 }
-            }, 3000);
-        } catch (Exception e) {
-            Log.e(TAG, "Erro ao exibir diálogo de conquista", e);
-        }
+                currentDialog = null;
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AlertDialogTheme);
+            View achievementView = LayoutInflater.from(activity).inflate(R.layout.dialog_achievement_unlocked, null);
+
+            TextView titleTextView = achievementView.findViewById(R.id.textViewAchievementTitle);
+            TextView pointsTextView = achievementView.findViewById(R.id.textViewAchievementPoints);
+            TextView descriptionTextView = achievementView.findViewById(R.id.textViewAchievementDescription); // Certifique-se que este ID existe no seu layout
+            ImageView iconImageView = achievementView.findViewById(R.id.imageViewAchievementIcon);
+
+            titleTextView.setText(title);
+            pointsTextView.setText("+" + points);
+            // Se você tiver uma descrição específica para a notificação (além do título da conquista)
+            // descriptionTextView.setText("Você desbloqueou uma nova conquista!"); // Exemplo
+            // Caso contrário, pode remover ou ocultar este TextView no layout/código.
+            // Por agora, vou manter como no seu código original que seta "Conquista desbloqueada!"
+            descriptionTextView.setText("Conquista desbloqueada!");
+
+
+            Integer iconResId = ACHIEVEMENT_TYPE_ICONS.get(type);
+            if (iconResId != null) {
+                iconImageView.setImageResource(iconResId);
+            }
+
+            builder.setView(achievementView);
+            builder.setCancelable(true);
+
+            try {
+                currentDialog = builder.create();
+                if (currentDialog.getWindow() != null) {
+                    currentDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                    currentDialog.getWindow().setGravity(Gravity.TOP);
+                }
+                currentDialog.show();
+
+                // Fechar automaticamente após 3 segundos
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    // ***** INÍCIO DA CORREÇÃO *****
+                    // A variável 'activity' aqui é a mesma que foi capturada do escopo externo.
+                    // Verificamos o estado da Activity ANTES de tentar dispensar o diálogo.
+                    if (activity != null && !activity.isFinishing() && !activity.isDestroyed()) {
+                        if (currentDialog != null && currentDialog.isShowing()) {
+                            try {
+                                currentDialog.dismiss();
+                            } catch (IllegalArgumentException e) {
+                                Log.e(TAG, "Erro ao dispensar diálogo (IllegalArgumentException): View not attached to window manager.", e);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Erro genérico ao dispensar diálogo: ", e);
+                            }
+                        }
+                    } else {
+                        Log.w(TAG, "Auto-dismiss do diálogo de conquista ignorado: A Activity está finalizando ou destruída.");
+                    }
+                    // ***** FIM DA CORREÇÃO *****
+                }, 3000);
+            } catch (Exception e) {
+                Log.e(TAG, "Erro ao exibir diálogo de conquista", e);
+            }
+        });
     }
+
 
     /**
      * Reseta o progresso de uma conquista específica (para testes).
@@ -367,7 +361,6 @@ public class AchievementTracker {
         SharedPreferences completedPrefs = context.getSharedPreferences(COMPLETED_ACHIEVEMENTS_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = completedPrefs.edit();
 
-        // Reset conquista
         editor.remove("achievement_" + achievementId);
         editor.remove("progress_" + achievementId);
         editor.apply();

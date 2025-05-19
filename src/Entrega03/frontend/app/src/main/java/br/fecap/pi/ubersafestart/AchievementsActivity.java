@@ -37,8 +37,8 @@ public class AchievementsActivity extends AppCompatActivity {
 
     private static final String TAG = "AchievementsActivity";
     private static final String USER_LOGIN_PREFS = "userPrefs";
+    private static final int MAX_LOAD_ATTEMPTS = 3;
 
-    // UI Components
     private TextView textViewUserLevel;
     private TextView textViewTotalPoints;
     private TextView textViewPointsToNextLevel;
@@ -46,44 +46,32 @@ public class AchievementsActivity extends AppCompatActivity {
     private RecyclerView recyclerViewAchievements;
     private LinearLayout navHome, navServices, navAchievements, navAccount;
 
-    // Referências diretas aos Ícones e Textos da Barra de Navegação
     private ImageView iconHome, iconServices, iconAchievements, iconAccount;
     private TextView textHome, textServices, textAchievements, textAccount;
 
-    // Map para facilitar a atualização da barra de navegação
     private Map<Integer, View[]> navItemsMap;
 
-    // Data
     private List<Achievement> achievementsList = new ArrayList<>();
     private AchievementsAdapter adapter;
     private AuthService authService;
     private int totalPoints = 0;
     private int userLevel = 1;
-
     private int loadAttempts = 0;
-    private static final int MAX_LOAD_ATTEMPTS = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievements);
 
-        // Initialize views
         initViews();
-
-        // Initialize API service
         authService = ApiClient.getClient().create(AuthService.class);
 
-        // Setup RecyclerView
         recyclerViewAchievements.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AchievementsAdapter(this, achievementsList);
         recyclerViewAchievements.setAdapter(adapter);
 
-        // Setup navigation
-        setupNavigationListeners(); // CORREÇÃO: Garantir que os listeners sejam configurados
+        setupNavigationListeners();
         updateBottomNavigationSelection(R.id.navAchievements);
-
-        // Load achievements data
         loadAchievements();
     }
 
@@ -94,13 +82,11 @@ public class AchievementsActivity extends AppCompatActivity {
         progressBarNextLevel = findViewById(R.id.progressBarNextLevel);
         recyclerViewAchievements = findViewById(R.id.recyclerViewAchievements);
 
-        // Bottom navigation LinearLayouts
         navHome = findViewById(R.id.navHome);
         navServices = findViewById(R.id.navServices);
         navAchievements = findViewById(R.id.navAchievements);
         navAccount = findViewById(R.id.navAccount);
 
-        // Ícones e Textos da Barra de Navegação
         iconHome = findViewById(R.id.iconHome);
         textHome = findViewById(R.id.textHome);
         iconServices = findViewById(R.id.iconServices);
@@ -110,7 +96,6 @@ public class AchievementsActivity extends AppCompatActivity {
         iconAccount = findViewById(R.id.iconAccount);
         textAccount = findViewById(R.id.textAccount);
 
-        // Preencher o map para a barra de navegação
         navItemsMap = new HashMap<>();
         navItemsMap.put(R.id.navHome, new View[]{iconHome, textHome});
         navItemsMap.put(R.id.navServices, new View[]{iconServices, textServices});
@@ -125,18 +110,14 @@ public class AchievementsActivity extends AppCompatActivity {
             }
         });
 
-        navServices.setOnClickListener(v -> {
-            navigateToServices();
-        });
+        navServices.setOnClickListener(v -> navigateToServices());
 
         navAchievements.setOnClickListener(v -> {
             Log.d(TAG, "Já está na tela de Conquistas.");
-            updateBottomNavigationSelection(R.id.navAchievements); // Garante que está selecionado
+            updateBottomNavigationSelection(R.id.navAchievements);
         });
 
-        navAccount.setOnClickListener(v -> {
-            navigateToAccount();
-        });
+        navAccount.setOnClickListener(v -> navigateToAccount());
     }
 
     private void navigateToHome() {
@@ -150,25 +131,25 @@ public class AchievementsActivity extends AppCompatActivity {
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
-        finish(); // Finaliza a AchievementsActivity para não empilhar
+        finish();
     }
 
     private void navigateToServices() {
         Intent intent = new Intent(AchievementsActivity.this, TipsActivity.class);
         startActivity(intent);
-        finish(); // Opcional: finalize se não quiser empilhar
-        updateBottomNavigationSelection(R.id.navServices); // Atualiza a seleção visual
+        finish();
+        updateBottomNavigationSelection(R.id.navServices);
     }
 
     private void navigateToAccount() {
         Intent intent = new Intent(AchievementsActivity.this, ProfileActivity.class);
         startActivity(intent);
-        finish(); // Opcional: finalize se não quiser empilhar
-        updateBottomNavigationSelection(R.id.navAccount); // Atualiza a seleção visual
+        finish();
+        updateBottomNavigationSelection(R.id.navAccount);
     }
 
     private void updateBottomNavigationSelection(int selectedItemId) {
-        int activeColor = ContextCompat.getColor(this, R.color.white_fff); // Ou sua cor ativa, ex: uber_blue
+        int activeColor = ContextCompat.getColor(this, R.color.white_fff);
         int inactiveColor = ContextCompat.getColor(this, R.color.gray_light);
 
         for (Map.Entry<Integer, View[]> entry : navItemsMap.entrySet()) {
@@ -231,7 +212,6 @@ public class AchievementsActivity extends AppCompatActivity {
                         Log.d(TAG, "Lista de conquistas do servidor está vazia, usando predefinidas localmente");
                         loadLocalPredefinedAchievements();
                     }
-
                 } else {
                     String errorMsg = "Erro ao carregar conquistas";
                     try {
@@ -369,7 +349,10 @@ public class AchievementsActivity extends AppCompatActivity {
         textViewPointsToNextLevel.setText("Faltam " + pointsNeeded + " pontos para o próximo nível");
 
         int pointsEarnedInCurrentLevel = totalPoints - ((userLevel -1) * 100);
-        int progressPercentage = (pointsForNextLevelTarget > 0 && totalPoints < pointsForNextLevelTarget) ? (int) (((double)pointsEarnedInCurrentLevel / 100.0) * 100) : (totalPoints >= pointsForNextLevelTarget ? 100 : 0);
+        int progressPercentage = (pointsForNextLevelTarget > 0 && totalPoints < pointsForNextLevelTarget) ?
+                (int) (((double)pointsEarnedInCurrentLevel / 100.0) * 100) :
+                (totalPoints >= pointsForNextLevelTarget ? 100 : 0);
+
         if(totalPoints >= pointsForNextLevelTarget && pointsForNextLevelTarget > 0) progressPercentage = 100;
         if (pointsForNextLevelTarget == 0 && totalPoints == 0) progressPercentage = 0;
 
@@ -399,6 +382,6 @@ public class AchievementsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateBottomNavigationSelection(R.id.navAchievements); // Garante que o item correto está selecionado
+        updateBottomNavigationSelection(R.id.navAchievements);
     }
 }

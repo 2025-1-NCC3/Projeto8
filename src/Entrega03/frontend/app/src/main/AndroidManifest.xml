@@ -54,7 +54,7 @@
             android:label="Registro Facial"
             android:theme="@style/Theme.UberSafeStartFecap" /> <meta-data
         android:name="com.google.android.geo.API_KEY"
-        android:value="YOUR_API_KEY" /> <activity
+        android:value="AIzaSyB02n6zO_PAO82LI-8HsZ0JOOUPiePwh4A" /> <activity
         android:name=".LoginActivity"
         android:exported="true"
         android:theme="@style/Theme.UberSafeStartFecap">

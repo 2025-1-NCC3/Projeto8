@@ -38,8 +38,8 @@ import java.util.concurrent.Executors;
 public class FaceEnrollmentActivity extends AppCompatActivity {
 
     private static final String TAG = "FaceEnrollmentActivity";
-    private static final int REQUEST_CAMERA_PERMISSION_ENROLLMENT = 104; // Novo request code
-    private static final String USER_LOGIN_PREFS = "userPrefs"; // Mesma SharedPreferences da ProfileActivity
+    private static final int REQUEST_CAMERA_PERMISSION_ENROLLMENT = 104;
+    private static final String USER_LOGIN_PREFS = "userPrefs";
 
     private PreviewView previewViewFaceEnrollment;
     private Button buttonScanFace;
@@ -50,7 +50,7 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
     private ProcessCameraProvider cameraProvider;
     private FaceDetector faceDetector;
     private ExecutorService cameraExecutor;
-    private boolean isScanningFace = false; // Flag para controlar quando a detecção deve processar
+    private boolean isScanningFace = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,23 +62,38 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
         progressBarFaceEnrollment = findViewById(R.id.progressBarFaceEnrollment);
         toolbarFaceEnrollment = findViewById(R.id.toolbarFaceEnrollment);
 
+        setupToolbar();
+        setupCameraComponents();
+        setupScanButton();
+
+        if (checkCameraPermission()) {
+            startCamera();
+        } else {
+            requestCameraPermission();
+        }
+    }
+
+    private void setupToolbar() {
         setSupportActionBar(toolbarFaceEnrollment);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
         toolbarFaceEnrollment.setNavigationOnClickListener(v -> onBackPressed());
+    }
 
-
+    private void setupCameraComponents() {
         cameraExecutor = Executors.newSingleThreadExecutor();
         initFaceDetectorSdk();
+    }
 
+    private void setupScanButton() {
         buttonScanFace.setOnClickListener(v -> {
             if (checkCameraPermission()) {
-                if (!isScanningFace) { // Inicia o escaneamento apenas se não estiver escaneando
-                    Log.d(TAG, "Botão 'Escanear Rosto' clicado. Iniciando câmera e detecção.");
+                if (!isScanningFace) {
+                    Log.d(TAG, "Iniciando câmera e detecção facial.");
                     isScanningFace = true;
-                    buttonScanFace.setEnabled(false); // Desabilita o botão durante o escaneamento
+                    buttonScanFace.setEnabled(false);
                     buttonScanFace.setText("Escaneando...");
                     progressBarFaceEnrollment.setVisibility(View.VISIBLE);
                     startCamera();
@@ -87,14 +102,6 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
                 requestCameraPermission();
             }
         });
-
-        // Inicia a câmera assim que a permissão for concedida e a activity for criada
-        // para que o usuário já veja a preview. O botão "Escanear" apenas ativará a lógica de processamento.
-        if (checkCameraPermission()) {
-            startCamera(); // Inicia a câmera para preview, mas a detecção só ocorre após clique no botão
-        } else {
-            requestCameraPermission(); // Solicita permissão se ainda não tiver
-        }
     }
 
     private void initFaceDetectorSdk() {
@@ -121,10 +128,10 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CAMERA_PERMISSION_ENROLLMENT) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Permissão de câmera concedida para FaceEnrollmentActivity.");
-                startCamera(); // Inicia a câmera para preview
+                startCamera();
             } else {
                 Toast.makeText(this, "Permissão de câmera negada. Não é possível registrar o rosto.", Toast.LENGTH_LONG).show();
-                setResult(RESULT_CANCELED); // Informa que o registro foi cancelado
+                setResult(RESULT_CANCELED);
                 finish();
             }
         }
@@ -171,7 +178,7 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
                 .build();
 
         imageAnalysis.setAnalyzer(cameraExecutor, imageProxy -> {
-            if (!isScanningFace) { // Só processa se o usuário clicou em "Escanear Rosto"
+            if (!isScanningFace) {
                 imageProxy.close();
                 return;
             }
@@ -181,25 +188,22 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
                 InputImage image = InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
                 faceDetector.process(image)
                         .addOnSuccessListener(faces -> {
-                            if (!faces.isEmpty() && isScanningFace) { // Verifica a flag novamente
+                            if (!faces.isEmpty() && isScanningFace) {
                                 Face face = faces.get(0);
                                 boolean eyesOpen = (face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() > 0.3) &&
                                         (face.getRightEyeOpenProbability() != null && face.getRightEyeOpenProbability() > 0.3);
 
                                 if (eyesOpen) {
-                                    Log.d(TAG, "Rosto detectado com olhos abertos. Simulando registro.");
+                                    Log.d(TAG, "Rosto detectado com olhos abertos.");
                                     runOnUiThread(() -> {
-                                        Toast.makeText(FaceEnrollmentActivity.this, "Rosto registrado com sucesso (Simulado)!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(FaceEnrollmentActivity.this, "Rosto registrado com sucesso!", Toast.LENGTH_SHORT).show();
                                         SharedPreferences prefs = getSharedPreferences(USER_LOGIN_PREFS, MODE_PRIVATE);
                                         prefs.edit().putBoolean(ProfileActivity.KEY_FACE_REGISTERED_PROTOTYPE, true).apply();
 
-                                        setResult(RESULT_OK); // Informa ProfileActivity que o registro foi OK
-                                        finishAndStopCamera(); // Fecha esta activity e para a câmera
+                                        setResult(RESULT_OK);
+                                        finishAndStopCamera();
                                     });
-                                    isScanningFace = false; // Para o processo de escaneamento
-                                } else {
-                                    Log.d(TAG, "Rosto detectado, mas olhos podem estar fechados. Tente novamente.");
-                                    // Poderia dar um feedback para o usuário aqui
+                                    isScanningFace = false;
                                 }
                             }
                             imageProxy.close();
@@ -220,7 +224,7 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
         try {
             cameraProvider.unbindAll();
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
-            Log.d(TAG, "Casos de uso da câmera vinculados para FaceEnrollmentActivity.");
+            Log.d(TAG, "Casos de uso da câmera vinculados.");
         } catch (Exception e) {
             Log.e(TAG, "Falha ao vincular casos de uso da câmera.", e);
             runOnUiThread(() -> {
@@ -251,20 +255,20 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
         if (faceDetector != null) {
             faceDetector.close();
         }
-        finish(); // Fecha a activity
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right); // Animação de volta
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_CANCELED); // Informa que o registro foi cancelado pelo usuário
+        super.onBackPressed();
+        setResult(RESULT_CANCELED);
         finishAndStopCamera();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // Para a câmera se a activity for pausada durante o escaneamento
         if (isScanningFace || (cameraProvider != null && previewViewFaceEnrollment.getVisibility() == View.VISIBLE)) {
             stopCameraAndResetUI();
         }
@@ -273,21 +277,19 @@ public class FaceEnrollmentActivity extends AppCompatActivity {
     private void stopCameraAndResetUI() {
         if (cameraProvider != null) {
             cameraProvider.unbindAll();
-            Log.d(TAG, "Câmera desvinculada em onPause/onStop.");
+            Log.d(TAG, "Câmera desvinculada.");
         }
-        // Não esconde a previewView aqui, pois pode ser apenas uma pausa temporária
-        resetScanButton(); // Garante que o botão esteja no estado correto se a activity for retomada
+        resetScanButton();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Certifique-se de que o executor seja desligado para evitar memory leaks
         if (cameraExecutor != null && !cameraExecutor.isShutdown()) {
             cameraExecutor.shutdown();
         }
         if (faceDetector != null) {
-            faceDetector.close(); // Libera recursos do detector
+            faceDetector.close();
         }
     }
 }

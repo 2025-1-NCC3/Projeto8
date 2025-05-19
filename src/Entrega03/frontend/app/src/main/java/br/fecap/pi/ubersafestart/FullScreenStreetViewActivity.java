@@ -1,4 +1,4 @@
-package br.fecap.pi.ubersafestart; // Verifique se o nome do seu pacote está correto
+package br.fecap.pi.ubersafestart;
 
 import android.os.Bundle;
 import android.util.Log; // Import Log
